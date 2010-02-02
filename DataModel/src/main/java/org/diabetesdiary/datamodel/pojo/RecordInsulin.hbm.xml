@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="record_insulin" name="org.diabetesdiary.datamodel.pojo.RecordInsulin">
+    <composite-id class="org.diabetesdiary.datamodel.pojo.RecordInsulinPK" name="id">
+      <key-property name="idInsulin"/>
+      <key-property name="idPatient"/>
+      <key-property name="date"/>
+      <key-property name="basal" />
+    </composite-id>
+    <property name="amount" not-null="true" />
+    <property name="season" not-null="true" />
+    <property name="pump" not-null="true" />
+    <property name="notice" />
+    <many-to-one column="idInsulin" name="insulin" insert="false" update="false" lazy="false" />
+  </class>
+</hibernate-mapping>

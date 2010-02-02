@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+    <folder name="Edit">
+        <file name="org-diabetesdiary-calendar-action-EditPatient.instance"/>
+        <file name="org-diabetesdiary-calendar-action-NewPatientaction.instance">
+            <attr name="instanceClass" stringvalue="org.diabetesdiary.calendar.action.NewPatientaction"/>
+        </file>
+        <file name="org-diabetesdiary-calendar-action-SelectPatientAction.instance"/>
+    </folder>
+    <folder name="System"/>
+    <folder name="Tools"/>
+        <folder name="Window">
+            <file name="org-diabetesdiary-calendar-action-ChartAction.instance"/>
+            <file name="org-diabetesdiary-calendar-action-CalendarAction.instance">
+                <attr name="instanceClass" stringvalue="org.diabetesdiary.calendar.action.CalendarAction"/>
+            </file>
+            <file name="org-diabetesdiary-calendar-ui-RecordEditorAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <file name="org-diabetesdiary-calendar-action-NewPatientaction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-diabetesdiary-calendar-action-NewPatientaction.instance"/>
+            </file>
+            <attr name="org-diabetesdiary-calendar-action-NewPatientaction.shadow/org-diabetesdiary-calendar-action-separatorAfter.instance" boolvalue="true"/>
+            <attr name="org-diabetesdiary-calendar-action-NewPatientaction.shadow/org-diabetesdiary-calendar-action-SelectPatientAction.shadow" boolvalue="true"/>
+            <attr name="org-diabetesdiary-calendar-action-NewPatientaction.shadow/org-diabetesdiary-calendar-action-EditPatient.shadow" boolvalue="true"/>
+            <file name="org-diabetesdiary-calendar-action-EditPatient.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-diabetesdiary-calendar-action-EditPatient.instance"/>
+            </file>
+            <attr name="org-diabetesdiary-calendar-action-EditPatient.shadow/org-diabetesdiary-calendar-action-SelectPatientAction.shadow" boolvalue="true"/>
+            <file name="org-diabetesdiary-calendar-action-SelectPatientAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-diabetesdiary-calendar-action-SelectPatientAction.instance"/>
+            </file>
+            <attr name="org-diabetesdiary-calendar-action-SelectPatientAction.shadow/org-diabetesdiary-calendar-action-separatorAfter.instance" boolvalue="true"/>
+            <file name="org-diabetesdiary-calendar-action-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-diabetesdiary-calendar-action-separatorAfter.instance/Separator2.instance" boolvalue="true"/>
+        </folder>
+        <folder name="Window">
+            <file name="CalendarAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-calendar-action-CalendarAction.instance"/>
+            </file>
+            <file name="ChartAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-calendar-action-ChartAction.instance"/>
+            </file>
+            <file name="RecordEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-calendar-ui-RecordEditorAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="OptionsDialog">
+        <file name="org-diabetesdiary-calendar-CalendarOptionsCategory.instance"/>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="D-N.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-diabetesdiary-calendar-action-NewPatientaction.instance"/>
+        </file>
+        <file name="D-O.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-diabetesdiary-calendar-action-SelectPatientAction.instance"/>
+        </file>
+    </folder>
+    <folder name="Templates">
+    <folder name="Other"/>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Diary">
+            <attr name="org-diabetesdiary-calendar-action-SelectPatientAction.shadow" boolvalue="true"/>
+            <file name="org-diabetesdiary-calendar-action-SelectPatientAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-diabetesdiary-calendar-action-SelectPatientAction.instance"/>
+            </file>
+        </folder>
+        <folder name="OpenWindow">            
+            <attr name="org-diabetesdiary-calendar-action-CalendarAction.shadow" boolvalue="true"/>
+            <file name="org-diabetesdiary-calendar-action-CalendarAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-calendar-action-CalendarAction.instance"/>
+            </file>            
+            <attr name="org-diabetesdiary-calendar-ui-RecordEditorAction.shadow" boolvalue="true"/>
+            <file name="org-diabetesdiary-calendar-ui-RecordEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-calendar-ui-RecordEditorAction.instance"/>
+            </file>
+            <attr name="org-diabetesdiary-calendar-action-ChartAction.shadow" boolvalue="true"/>
+            <file name="org-diabetesdiary-calendar-action-ChartAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-calendar-action-ChartAction.instance"/>
+            </file>            
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="CalendarTopComponent.settings" url="CalendarTopComponentSettings.xml"/>
+            <file name="ChartTopComponent.settings" url="ChartTopComponentSettings.xml"/>
+            <file name="RecordEditorTopComponent.settings" url="RecordEditorTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="bottomSlidingSide">
+                <file name="ChartTopComponent.wstcref" url="ChartTopComponentWstcref.xml"/>
+            </folder>
+            <folder name="editor">
+                <file name="CalendarTopComponent.wstcref" url="CalendarTopComponentWstcref.xml"/>
+            </folder>
+            <folder name="explorer">
+                <file name="RecordEditorTopComponent.wstcref" url="RecordEditorTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

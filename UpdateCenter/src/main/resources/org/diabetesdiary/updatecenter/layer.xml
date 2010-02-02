@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+  <folder name="Services">
+    <folder name="AutoupdateType">
+      <file name="my_au_type.settings" url="my_au_type.settings">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.diabetesdiary.updatecenter.Bundle"/>
+        <attr name="url_key" stringvalue="updatecenter"/>
+        <attr name="category" stringvalue="STANDARD"/>
+      </file>
+    </folder>
+  </folder>  <!-- Services -->
+</filesystem>

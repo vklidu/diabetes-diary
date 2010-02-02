@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+  <appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern"  value="%d{ABSOLUTE} %-5p&lt;%t&gt;[%c] - %m%n"/>
+    </layout>
+  </appender>
+
+  <category name="org.diabetesdiary">
+    <priority value="DEBUG" />
+  </category>
+
+  <category name="org.hibernate.SQL">
+    <priority value="DEBUG"/>
+  </category>
+
+  <category name="org.hibernate.cache">
+    <priority value="INFO"/>
+  </category>
+
+  <category name="org.hibernate.cfg">
+    <priority value="WARN"/>
+  </category>
+
+  <category name="org.hibernate.tool">
+    <priority value="INFO"/>
+  </category>
+
+  <category name="org.hibernate.event.def.AbstractFlushingEventListener">
+    <priority value="FATAL"/>
+  </category>
+
+  <root>
+    <priority value="INFO" />
+    <appender-ref ref="stdout" />
+  </root>
+
+</log4j:configuration>

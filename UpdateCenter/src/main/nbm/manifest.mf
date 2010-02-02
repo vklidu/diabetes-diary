@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.diabetesdiary.updatecenter
+OpenIDE-Module-Layer: org/diabetesdiary/updatecenter/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/diabetesdiary/updatecenter/Bundle.properties

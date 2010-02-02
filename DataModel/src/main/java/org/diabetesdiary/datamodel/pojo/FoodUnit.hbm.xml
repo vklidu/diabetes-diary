@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="food_unit" name="org.diabetesdiary.datamodel.pojo.FoodUnit">
+    <composite-id class="org.diabetesdiary.datamodel.pojo.FoodUnitPK" name="id">
+      <key-property name="idFood"/>
+      <key-property name="unit"/>
+    </composite-id>
+    <property name="koef" type="double" column="koef" not-null="true" />
+    <property name="name" not-null="true" />
+    <property name="shortcut" not-null="true" />
+  </class>
+</hibernate-mapping>

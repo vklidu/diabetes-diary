@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Name: DataModel
+OpenIDE-Module-Short-Description: Database model
+OpenIDE-Module: org.diabetesdiary.datamodel
+OpenIDE-Module-Layer: org/diabetesdiary/datamodel/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/diabetesdiary/datamodel/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.2
