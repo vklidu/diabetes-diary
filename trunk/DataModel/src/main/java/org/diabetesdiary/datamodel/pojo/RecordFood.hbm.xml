@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="record_food" name="org.diabetesdiary.datamodel.pojo.RecordFood">
+    <composite-id class="org.diabetesdiary.datamodel.pojo.RecordFoodPK" name="id">
+      <key-property name="idPatient"/>
+      <key-property name="date"/>
+      <key-property name="idFood"/>
+    </composite-id>
+    <property name="amount" not-null="true" />
+    <property name="totalAmount" not-null="true" />
+    <property name="season" not-null="true" />
+    <property name="unit" not-null="true" />
+    <property name="notice" />
+    <many-to-one not-null="true" insert="false" column="idFood" update="false" name="food" lazy="false"/>    
+  </class>
+</hibernate-mapping>

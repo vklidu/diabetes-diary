@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration 
+    PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
+        <property name="hibernate.connection.url">jdbc:hsqldb:file:test</property>
+        <property name="hibernate.connection.username">sa</property>
+        <property name="hibernate.connection.password"/>
+        <property name="hibernate.connection.pool_size">1</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.HSQLDialect</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="show_sql">false</property>
+        <property name="transaction.factory_class">
+            org.hibernate.transaction.JDBCTransactionFactory
+        </property>
+        <property name="hibernate.cache.provider_class">
+            org.hibernate.cache.HashtableCacheProvider
+        </property>    
+
+        <mapping class="org.diabetesdiary.datamodel.pojo.Activity"/>
+        <mapping class="org.diabetesdiary.datamodel.pojo.ActivityGroup"/>
+        <mapping resource="org/diabetesdiary/datamodel/pojo/Food.hbm.xml"/>   
+        <mapping resource="org/diabetesdiary/datamodel/pojo/FoodGroup.hbm.xml"/>
+        <mapping resource="org/diabetesdiary/datamodel/pojo/FoodUnit.hbm.xml"/>    
+        <mapping resource="org/diabetesdiary/datamodel/pojo/Insulin.hbm.xml"/>            
+        <mapping resource="org/diabetesdiary/datamodel/pojo/InsulinType.hbm.xml"/>    
+        <mapping resource="org/diabetesdiary/datamodel/pojo/Investigation.hbm.xml"/>    
+        <mapping resource="org/diabetesdiary/datamodel/pojo/InvestigationGroup.hbm.xml"/>    
+        <mapping resource="org/diabetesdiary/datamodel/pojo/Patient.hbm.xml"/>        
+        <mapping resource="org/diabetesdiary/datamodel/pojo/RecordActivity.hbm.xml"/>
+        <mapping resource="org/diabetesdiary/datamodel/pojo/RecordInsulin.hbm.xml"/>        
+        <mapping resource="org/diabetesdiary/datamodel/pojo/RecordInvest.hbm.xml"/>        
+        <mapping resource="org/diabetesdiary/datamodel/pojo/RecordFood.hbm.xml"/>
+    
+    </session-factory>
+</hibernate-configuration>

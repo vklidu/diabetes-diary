@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="food_group" name="org.diabetesdiary.datamodel.pojo.FoodGroup">
+    <id name="id">
+      <generator class="native"/>
+    </id>
+    <property name="name" not-null="true" />
+    
+    <set table="food" lazy="false" inverse="true" cascade="all" name="foods">
+      <key column="idGroup"/>      
+      <one-to-many class="org.diabetesdiary.datamodel.pojo.Food"/>
+    </set>
+    
+    <many-to-one not-null="false" insert="true" column="idParent" update="true" name="parent"/>
+    
+    <!--
+    <set table="food_group" lazy="false" cascade="all" name="groups" inverse="true" >
+      <key update="true" on-delete="cascade" column="idParent"/>      
+      <one-to-many class="org.diabetesdiary.datamodel.pojo.FoodGroup"/>
+    </set>
+    -->
+  </class>
+</hibernate-mapping>
