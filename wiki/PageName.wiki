@@ -3,7 +3,7 @@
 
 = Introduction =
 
-Diabetes diary is desktop application based on Netbeans platform framework. It was created on [www.fi.muni.cz Faculty of Informatics in Brno], Czech Republic, 2007.
+Diabetes diary is desktop application based on Netbeans platform framework. It was created on [http://www.fi.muni.cz Faculty of Informatics in Brno], Czech Republic, 2007.
 
 = Details =
 
