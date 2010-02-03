@@ -9,6 +9,7 @@ Diabetes diary is desktop application based on Netbeans platform framework. It w
 
 Patients who suffer from diabetes mellitus can record:
   * Insulin
+  * Blood glucose (weight, height, aceton etc.)
   * Food
   * Activity
 
