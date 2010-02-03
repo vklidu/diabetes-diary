@@ -1,0 +1,16 @@
+#summary One-sentence summary of this page.
+#labels Featured
+
+= Introduction =
+
+Diabetes diary is desktop application based on Netbeans platform framework.
+
+
+= Details =
+
+Patients who suffer from diabetes mellitus can record:
+  * Insulin
+  * Food
+  * Activity
+
+[http://diabetes-diary.googlecode.com/files/thesis-xmajer1.pdf Thesis] in czech language on theme Simulator program of glucose-insulin interaction with diabetes diary for diabetic patient can be downloaded in [http://code.google.com/p/diabetes-diary/downloads/list Downloads] section.
