@@ -29,6 +29,6 @@ public enum FoodSeason {
 
     @Override
     public String toString() {
-        return NbBundle.getMessage(Food.class, "food.season." + name());
+        return NbBundle.getMessage(FoodDO.class, "food.season." + name());
     }
 }

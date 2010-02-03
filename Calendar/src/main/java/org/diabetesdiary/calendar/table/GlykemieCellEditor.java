@@ -33,7 +33,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
-import org.diabetesdiary.datamodel.pojo.RecordInvest;
+import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
 import org.openide.util.NbBundle;
 
 /**
@@ -103,12 +103,12 @@ public class GlykemieCellEditor extends DefaultCellEditor {
             int row, int column) {
         JFormattedTextField ftfLocal = (JFormattedTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
         ftfLocal.setValue(null);
-        if (value instanceof RecordInvest) {
-            ftfLocal.setValue(((RecordInvest) value).getValue());
-        } else if (value instanceof RecordInvest[]) {
-            RecordInvest[] values = (RecordInvest[]) value;
+        if (value instanceof RecordInvestDO) {
+            ftfLocal.setValue(((RecordInvestDO) value).getValue());
+        } else if (value instanceof RecordInvestDO[]) {
+            RecordInvestDO[] values = (RecordInvestDO[]) value;
             if (values.length > 0 && values[0] != null) {
-                ftfLocal.setValue(((RecordInvest[]) value)[0].getValue());
+                ftfLocal.setValue(((RecordInvestDO[]) value)[0].getValue());
             }
         }
         return ftfLocal;

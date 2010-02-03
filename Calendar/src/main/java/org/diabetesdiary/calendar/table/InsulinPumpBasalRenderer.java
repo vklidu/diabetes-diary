@@ -29,7 +29,7 @@ import javax.swing.JTable;
 import javax.swing.JToolTip;
 import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.MultiLineToolTip;
-import org.diabetesdiary.datamodel.pojo.RecordInsulin;
+import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
 
 /**
  *
@@ -79,7 +79,7 @@ public class InsulinPumpBasalRenderer extends JLabel implements TableCellRendere
         double lastVal = -1;
         Date firstDate = null;
         Date lastDate = null;        
-        for(RecordInsulin rec : records.getData()){
+        for(RecordInsulinDO rec : records.getData()){
             if(rec != null){
                 if(lastVal == -1){
                     firstDate = rec.getId().getDate();

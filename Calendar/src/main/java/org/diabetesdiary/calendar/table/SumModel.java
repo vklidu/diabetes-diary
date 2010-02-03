@@ -23,12 +23,12 @@ import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
 import org.diabetesdiary.calendar.FormatUtils;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.FoodUnit;
-import org.diabetesdiary.datamodel.pojo.Investigation;
-import org.diabetesdiary.datamodel.pojo.RecordFood;
-import org.diabetesdiary.datamodel.pojo.RecordInsulin;
-import org.diabetesdiary.datamodel.pojo.RecordInvest;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
+import org.diabetesdiary.datamodel.pojo.InvestigationDO;
+import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
+import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
+import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
 import org.openide.util.NbBundle;
 
 /**
@@ -64,14 +64,14 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
         return gSum;
     }
 
-    private static Double countSachUnits(RecordFood rec, FoodUnit sachUnit) {
+    private static Double countSachUnits(RecordFoodDO rec, FoodUnitDO sachUnit) {
         if (rec.getAmount() == null) {
             return null;
         }
-        FoodUnit unit = null;
+        FoodUnitDO unit = null;
         if (rec.getFood() != null && rec.getFood().getUnits() != null) {
             for (Object un : rec.getFood().getUnits()) {
-                unit = (FoodUnit) un;
+                unit = (FoodUnitDO) un;
                 if (unit.getId().getUnit().equals(rec.getUnit())) {
                     break;
                 }
@@ -90,17 +90,17 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
         if (col == 0 && insulinModel != null) {
             for (int i = 0; i < insulinModel.getColumnCount(); i++) {
                 Object obj = insulinModel.getValueAt(row, i);
-                if (obj instanceof RecordInsulin) {
-                    RecordInsulin rec = (RecordInsulin) obj;
+                if (obj instanceof RecordInsulinDO) {
+                    RecordInsulinDO rec = (RecordInsulinDO) obj;
                     suma += rec.getAmount();
-                } else if (obj instanceof RecordInsulin[]) {
-                    RecordInsulin[] recs = (RecordInsulin[]) obj;
-                    for (RecordInsulin rec : recs) {
+                } else if (obj instanceof RecordInsulinDO[]) {
+                    RecordInsulinDO[] recs = (RecordInsulinDO[]) obj;
+                    for (RecordInsulinDO rec : recs) {
                         suma += rec.getAmount();
                     }
                 } else if (obj instanceof RecordInsulinPumpBasal) {
                     RecordInsulinPumpBasal basal = (RecordInsulinPumpBasal) obj;
-                    for (RecordInsulin rec : basal.getData()) {
+                    for (RecordInsulinDO rec : basal.getData()) {
                         if (rec != null) {
                             suma += rec.getAmount();
                         }
@@ -109,17 +109,17 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
             }
         //suma food units
         } else if (col == 1 && foodModel != null) {
-            FoodUnit sachUnit = DbLookUp.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+            FoodUnitDO sachUnit = DbLookUp.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
             for (int i = 0; i < foodModel.getColumnCount(); i++) {
                 Object obj = foodModel.getValueAt(row, i);
-                if (obj instanceof RecordFood) {
-                    RecordFood rec = (RecordFood) obj;
+                if (obj instanceof RecordFoodDO) {
+                    RecordFoodDO rec = (RecordFoodDO) obj;
                     if (rec != null) {
                         suma += countSachUnits(rec, sachUnit);
                     }
-                } else if (obj instanceof RecordFood[]) {
-                    RecordFood[] recs = (RecordFood[]) obj;
-                    for (RecordFood rec : recs) {
+                } else if (obj instanceof RecordFoodDO[]) {
+                    RecordFoodDO[] recs = (RecordFoodDO[]) obj;
+                    for (RecordFoodDO rec : recs) {
                         if (rec != null) {
                             suma += countSachUnits(rec, sachUnit);
                         }
@@ -129,17 +129,17 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
         //bolus/food
         } else if (col == 2 && foodModel != null && insulinModel != null) {
             double sumFood = 0;
-            FoodUnit sachUnit = DbLookUp.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+            FoodUnitDO sachUnit = DbLookUp.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
             for (int i = 0; i < foodModel.getColumnCount(); i++) {
                 Object obj = foodModel.getValueAt(row, i);
-                if (obj instanceof RecordFood) {
-                    RecordFood rec = (RecordFood) obj;
+                if (obj instanceof RecordFoodDO) {
+                    RecordFoodDO rec = (RecordFoodDO) obj;
                     if (rec != null) {
                         sumFood += countSachUnits(rec, sachUnit);
                     }
-                } else if (obj instanceof RecordFood[]) {
-                    RecordFood[] recs = (RecordFood[]) obj;
-                    for (RecordFood rec : recs) {
+                } else if (obj instanceof RecordFoodDO[]) {
+                    RecordFoodDO[] recs = (RecordFoodDO[]) obj;
+                    for (RecordFoodDO rec : recs) {
                         if (rec != null) {
                             sumFood += countSachUnits(rec, sachUnit);
                         }
@@ -149,14 +149,14 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
             double sumBolus = 0;
             for (int i = 0; i < insulinModel.getColumnCount(); i++) {
                 Object obj = insulinModel.getValueAt(row, i);
-                if (obj instanceof RecordInsulin) {
-                    RecordInsulin rec = (RecordInsulin) obj;
+                if (obj instanceof RecordInsulinDO) {
+                    RecordInsulinDO rec = (RecordInsulinDO) obj;
                     if (!rec.isBasal()) {
                         sumBolus += rec.getAmount();
                     }
-                } else if (obj instanceof RecordInsulin[]) {
-                    RecordInsulin[] recs = (RecordInsulin[]) obj;
-                    for (RecordInsulin rec : recs) {
+                } else if (obj instanceof RecordInsulinDO[]) {
+                    RecordInsulinDO[] recs = (RecordInsulinDO[]) obj;
+                    for (RecordInsulinDO rec : recs) {
                         if (!rec.isBasal()) {
                             sumBolus += rec.getAmount();
                         }
@@ -173,17 +173,17 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
             double sumIns = 0;
             for (int i = 0; i < insulinModel.getColumnCount(); i++) {
                 Object obj = insulinModel.getValueAt(row, i);
-                if (obj instanceof RecordInsulin) {
-                    RecordInsulin rec = (RecordInsulin) obj;
+                if (obj instanceof RecordInsulinDO) {
+                    RecordInsulinDO rec = (RecordInsulinDO) obj;
                     sumIns += rec.getAmount();
-                } else if (obj instanceof RecordInsulin[]) {
-                    RecordInsulin[] recs = (RecordInsulin[]) obj;
-                    for (RecordInsulin rec : recs) {
+                } else if (obj instanceof RecordInsulinDO[]) {
+                    RecordInsulinDO[] recs = (RecordInsulinDO[]) obj;
+                    for (RecordInsulinDO rec : recs) {
                         sumIns += rec.getAmount();
                     }
                 } else if (obj instanceof RecordInsulinPumpBasal) {
                     RecordInsulinPumpBasal rec = (RecordInsulinPumpBasal) obj;
-                    for (RecordInsulin ins : rec.getData()) {
+                    for (RecordInsulinDO ins : rec.getData()) {
                         if (ins != null) {
                             sumIns += ins.getAmount();
                         }
@@ -193,16 +193,16 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
             double weight = -1d;
             for (int actrow = row; actrow > -1; actrow--) {
                 Object obj = otherInvestModel.getValueAt(actrow, 0);
-                if (obj instanceof RecordInvest) {
-                    RecordInvest inv = (RecordInvest) obj;
-                    if (inv.getId().getIdInvest() == Investigation.Instances.WEIGHT.getID()) {
+                if (obj instanceof RecordInvestDO) {
+                    RecordInvestDO inv = (RecordInvestDO) obj;
+                    if (inv.getId().getIdInvest() == InvestigationDO.Instances.WEIGHT.getID()) {
                         weight = inv.getValue();
                         break;
                     }
-                } else if (obj instanceof RecordInvest[]) {
-                    RecordInvest[] invs = (RecordInvest[]) obj;
-                    for (RecordInvest inv : invs) {
-                        if (inv.getId().getIdInvest() == Investigation.Instances.WEIGHT.getID()) {
+                } else if (obj instanceof RecordInvestDO[]) {
+                    RecordInvestDO[] invs = (RecordInvestDO[]) obj;
+                    for (RecordInvestDO inv : invs) {
+                        if (inv.getId().getIdInvest() == InvestigationDO.Instances.WEIGHT.getID()) {
                             weight = inv.getValue();
                             break;
                         }

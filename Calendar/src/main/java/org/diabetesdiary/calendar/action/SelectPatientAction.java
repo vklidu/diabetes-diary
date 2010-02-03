@@ -20,8 +20,8 @@ package org.diabetesdiary.calendar.action;
 
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.SelectPatientPanel;
-import org.diabetesdiary.datamodel.api.Diary;
-import org.diabetesdiary.datamodel.pojo.Patient;
+import org.diabetesdiary.datamodel.api.DiaryRepository;
+import org.diabetesdiary.datamodel.pojo.PatientDO;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -35,7 +35,7 @@ public final class SelectPatientAction extends CallableSystemAction {
     
     public void performAction() {
         Lookup lookup = Lookup.getDefault();
-        Diary diary = (Diary)lookup.lookup(Diary.class);
+        DiaryRepository diary = (DiaryRepository)lookup.lookup(DiaryRepository.class);
         if (diary == null) {
             // this will show up as a flashing round button in the bottom-right corner
             ErrorManager.getDefault().notify(
@@ -53,7 +53,7 @@ public final class SelectPatientAction extends CallableSystemAction {
         mp.requestFocus(); // set focus to component which was specified in MyPanel's requestFocus() method
         DialogDisplayer.getDefault().createDialog(dd).setVisible(true);
         if (dd.getValue() == DialogDescriptor.OK_OPTION) {
-            Patient pat = mp.getPatient();
+            PatientDO pat = mp.getPatient();
             if(pat != null){
                 diary.setCurrentPatient(pat);
                 CalendarTopComponent.getDefault().getModel().fillData();

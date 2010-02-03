@@ -24,7 +24,7 @@ import java.text.NumberFormat;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
-import org.diabetesdiary.datamodel.pojo.RecordActivity;
+import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
 import org.openide.util.NbBundle;
 
 /**
@@ -64,8 +64,8 @@ public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
                 result.setText(NbBundle.getMessage(ActivityCellRenderer.class, "unknown.weight.tall"));
                 result.setToolTipText(result.getText());
             }
-        } else if (value instanceof RecordActivity) {
-            RecordActivity rec = (RecordActivity) value;
+        } else if (value instanceof RecordActivityDO) {
+            RecordActivityDO rec = (RecordActivityDO) value;
             if (rec.getDuration() != null && rec.getActivity() != null) {
                 if (rec.getWeight() != null) {
                     result.setText(format.format(rec.getActivity().getPower() * rec.getDuration() * rec.getWeight()));
@@ -77,12 +77,12 @@ public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
                 }
                 result.setToolTipText(createToolTip(rec));
             }
-        } else if (value instanceof RecordActivity[]) {
-            RecordActivity[] values = (RecordActivity[]) value;
+        } else if (value instanceof RecordActivityDO[]) {
+            RecordActivityDO[] values = (RecordActivityDO[]) value;
             if (values.length > 0 && values[0] != null && values[0].getActivity() != null) {
                 boolean note = false;
                 Double sum = 0d;
-                for (RecordActivity val : values) {
+                for (RecordActivityDO val : values) {
                     if (val.getWeight() != null) {
                         sum += val.getActivity().getPower() * val.getDuration() * val.getWeight();
                     } else {
@@ -107,7 +107,7 @@ public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordActivity rec) {
+    private static String createToolTip(RecordActivityDO rec) {
         if (rec == null || rec.getDuration() == null || rec.getActivity() == null) {
             return null;
         }
@@ -120,13 +120,13 @@ public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordActivity[] values) {
+    private static String createToolTip(RecordActivityDO[] values) {
         if (values == null || values.length < 1 || values[0] == null || values[0].getDuration() == null || values[0].getActivity() == null) {
             return null;
         }
         DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
         StringBuffer result = new StringBuffer();
-        for (RecordActivity rec : values) {
+        for (RecordActivityDO rec : values) {
             result.append(timeFormat.format(rec.getId().getDate())).append('\n');
             result.append(rec.getActivity().getName()).append(": ").append(format.format(rec.getDuration())).append(' ').append(" min");
             if (rec.getNotice() != null && rec.getNotice().length() > 0) {

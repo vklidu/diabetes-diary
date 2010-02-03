@@ -24,13 +24,13 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
 import org.diabetesdiary.datamodel.api.ActivityAdministrator;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.FoodUnit;
-import org.diabetesdiary.datamodel.pojo.Investigation;
-import org.diabetesdiary.datamodel.pojo.RecordActivity;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
+import org.diabetesdiary.datamodel.pojo.InvestigationDO;
+import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
 import org.diabetesdiary.datamodel.pojo.RecordActivityPK;
-import org.diabetesdiary.datamodel.pojo.RecordFood;
-import org.diabetesdiary.datamodel.pojo.RecordInvest;
+import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
+import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
 import org.openide.util.NbBundle;
 
 /**
@@ -41,7 +41,7 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
 
     private int baseIndex;
     private Calendar month;
-    private RecordActivity[][][] dataActivity;
+    private RecordActivityDO[][][] dataActivity;
     private TableSubModel foodModel;
     private TableSubModel otherInvestModel;
 
@@ -68,9 +68,9 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
         if (columnIndex != 0) {
             return null;
         }
-        RecordActivity gl = new RecordActivity();
+        RecordActivityDO gl = new RecordActivityDO();
         RecordActivityPK pk = new RecordActivityPK();
-        pk.setIdPatient(DbLookUp.getDiary().getCurrentPatient().getIdPatient());
+        pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
         ActivityAdministrator admin = DbLookUp.getActivityAdmin();
         pk.setIdActivity(1);
         gl.setActivity(admin.getActivity(1));
@@ -81,19 +81,19 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
     }
 
     public void setData(Collection<?> data) {
-        dataActivity = new RecordActivity[31][1][1];
+        dataActivity = new RecordActivityDO[31][1][1];
         Calendar cal = Calendar.getInstance();
         for (Object record : data) {
-            if (record instanceof RecordActivity) {
-                RecordActivity rec = (RecordActivity) record;
+            if (record instanceof RecordActivityDO) {
+                RecordActivityDO rec = (RecordActivityDO) record;
                 cal.setTimeInMillis(rec.getId().getDate().getTime());
                 int col = 0;
 
                 if (dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] == null) {
                     dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
                 } else {
-                    RecordActivity[] pom = dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
-                    dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordActivity[pom.length + 1];
+                    RecordActivityDO[] pom = dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
+                    dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordActivityDO[pom.length + 1];
                     for (int i = 0; i < pom.length; i++) {
                         dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][col][i] = pom[i];
                     }
@@ -135,7 +135,7 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
     }
 
     public Class<?> getColumnClass(int index) {
-        return RecordActivity.class;
+        return RecordActivityDO.class;
     }
 
     public boolean isCellEditable(int row, int col) {
@@ -146,16 +146,16 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
         Double weight = null;
         for (int actrow = rowIndex; actrow > -1; actrow--) {
             Object obj = otherInvestModel.getValueAt(actrow, 0);
-            if (obj instanceof RecordInvest) {
-                RecordInvest inv = (RecordInvest) obj;
-                if (inv.getId().getIdInvest() == Investigation.Instances.WEIGHT.getID()) {
+            if (obj instanceof RecordInvestDO) {
+                RecordInvestDO inv = (RecordInvestDO) obj;
+                if (inv.getId().getIdInvest() == InvestigationDO.Instances.WEIGHT.getID()) {
                     weight = inv.getValue();
                     break;
                 }
-            } else if (obj instanceof RecordInvest[]) {
-                RecordInvest[] invs = (RecordInvest[]) obj;
-                for (RecordInvest inv : invs) {
-                    if (inv.getId().getIdInvest() == Investigation.Instances.WEIGHT.getID()) {
+            } else if (obj instanceof RecordInvestDO[]) {
+                RecordInvestDO[] invs = (RecordInvestDO[]) obj;
+                for (RecordInvestDO inv : invs) {
+                    if (inv.getId().getIdInvest() == InvestigationDO.Instances.WEIGHT.getID()) {
                         weight = inv.getValue();
                         break;
                     }
@@ -169,16 +169,16 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
         Double tall = null;
         for (int actrow = rowIndex; actrow > -1; actrow--) {
             Object obj = otherInvestModel.getValueAt(actrow, 0);
-            if (obj instanceof RecordInvest) {
-                RecordInvest inv = (RecordInvest) obj;
-                if (inv.getId().getIdInvest() == Investigation.Instances.TALL.getID()) {
+            if (obj instanceof RecordInvestDO) {
+                RecordInvestDO inv = (RecordInvestDO) obj;
+                if (inv.getId().getIdInvest() == InvestigationDO.Instances.TALL.getID()) {
                     tall = inv.getValue();
                     break;
                 }
-            } else if (obj instanceof RecordInvest[]) {
-                RecordInvest[] invs = (RecordInvest[]) obj;
-                for (RecordInvest inv : invs) {
-                    if (inv.getId().getIdInvest() == Investigation.Instances.TALL.getID()) {
+            } else if (obj instanceof RecordInvestDO[]) {
+                RecordInvestDO[] invs = (RecordInvestDO[]) obj;
+                for (RecordInvestDO inv : invs) {
+                    if (inv.getId().getIdInvest() == InvestigationDO.Instances.TALL.getID()) {
                         tall = inv.getValue();
                         break;
                     }
@@ -189,12 +189,12 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
     }
 
     private Integer getNumberOfYears(int rowIndex) {
-        if (DbLookUp.getDiary() != null && DbLookUp.getDiary().getCurrentPatient() != null) {
+        if (DbLookUp.getDiaryRepo() != null && DbLookUp.getDiaryRepo().getCurrentPatient() != null) {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(month.getTimeInMillis());
             cal.set(Calendar.DAY_OF_MONTH, rowIndex + 1);
 
-            Date born = DbLookUp.getDiary().getCurrentPatient().getBorn();
+            Date born = DbLookUp.getDiaryRepo().getCurrentPatient().getBorn();
             Calendar cal2 = Calendar.getInstance();
             cal2.setTimeInMillis(born.getTime());
             cal.add(Calendar.YEAR, -(cal2.get(Calendar.YEAR)));
@@ -204,8 +204,8 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
     }
 
     private Boolean isMale() {
-        if (DbLookUp.getDiary() != null && DbLookUp.getDiary().getCurrentPatient() != null) {
-            return DbLookUp.getDiary().getCurrentPatient().isMale();
+        if (DbLookUp.getDiaryRepo() != null && DbLookUp.getDiaryRepo().getCurrentPatient() != null) {
+            return DbLookUp.getDiaryRepo().getCurrentPatient().isMale();
         }
         return null;
     }
@@ -215,14 +215,14 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
             case 0:
                 if (dataActivity != null && rowIndex > -1) {
                     if (dataActivity[rowIndex][columnIndex] != null && dataActivity[rowIndex][columnIndex].length == 1) {
-                        RecordActivity res = dataActivity[rowIndex][columnIndex][0];
+                        RecordActivityDO res = dataActivity[rowIndex][columnIndex][0];
                         if (res != null) {
                             res.setWeight(getWeight(rowIndex));
                         }
                         return res;
                     } else {
-                        RecordActivity[] res = dataActivity[rowIndex][columnIndex];
-                        for (RecordActivity rec : res) {
+                        RecordActivityDO[] res = dataActivity[rowIndex][columnIndex];
+                        for (RecordActivityDO rec : res) {
                             rec.setWeight(getWeight(rowIndex));
                         }
                         return res;
@@ -255,19 +255,19 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
                 Energy energ = null;
                 for (int col = 0; col < foodModel.getColumnCount(); col++) {
                     Object values = foodModel.getValueAt(rowIndex, col);
-                    if (values instanceof RecordFood) {
-                        RecordFood rec = (RecordFood) values;
+                    if (values instanceof RecordFoodDO) {
+                        RecordFoodDO rec = (RecordFoodDO) values;
                         if (rec.getAmount() != null) {
                             energ = new Energy();
                             energ.setUnit("kJ");
                             energ.setValue(countFoodEnergy(rec));
                         }
-                    } else if (values instanceof RecordFood[]) {
-                        RecordFood[] recs = (RecordFood[]) values;
+                    } else if (values instanceof RecordFoodDO[]) {
+                        RecordFoodDO[] recs = (RecordFoodDO[]) values;
                         energ = new Energy();
                         energ.setUnit("kJ");
                         Double sum = 0d;
-                        for (RecordFood rec : recs) {
+                        for (RecordFoodDO rec : recs) {
                             if (rec.getAmount() != null) {
 
                                 sum += countFoodEnergy(rec);
@@ -299,11 +299,11 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
     }
 
     private static Energy countAktEnergy(Object value) {
-        if (value instanceof RecordActivity[]) {
-            RecordActivity[] values = (RecordActivity[]) value;
+        if (value instanceof RecordActivityDO[]) {
+            RecordActivityDO[] values = (RecordActivityDO[]) value;
             if (values.length > 0 && values[0] != null && values[0].getActivity() != null) {
                 Double sum = 0d;
-                for (RecordActivity val : values) {
+                for (RecordActivityDO val : values) {
                     if (val.getWeight() != null) {
                         sum += val.getActivity().getPower() * val.getDuration() * val.getWeight();
                     } else {
@@ -314,8 +314,8 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
                 res.setUnit("kJ");
                 res.setValue(sum);
             }
-        } else if (value instanceof RecordActivity) {
-            RecordActivity rec = (RecordActivity) value;
+        } else if (value instanceof RecordActivityDO) {
+            RecordActivityDO rec = (RecordActivityDO) value;
             if (rec.getDuration() != null && rec.getActivity() != null && rec.getWeight() != null) {
                 Energy res = new Energy();
                 res.setUnit("kJ");
@@ -326,14 +326,14 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
         return null;
     }
 
-    private static Double countFoodEnergy(RecordFood rec) {
+    private static Double countFoodEnergy(RecordFoodDO rec) {
         if (rec.getAmount() == null) {
             return null;
         }
-        FoodUnit unit = null;
+        FoodUnitDO unit = null;
         if (rec.getFood() != null && rec.getFood().getUnits() != null) {
             for (Object un : rec.getFood().getUnits()) {
-                unit = (FoodUnit) un;
+                unit = (FoodUnitDO) un;
                 if (unit.getId().getUnit().equals(rec.getUnit())) {
                     break;
                 }
@@ -362,16 +362,16 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
             return;
         }
         if (value instanceof Integer) {
-            RecordActivity rec = new RecordActivity();
+            RecordActivityDO rec = new RecordActivityDO();
             RecordActivityPK pk = new RecordActivityPK();
-            pk.setIdPatient(DbLookUp.getDiary().getCurrentPatient().getIdPatient());
+            pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
             pk.setIdActivity(1);
             rec.setActivity(DbLookUp.getActivityAdmin().getActivity(1));
 
             pk.setDate(getClickCellDate(rowIndex, columnIndex));
             rec.setId(pk);
             rec.setDuration((Integer) value);
-            DbLookUp.getDiary().addRecord(rec);
+            DbLookUp.getDiaryRepo().addRecord(rec);
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(rec.getId().getDate().getTime());
             dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][cal.get(Calendar.HOUR_OF_DAY) < 12 ? 0 : 1][0] = rec;

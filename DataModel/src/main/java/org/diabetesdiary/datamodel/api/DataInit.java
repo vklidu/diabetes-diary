@@ -25,37 +25,36 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import org.diabetesdiary.datamodel.FoodAdministratorImpl;
-import org.diabetesdiary.datamodel.pojo.Activity;
-import org.diabetesdiary.datamodel.pojo.ActivityGroup;
-import org.diabetesdiary.datamodel.pojo.Food;
-import org.diabetesdiary.datamodel.pojo.FoodGroup;
-import org.diabetesdiary.datamodel.pojo.FoodUnit;
-import org.diabetesdiary.datamodel.pojo.FoodUnitPK;
-import org.diabetesdiary.datamodel.pojo.Insulin;
-import org.diabetesdiary.datamodel.pojo.InsulinType;
-import org.diabetesdiary.datamodel.pojo.Investigation;
-import org.diabetesdiary.datamodel.pojo.InvestigationGroup;
-import org.diabetesdiary.datamodel.util.HibernateUtil;
+import org.diabetesdiary.datamodel.DiaryRepositoryImpl;
+import org.diabetesdiary.datamodel.DiaryServiceImpl;
+import org.diabetesdiary.datamodel.pojo.ActivityDO;
+import org.diabetesdiary.datamodel.pojo.ActivityGroupDO;
+import org.diabetesdiary.datamodel.pojo.FoodDO;
+import org.diabetesdiary.datamodel.pojo.FoodGroupDO;
+import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
+import org.diabetesdiary.datamodel.pojo.InsulinDO;
+import org.diabetesdiary.datamodel.pojo.InsulinTypeDO;
+import org.diabetesdiary.datamodel.pojo.InvestigationDO;
+import org.diabetesdiary.datamodel.pojo.InvestigationGroupDO;
 
 /**
  *
  * @author Jiri Majer
  */
 public class DataInit {
+/*
+    private static DiaryService service = DiaryServiceImpl.getInstance();
+    private static DiaryRepository repo = DiaryRepositoryImpl.getInstance();
 
-    private static FoodAdministrator admin = FoodAdministratorImpl.getInstance();
-
-    /** Creates a new instance of DataInit */
     private DataInit() {
     }
 
     public static void createExampleData() {
 
         //ulozim insuliny z csv
-        if (HibernateUtil.getAllObjects(InsulinType.class, "example data error").size() < 1) {
+        if (HibernateUtil.getAllObjects(InsulinTypeDO.class, "example data error").size() < 1) {
             try {
-                for (InsulinType type : getTypesFromCSV()) {
+                for (InsulinTypeDO type : getTypesFromCSV()) {
                     Set insulines = type.getInsulins();
                     type.setInsulins(null);
                     HibernateUtil.newObject(type, "err");
@@ -68,7 +67,7 @@ public class DataInit {
             }
         }
         //ulozim vysetreni z csv
-        if (HibernateUtil.getAllObjects(Investigation.class, "example data error").size() < 1) {
+        if (HibernateUtil.getAllObjects(InvestigationDO.class, "example data error").size() < 1) {
             try {
                 initInvestigations();
             } catch (Exception ex) {
@@ -76,7 +75,7 @@ public class DataInit {
             }
         }
         //ulozim jidlo z csv
-        if (HibernateUtil.getAllObjects(FoodUnit.class, "Example data init error.").size() < 1) {
+        if (HibernateUtil.getAllObjects(FoodUnitDO.class, "Example data init error.").size() < 1) {
             try {
                 fillFoodTable();
             } catch (Exception ex) {
@@ -84,13 +83,13 @@ public class DataInit {
             }
         }
         //ulozim aktivity z csv
-        if (HibernateUtil.getAllObjects(ActivityGroup.class, "Example data init error.").size() < 1) {
+        if (HibernateUtil.getAllObjects(ActivityGroupDO.class, "Example data init error.").size() < 1) {
             try {
-                for (ActivityGroup group : getActivityGroupsFromCSV()) {
-                    Set<Activity> actvs = group.getActivities();
+                for (ActivityGroupDO group : getActivityGroupsFromCSV()) {
+                    Set<ActivityDO> actvs = group.getActivities();
                     group.setActivities(null);
                     HibernateUtil.newObject(group, "err");
-                    for (Activity act : actvs) {
+                    for (ActivityDO act : actvs) {
                         if (act.getPower() > 0) {
                             HibernateUtil.newObject(act, "err");
                         }
@@ -104,17 +103,17 @@ public class DataInit {
 
     private static void initInvestigations() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(DataInit.class.getResourceAsStream("investigations.csv"), "utf-8"));
-        InvestigationGroup lastGroup = null;
+        InvestigationGroupDO lastGroup = null;
         while (reader.ready()) {
             String[] line = getCsvLine(reader.readLine());
             if (line.length == 5) {
                 //is group
                 if (line[0].length() > 0) {
-                    lastGroup = new InvestigationGroup();
+                    lastGroup = new InvestigationGroupDO();
                     lastGroup.setName(line[0]);
                     HibernateUtil.newObject(lastGroup, "example error");
                 } else {
-                    Investigation invest = new Investigation();
+                    InvestigationDO invest = new InvestigationDO();
                     invest.setGroup(lastGroup);
                     invest.setName(line[1]);
                     invest.setUnit(line[2]);
@@ -126,18 +125,16 @@ public class DataInit {
         }
     }
 
-    private static List<InsulinType> getTypesFromCSV() throws IOException {
+    private static List<InsulinTypeDO> getTypesFromCSV() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(DataInit.class.getResourceAsStream("insulins.csv"), "utf-8"));
-        List<InsulinType> result = new Vector<InsulinType>();
-        InsulinType lastType = null;
-        int id = 1;
+        List<InsulinTypeDO> result = new Vector<InsulinTypeDO>();
+        InsulinTypeDO lastType = null;
         while (reader.ready()) {
             String[] line = getCsvLine(reader.readLine());
             if (line.length == 6) {
                 if (line[0].length() > 0) {
-                    lastType = new InsulinType();
+                    lastType = new InsulinTypeDO();
                     lastType.setInsulins(new HashSet());
-                    lastType.setId(id++);
                     result.add(lastType);
                     lastType.setName(line[0]);
                     lastType.setDescription(line[1]);
@@ -145,8 +142,7 @@ public class DataInit {
                     lastType.setParameterB(getNotExceptionDouble(line[4]));
                     lastType.setParameterS(getNotExceptionDouble(line[5]));
                 } else {
-                    Insulin ins = new Insulin();
-                    ins.setId(id++);
+                    InsulinDO ins = new InsulinDO();
                     ins.setType(lastType);
                     lastType.getInsulins().add(ins);
                     ins.setName(line[2]);
@@ -156,22 +152,22 @@ public class DataInit {
         return result;
     }
 
-    private static List<ActivityGroup> getActivityGroupsFromCSV() throws IOException {
+    private static List<ActivityGroupDO> getActivityGroupsFromCSV() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(DataInit.class.getResourceAsStream("activities.csv"), "utf-8"));
-        List<ActivityGroup> result = new Vector<ActivityGroup>();
-        ActivityGroup lastGroup = null;
+        List<ActivityGroupDO> result = new Vector<ActivityGroupDO>();
+        ActivityGroupDO lastGroup = null;
         int id = 1;
         while (reader.ready()) {
             String[] line = getCsvLine(reader.readLine());
             if (line.length == 3) {
                 if (line[0].length() > 0) {
-                    lastGroup = new ActivityGroup();
+                    lastGroup = new ActivityGroupDO();
                     lastGroup.setActivities(new HashSet());
                     result.add(lastGroup);
                     lastGroup.setName(line[0]);
                     lastGroup.setDescription(line[1]);
                 } else {
-                    Activity activity = new Activity();
+                    ActivityDO activity = new ActivityDO();
                     activity.setActivityGroup(lastGroup);
                     lastGroup.getActivities().add(activity);
                     activity.setName(line[1]);
@@ -202,14 +198,14 @@ public class DataInit {
 
     private static void fillFoodTable() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(DataInit.class.getResourceAsStream("foods.csv"), "utf-8"));
-        FoodGroup lastGroup = null;
-        FoodGroup baseGroup = null;
+        FoodGroupDO lastGroup = null;
+        FoodGroupDO baseGroup = null;
         while (reader.ready()) {
             String[] line = getCsvLine(reader.readLine());
             if (line.length == 10) {
                 try {
                     if (line[1].equals("null") && line[2].equals("null")) {
-                        FoodGroup group = new FoodGroup();
+                        FoodGroupDO group = new FoodGroupDO();
                         group.setName(line[0]);
                         if (line[9].equals("null")) {
                             admin.newFoodGroup(group);
@@ -222,7 +218,7 @@ public class DataInit {
                         }
 
                     } else if (lastGroup != null) {
-                        Food food = new Food();
+                        FoodDO food = new FoodDO();
                         food.setName(line[0]);
                         food.setEnergy(getNotExceptionDouble(line[1]));
                         food.setProtein(getNotExceptionDouble(line[2]));
@@ -233,9 +229,9 @@ public class DataInit {
                         food.setFoodGroup(lastGroup);
                         admin.newFood(food);
 
-                        FoodUnit unit = new FoodUnit();
-                        FoodUnitPK pk = new FoodUnitPK(food.getIdFood(), line[7]);
-                        unit.setId(pk);
+                        FoodUnitDO unit = new FoodUnitDO();
+                        unit.setFood(food);
+                        unit.setUnit(line[7]);
                         unit.setShortcut(line[7]);
                         unit.setName(line[7]);
                         double koef = Double.valueOf(line[8]);
@@ -276,9 +272,9 @@ public class DataInit {
                             unit.setName("jednotka 10g");
                             unit.setKoef(10d);
                             //pridam jeste druhou jednotku
-                            FoodUnit unit2 = new FoodUnit();
-                            FoodUnitPK pk2 = new FoodUnitPK(food.getIdFood(), "u12");
-                            unit2.setId(pk2);
+                            FoodUnitDO unit2 = new FoodUnitDO();
+                            unit2.setFood(food);
+                            unit2.setUnit("u12");
                             unit2.setKoef(12d);
                             unit2.setShortcut("j.");
                             unit2.setName("jednotka 12g");
@@ -294,4 +290,5 @@ public class DataInit {
             }
         }
     }
+ */
 }

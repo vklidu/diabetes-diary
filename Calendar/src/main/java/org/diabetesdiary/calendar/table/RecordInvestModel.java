@@ -23,11 +23,11 @@ import java.util.Date;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
-import org.diabetesdiary.datamodel.api.DbLookUp;
+import org.diabetesdiary.calendar.utils.DbLookUp;
 import org.diabetesdiary.datamodel.api.InvestigationAdministrator;
-import org.diabetesdiary.datamodel.pojo.GlykSeason;
-import org.diabetesdiary.datamodel.pojo.Investigation;
-import org.diabetesdiary.datamodel.pojo.RecordInvest;
+import org.diabetesdiary.datamodel.pojo.InvSeason;
+import org.diabetesdiary.datamodel.pojo.InvestigationDO;
+import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
 import org.diabetesdiary.datamodel.pojo.RecordInvestPK;
 import org.openide.util.NbBundle;
 
@@ -37,7 +37,7 @@ import org.openide.util.NbBundle;
  */
 public class RecordInvestModel implements TableSubModel, Comparable<TableSubModel> {
 
-    private RecordInvest dataInvest[][][];
+    private RecordInvestDO dataInvest[][][];
     private int baseIndex;
     private Calendar month;
 
@@ -88,41 +88,41 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
     }
 
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        RecordInvest gl = new RecordInvest();
+        RecordInvestDO gl = new RecordInvestDO();
         RecordInvestPK pk = new RecordInvestPK();
-        pk.setIdPatient(DbLookUp.getDiary().getCurrentPatient().getIdPatient());
-        pk.setIdInvest(Investigation.Instances.GLYCEMIE.getID());
+        pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+        pk.setIdInvest(InvestigationDO.Instances.GLYCEMIE.getID());
         pk.setDate(getClickCellDate(rowIndex, columnIndex));
         InvestigationAdministrator invAdmin = DbLookUp.getInvesAdmin();
-        gl.setInvest(invAdmin.getInvestigation(Investigation.Instances.GLYCEMIE.getID()));
+        gl.setInvest(invAdmin.getInvestigation(InvestigationDO.Instances.GLYCEMIE.getID()));
         gl.setValue(null);
         gl.setId(pk);
         if (columnIndex == 0) {
-            gl.setSeason(GlykSeason.M.name());
+            gl.setSeason(InvSeason.M.name());
         } else {
-            gl.setSeason(GlykSeason.values()[columnIndex - 1].name());
+            gl.setSeason(InvSeason.values()[columnIndex - 1].name());
         }
         return gl;
     }
 
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
-            RecordInvest gl = new RecordInvest();
+            RecordInvestDO gl = new RecordInvestDO();
             RecordInvestPK pk = new RecordInvestPK();
-            pk.setIdPatient(DbLookUp.getDiary().getCurrentPatient().getIdPatient());
-            pk.setIdInvest(Investigation.Instances.GLYCEMIE.getID());
+            pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+            pk.setIdInvest(InvestigationDO.Instances.GLYCEMIE.getID());
             pk.setDate(getClickCellDate(rowIndex, columnIndex));
 
-            gl.setInvest(DbLookUp.getInvesAdmin().getInvestigation(Investigation.Instances.GLYCEMIE.getID()));
+            gl.setInvest(DbLookUp.getInvesAdmin().getInvestigation(InvestigationDO.Instances.GLYCEMIE.getID()));
 
             gl.setId(pk);
             gl.setValue((Double) value);
             if (columnIndex == 0) {
-                gl.setSeason(GlykSeason.M.name());
+                gl.setSeason(InvSeason.M.name());
             } else {
-                gl.setSeason(GlykSeason.values()[columnIndex - 1].name());
+                gl.setSeason(InvSeason.values()[columnIndex - 1].name());
             }
-            DbLookUp.getDiary().addRecord(gl);
+            DbLookUp.getDiaryRepo().addRecord(gl);
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(gl.getId().getDate().getTime());
             dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = gl;
@@ -130,7 +130,7 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
     }
 
     public Class<?> getColumnClass(int columnIndex) {
-        return RecordInvest.class;
+        return RecordInvestDO.class;
     }
 
     public String getColumnName(int col) {
@@ -163,15 +163,15 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
     }
 
     public void setData(Collection<?> data) {
-        dataInvest = new RecordInvest[31][getColumnCount()][1];
+        dataInvest = new RecordInvestDO[31][getColumnCount()][1];
         Calendar cal = Calendar.getInstance();
         for (Object record : data) {
-            if (record instanceof RecordInvest) {
-                RecordInvest rec = (RecordInvest) record;
-                if (rec.getId().getIdInvest().equals(Investigation.Instances.GLYCEMIE.getID())) {
+            if (record instanceof RecordInvestDO) {
+                RecordInvestDO rec = (RecordInvestDO) record;
+                if (rec.getId().getIdInvest().equals(InvestigationDO.Instances.GLYCEMIE.getID())) {
                     cal.setTimeInMillis(rec.getId().getDate().getTime());
-                    int column = GlykSeason.valueOf(rec.getSeason()).ordinal() + 1;
-                    if (GlykSeason.valueOf(rec.getSeason()).equals(GlykSeason.M)) {
+                    int column = InvSeason.valueOf(rec.getSeason()).ordinal() + 1;
+                    if (InvSeason.valueOf(rec.getSeason()).equals(InvSeason.M)) {
                         if (cal.get(Calendar.HOUR_OF_DAY) < 12) {
                             column = 0;
                         } else {
@@ -181,8 +181,8 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
                     if (dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column][0] == null) {
                         dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column][0] = rec;
                     } else {
-                        RecordInvest[] pom = dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column];
-                        dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column] = new RecordInvest[pom.length + 1];
+                        RecordInvestDO[] pom = dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column];
+                        dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column] = new RecordInvestDO[pom.length + 1];
                         for (int i = 0; i < pom.length; i++) {
                             dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column][i] = pom[i];
                         }

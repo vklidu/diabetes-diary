@@ -16,71 +16,65 @@
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
-
 package org.diabetesdiary.datamodel.pojo;
 
-import java.io.Serializable;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import org.hibernate.annotations.BatchSize;
 
 /**
- * @hibernate.class table="food_unit"
  * @author Jiri Majer
  */
-public class FoodUnit implements Serializable{
-    private FoodUnitPK id;
-    private Double koef;
+@Entity
+@BatchSize(size = AbstractDO.BATCH_SIZE)
+@Table(name = "food_unit")
+public class FoodUnitDO extends AbstractDO {
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private FoodDO food;
+
+    @Column(nullable=false)
+    private String unit;
+
+    @Column(nullable=false)
+    private Double koef;//gram * koef = unit in gram
+
+    @Column(nullable=false)
     private String name;
+
+    @Column(nullable=false)
     private String shortcut;
     
-    
-    /** Creates a new instance of FoodUnit */
-    public FoodUnit() {
+    @Override
+    public String toString() {
+       return name;
     }
-    
-    /**
-     * @hibernate.property type="double" column="koef"
-     * @return Double
-     */
+
+    public FoodDO getFood() {
+        return food;
+    }
+
+    public void setFood(FoodDO food) {
+        this.food = food;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
     public Double getKoef() {
         return koef;
     }
-    
+
     public void setKoef(Double koef) {
         this.koef = koef;
-    }
-    
-    /**
-     * @hibernate.composite-id
-     * @return FoodUnitPK
-     */
-    public FoodUnitPK getId() {
-        return id;
-    }
-    
-    public void setId(FoodUnitPK id) {
-        this.id = id;
-    }
-    
-    
-    public boolean equals(Object obj) {
-        if (obj instanceof FoodUnit == false) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
-        FoodUnit rhs = (FoodUnit) obj;
-        return new EqualsBuilder().append(getId(), rhs.getId()).isEquals();
-    }
-    
-    public int hashCode() {
-        return new HashCodeBuilder(7, 27).append(getId()).toHashCode();
-    }
-
-    public String toString() {
-       return name;
     }
 
     public String getName() {
@@ -98,6 +92,5 @@ public class FoodUnit implements Serializable{
     public void setShortcut(String shortcut) {
         this.shortcut = shortcut;
     }
-    
     
 }

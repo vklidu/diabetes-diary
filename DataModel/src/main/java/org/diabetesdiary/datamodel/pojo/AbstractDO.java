@@ -37,9 +37,9 @@ public abstract class AbstractDO implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="idSequenceGenerator")
   @SequenceGenerator(name="idSequenceGenerator", sequenceName="ID_SEQ", allocationSize=1000)
-  private Integer id;
+  private Long id;
 
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 

@@ -26,15 +26,15 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.Patient;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.pojo.PatientDO;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
 public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
     
-    private Patient patient;
+    private PatientDO patient;
     
     private WizardDescriptor settings;
     /**
@@ -67,7 +67,7 @@ public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
         // return new HelpCtx(SampleWizardPanel1.class);
     }
     
-    public Patient getPatient(){
+    public PatientDO getPatient(){
         return patient;
     }
     
@@ -98,7 +98,7 @@ public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
             setError(NbBundle.getMessage(NewPatientWizardPanel1.class,"Musite_vyplnit_login."));
             return false;
         }
-        if(DbLookUp.getDiary().getPatient(patient.getIdPatient()) != null){
+        if(DbLookUp.getDiaryRepo().getPatient(patient.getIdPatient()) != null){
             setError(NbBundle.getMessage(NewPatientWizardPanel1.class,"Pacient_s_timto_loginem_ji_existuje._Ulozenim_zmenite_jeho_udaje."));
             return true;
         }        
@@ -142,7 +142,7 @@ public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
         this.settings = wizardDescriptor;
     }
     
-    public void setPatient(Patient patient) {
+    public void setPatient(PatientDO patient) {
         NewPatientVisualPanel1 comp = (NewPatientVisualPanel1) getComponent();
         this.patient = patient;
         

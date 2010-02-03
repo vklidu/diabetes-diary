@@ -32,7 +32,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.NumberFormatter;
-import org.diabetesdiary.datamodel.pojo.RecordFood;
+import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
 import org.openide.util.NbBundle;
 
 /**
@@ -96,8 +96,8 @@ public class FoodCellEditor extends DefaultCellEditor {
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         JFormattedTextField ftf = (JFormattedTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
         ftf.setValue(null);
-        if (value instanceof RecordFood) {
-            RecordFood recFood = (RecordFood) value;
+        if (value instanceof RecordFoodDO) {
+            RecordFoodDO recFood = (RecordFoodDO) value;
             if (recFood.getAmount() != null) {
                 double unit = recFood.getAmount();
                 ftf.setValue(unit);

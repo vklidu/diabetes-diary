@@ -24,7 +24,7 @@ import java.text.NumberFormat;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
-import org.diabetesdiary.datamodel.pojo.RecordInsulin;
+import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
 
 /**
  *
@@ -59,8 +59,8 @@ public class InsulinCellRenderer extends JLabel implements TableCellRenderer {
             result.setForeground(forColor);
         }
         result.setHorizontalAlignment(CENTER);
-        if (value instanceof RecordInsulin) {
-            RecordInsulin rec = (RecordInsulin) value;
+        if (value instanceof RecordInsulinDO) {
+            RecordInsulinDO rec = (RecordInsulinDO) value;
             if (rec.getAmount() != null) {
                 if (rec.isBasal()) {
                     if (isSelected) {
@@ -75,9 +75,9 @@ public class InsulinCellRenderer extends JLabel implements TableCellRenderer {
                 }
                 result.setToolTipText(createToolTip(rec));
             }
-        } else if (value instanceof RecordInsulin[]) {
-            RecordInsulin[] recs = (RecordInsulin[]) value;
-            for (RecordInsulin rec : recs) {
+        } else if (value instanceof RecordInsulinDO[]) {
+            RecordInsulinDO[] recs = (RecordInsulinDO[]) value;
+            for (RecordInsulinDO rec : recs) {
                 if (rec.getAmount() != null) {
                     if (rec.isBasal()) {
                         if (isSelected) {
@@ -99,7 +99,7 @@ public class InsulinCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordInsulin rec) {
+    private static String createToolTip(RecordInsulinDO rec) {
         if (rec == null || rec.getAmount() == null) {
             return null;
         }
@@ -113,13 +113,13 @@ public class InsulinCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordInsulin[] recs) {
+    private static String createToolTip(RecordInsulinDO[] recs) {
         if (recs == null || recs.length < 1 || recs[0] == null || recs[0].getAmount() == null) {
             return null;
         }
         DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
         StringBuffer result = new StringBuffer();
-        for (RecordInsulin rec : recs) {
+        for (RecordInsulinDO rec : recs) {
             result.append(timeFormat.format(rec.getId().getDate())).append('\n');
             result.append(rec.getInsulin().getName()).append(' ').append(format.format(rec.getAmount())).append('U');
             if (rec.getNotice() != null && rec.getNotice().length() > 0) {

@@ -25,8 +25,8 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.Insulin;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.pojo.InsulinDO;
 import org.openide.util.NbBundle;
 
 public final class NewPatientVisualPanel2 extends JPanel {
@@ -106,19 +106,19 @@ public final class NewPatientVisualPanel2 extends JPanel {
         threshold.setValue(renalThreshold);
     }
     
-    public Insulin getBasalInsulin(){
-        return (Insulin) basal.getSelectedItem();
+    public InsulinDO getBasalInsulin(){
+        return (InsulinDO) basal.getSelectedItem();
     }
     
-    public Insulin getBolusInsulin(){
-        return (Insulin) bolus.getSelectedItem();
+    public InsulinDO getBolusInsulin(){
+        return (InsulinDO) bolus.getSelectedItem();
     }
     
-    public void setBasalInsulin(Insulin ins){
+    public void setBasalInsulin(InsulinDO ins){
         basal.setSelectedItem(ins);
     }
     
-    public void setBolusInsulin(Insulin ins){
+    public void setBolusInsulin(InsulinDO ins){
         bolus.setSelectedItem(ins);
     }
     

@@ -25,9 +25,9 @@ import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.NewPatientWizard;
 import org.diabetesdiary.calendar.ui.NewPatientWizardPanel1;
 import org.diabetesdiary.calendar.ui.NewPatientWizardPanel2;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.api.Diary;
-import org.diabetesdiary.datamodel.pojo.Patient;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.api.DiaryRepository;
+import org.diabetesdiary.datamodel.pojo.PatientDO;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
@@ -41,10 +41,10 @@ public final class NewPatientaction extends CallableSystemAction {
     private WizardDescriptor wizardDescriptor;
     
     public void performAction(){
-        performAction(new Patient());
+        performAction(new PatientDO());
     }
     
-    public void performAction(Patient patient) {
+    public void performAction(PatientDO patient) {
         wizardDescriptor = new NewPatientWizard(getPanels());
         NewPatientWizardPanel1 panel = (NewPatientWizardPanel1) getPanels()[0];
         NewPatientWizardPanel2 panel2 = (NewPatientWizardPanel2) getPanels()[1];
@@ -58,7 +58,7 @@ public final class NewPatientaction extends CallableSystemAction {
         
         boolean cancelled = wizardDescriptor.getValue() != WizardDescriptor.FINISH_OPTION;
         if (!cancelled) {            
-            Diary diary = DbLookUp.getDiary();
+            DiaryRepository diary = DbLookUp.getDiaryRepo();
             diary.newPatient(patient);
             diary.setCurrentPatient(patient);
             CalendarTopComponent.getDefault().getModel().fillData();
