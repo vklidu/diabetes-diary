@@ -52,12 +52,12 @@ import org.diabetesdiary.calendar.table.InsulinPumpBasalRenderer;
 import org.diabetesdiary.calendar.table.RecordInsulinPumpBasal;
 import org.diabetesdiary.calendar.table.SumModel;
 import org.diabetesdiary.calendar.table.TableSubModel;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.api.Diary;
-import org.diabetesdiary.datamodel.pojo.RecordActivity;
-import org.diabetesdiary.datamodel.pojo.RecordFood;
-import org.diabetesdiary.datamodel.pojo.RecordInsulin;
-import org.diabetesdiary.datamodel.pojo.RecordInvest;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.api.DiaryRepository;
+import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
+import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
+import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
+import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -102,7 +102,7 @@ public final class CalendarTopComponent extends TopComponent
                         popupMenu = CalendarPopupMenu.createPopupMenu(getModel().getValueAt(row, column));
                         popupMenu.show(jTable1, e.getX(), e.getY());
                     }
-                } else if (DbLookUp.getDiary().getCurrentPatient() != null) {
+                } else if (DbLookUp.getDiaryRepo().getCurrentPatient() != null) {
                     Object record = getModel().getEverRecordValueAt(row, column);
                     RecordEditorTopComponent.getDefault().setRecord(record);
                 }
@@ -155,17 +155,17 @@ public final class CalendarTopComponent extends TopComponent
             }
 
         };
-        jTable1.setDefaultEditor(RecordInvest.class,new GlykemieCellEditor());
-        jTable1.setDefaultEditor(RecordActivity.class,new ActivityCellEditor());
-        jTable1.setDefaultEditor(RecordFood.class,new FoodCellEditor());
-        jTable1.setDefaultEditor(RecordInsulin.class,new InsulinCellEditor());
+        jTable1.setDefaultEditor(RecordInvestDO.class,new GlykemieCellEditor());
+        jTable1.setDefaultEditor(RecordActivityDO.class,new ActivityCellEditor());
+        jTable1.setDefaultEditor(RecordFoodDO.class,new FoodCellEditor());
+        jTable1.setDefaultEditor(RecordInsulinDO.class,new InsulinCellEditor());
         jTable1.setDefaultEditor(RecordInsulinPumpBasal.class,new InsulinPumpBasalEditor());
 
         jTable1.setDefaultRenderer(CalendarDay.class,new DayRenderer());
-        jTable1.setDefaultRenderer(RecordInvest.class,new GlykemieCellRenderer());
-        jTable1.setDefaultRenderer(RecordFood.class,new FoodCellRenderer());
-        jTable1.setDefaultRenderer(RecordActivity.class,new ActivityCellRenderer());
-        jTable1.setDefaultRenderer(RecordInsulin.class,new InsulinCellRenderer());
+        jTable1.setDefaultRenderer(RecordInvestDO.class,new GlykemieCellRenderer());
+        jTable1.setDefaultRenderer(RecordFoodDO.class,new FoodCellRenderer());
+        jTable1.setDefaultRenderer(RecordActivityDO.class,new ActivityCellRenderer());
+        jTable1.setDefaultRenderer(RecordInsulinDO.class,new InsulinCellRenderer());
         jTable1.setDefaultRenderer(RecordInsulinPumpBasal.class,new InsulinPumpBasalRenderer());
         backward = new javax.swing.JButton();
         forward = new javax.swing.JButton();
@@ -433,7 +433,7 @@ private void activityVisibleActionPerformed(java.awt.event.ActionEvent evt) {//G
     @Override
     public void componentOpened() {
         Lookup lookup = Lookup.getDefault();
-        Diary diary = (Diary) lookup.lookup(Diary.class);
+        DiaryRepository diary = (DiaryRepository) lookup.lookup(DiaryRepository.class);
         if (diary == null) {
             // this will show up as a flashing round button in the bottom-right corner
             ErrorManager.getDefault().notify(

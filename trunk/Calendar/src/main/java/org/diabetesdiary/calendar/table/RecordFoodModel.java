@@ -24,10 +24,10 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.datamodel.api.DbLookUp;
+import org.diabetesdiary.calendar.utils.DbLookUp;
 import org.diabetesdiary.datamodel.api.FoodAdministrator;
 import org.diabetesdiary.datamodel.pojo.FoodSeason;
-import org.diabetesdiary.datamodel.pojo.RecordFood;
+import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
 import org.diabetesdiary.datamodel.pojo.RecordFoodPK;
 import org.openide.util.NbBundle;
 
@@ -37,7 +37,7 @@ import org.openide.util.NbBundle;
  */
 public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel> {
 
-    private RecordFood dataFood[][][];
+    private RecordFoodDO dataFood[][][];
     private int baseIndex;
     private Calendar month;
 
@@ -62,10 +62,10 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (dataFood != null && rowIndex > -1) {
             if (dataFood[rowIndex][columnIndex] != null && dataFood[rowIndex][columnIndex].length == 1) {
-                RecordFood res = dataFood[rowIndex][columnIndex][0];
+                RecordFoodDO res = dataFood[rowIndex][columnIndex][0];
                 return res;
             } else {
-                RecordFood[] res = dataFood[rowIndex][columnIndex];
+                RecordFoodDO[] res = dataFood[rowIndex][columnIndex];
                 return res;
             }
         }
@@ -73,9 +73,9 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
     }
 
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        RecordFood food = new RecordFood();
+        RecordFoodDO food = new RecordFoodDO();
         RecordFoodPK pk = new RecordFoodPK();
-        pk.setIdPatient(DbLookUp.getDiary().getCurrentPatient().getIdPatient());
+        pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
         pk.setIdFood(1);
         pk.setDate(getClickCellDate(rowIndex, columnIndex));
         food.setId(pk);
@@ -90,9 +90,9 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
 
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
-            RecordFood rec = new RecordFood();
+            RecordFoodDO rec = new RecordFoodDO();
             RecordFoodPK pk = new RecordFoodPK();
-            pk.setIdPatient(DbLookUp.getDiary().getCurrentPatient().getIdPatient());
+            pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
             pk.setIdFood(1);
             pk.setDate(getClickCellDate(rowIndex, columnIndex));
             rec.setId(pk);
@@ -103,7 +103,7 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
             rec.setSeason(FoodSeason.values()[columnIndex].name());
             rec.setFood(DbLookUp.getFoodAdmin().getFood(pk.getIdFood()));
 
-            DbLookUp.getDiary().addRecord(rec);
+            DbLookUp.getDiaryRepo().addRecord(rec);
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(rec.getId().getDate().getTime());
             int col = FoodSeason.valueOf(rec.getSeason()).ordinal();
@@ -113,8 +113,8 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
                 if (rec.getId().getIdFood().equals(dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0].getId().getIdFood())) {
                     dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
                 } else {
-                    RecordFood[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
-                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordFood[pom.length + 1];
+                    RecordFoodDO[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
+                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordFoodDO[pom.length + 1];
                     dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
                     for (int i = 0; i < pom.length; i++) {
                         dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][i + 1] = pom[i];
@@ -125,7 +125,7 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
     }
 
     public Class<?> getColumnClass(int columnIndex) {
-        return RecordFood.class;
+        return RecordFoodDO.class;
     }
 
     public String getColumnName(int col) {
@@ -183,19 +183,19 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
 
     public void setData(Collection<?> data) {
         //max number of days
-        dataFood = new RecordFood[31][6][1];
+        dataFood = new RecordFoodDO[31][6][1];
         Calendar cal = Calendar.getInstance();
         for (Object record : data) {
-            if (record instanceof RecordFood) {
-                RecordFood rec = (RecordFood) record;
+            if (record instanceof RecordFoodDO) {
+                RecordFoodDO rec = (RecordFoodDO) record;
                 cal.setTimeInMillis(rec.getId().getDate().getTime());
                 int col = FoodSeason.valueOf(rec.getSeason()).ordinal();
 
                 if (dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] == null) {
                     dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
                 } else {
-                    RecordFood[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
-                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordFood[pom.length + 1];
+                    RecordFoodDO[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
+                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordFoodDO[pom.length + 1];
                     for (int i = 0; i < pom.length; i++) {
                         dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][i] = pom[i];
                     }

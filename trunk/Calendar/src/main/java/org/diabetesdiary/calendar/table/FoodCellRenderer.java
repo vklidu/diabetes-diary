@@ -26,9 +26,9 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.FoodUnit;
-import org.diabetesdiary.datamodel.pojo.RecordFood;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
+import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
 
 /**
  *
@@ -56,18 +56,18 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
     public static Component createCell(JTable table, Object value, boolean isSelected) {
         FoodCellRenderer result = new FoodCellRenderer();
         result.setHorizontalAlignment(CENTER);
-        FoodUnit sachUnit = DbLookUp.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
-        if (value instanceof RecordFood) {
-            RecordFood rec = (RecordFood) value;
+        FoodUnitDO sachUnit = DbLookUp.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+        if (value instanceof RecordFoodDO) {
+            RecordFoodDO rec = (RecordFoodDO) value;
             //Double unit = rec.getAmount()
             if (rec.getAmount() != null) {
                 result.setText(format.format(countSachUnits(rec, sachUnit)));
                 result.setToolTipText(createToolTip(rec));
             }
-        } else if (value instanceof RecordFood[]) {
-            RecordFood[] recs = (RecordFood[]) value;
+        } else if (value instanceof RecordFoodDO[]) {
+            RecordFoodDO[] recs = (RecordFoodDO[]) value;
             double sum = 0;
-            for (RecordFood rec : recs) {
+            for (RecordFoodDO rec : recs) {
                 if (rec != null && rec.getAmount() != null) {
                     sum += countSachUnits(rec, sachUnit);
                 }
@@ -87,14 +87,14 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static Double countSachUnits(RecordFood rec, FoodUnit sachUnit) {
+    private static Double countSachUnits(RecordFoodDO rec, FoodUnitDO sachUnit) {
         if (rec.getAmount() == null) {
             return null;
         }
-        FoodUnit unit = null;
+        FoodUnitDO unit = null;
         if (rec.getFood() != null && rec.getFood().getUnits() != null) {
             for (Object un : rec.getFood().getUnits()) {
-                unit = (FoodUnit) un;
+                unit = (FoodUnitDO) un;
                 if (unit.getId().getUnit().equals(rec.getUnit())) {
                     break;
                 }
@@ -107,7 +107,7 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
         return sachUnits;
     }
 
-    private static String createToolTip(RecordFood rec) {
+    private static String createToolTip(RecordFoodDO rec) {
         if (rec == null || rec.getAmount() == null || rec.getFood() == null) {
             return null;
         }
@@ -119,13 +119,13 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordFood[] recs) {
+    private static String createToolTip(RecordFoodDO[] recs) {
         if (recs == null || recs.length < 1 || recs[0] == null || recs[0].getAmount() == null || recs[0].getFood() == null) {
             return null;
         }
         StringBuffer result = new StringBuffer();
         Date lastDate = null;
-        for (RecordFood rec : recs) {
+        for (RecordFoodDO rec : recs) {
             if (rec != null) {
                 if (lastDate == null || !lastDate.equals(rec.getId().getDate())) {
                     result.append(timeFormat.format(rec.getId().getDate())).append('\n');

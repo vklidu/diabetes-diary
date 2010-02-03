@@ -32,10 +32,11 @@ import org.openide.util.NbBundle;
  * M - night * 
  * @author Jiri Majer
  */
-public enum GlykSeason {
+public enum InvSeason {
     BB, AB, BD, AD, BV, AV, BS, M;
 
+    @Override
     public String toString(){
-        return NbBundle.getMessage(GlykSeason.class,"glyk.season."+name());
+        return NbBundle.getMessage(InvSeason.class,"glyk.season."+name());
     }
 }

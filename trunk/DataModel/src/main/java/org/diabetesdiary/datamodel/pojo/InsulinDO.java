@@ -17,43 +17,50 @@
  */
 package org.diabetesdiary.datamodel.pojo;
 
-import java.io.Serializable;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import org.hibernate.annotations.BatchSize;
 
 /**
- * @hibernate.class table="insulin"
  * @author Jiri Majer
  */
-public class Insulin implements Serializable {
+@Entity
+@BatchSize(size = AbstractDO.BATCH_SIZE)
+@Table(name = "insulin")
+public class InsulinDO extends AbstractDO {
 
-    private Integer id;
-    private InsulinType type;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private InsulinTypeDO type;
+
+    @Column(nullable=false)
     private String name;
+    
+    @Column
     private String source;
+    
+    @Column
     private String manufacturer;
+    
+    @Column
     private String description;
 
-    /** Creates a new instance of Insulin */
-    public Insulin() {
+    @Override
+    public String toString() {
+        return name;
     }
 
-    /**
-     * @hibernate.id generator-class="native"
-     * @return Integer
-     */
-    public Integer getId() {
-        return id;
+    public InsulinTypeDO getType() {
+        return type;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setType(InsulinTypeDO type) {
+        this.type = type;
     }
 
-    /**
-     * @hibernate.property
-     * @return String
-     */
     public String getName() {
         return name;
     }
@@ -62,10 +69,6 @@ public class Insulin implements Serializable {
         this.name = name;
     }
 
-    /**
-     * @hibernate.property
-     * @return String
-     */
     public String getSource() {
         return source;
     }
@@ -74,10 +77,6 @@ public class Insulin implements Serializable {
         this.source = source;
     }
 
-    /**
-     * @hibernate.property
-     * @return String
-     */
     public String getManufacturer() {
         return manufacturer;
     }
@@ -86,10 +85,6 @@ public class Insulin implements Serializable {
         this.manufacturer = manufacturer;
     }
 
-    /**
-     * @hibernate.property
-     * @return String
-     */
     public String getDescription() {
         return description;
     }
@@ -97,37 +92,5 @@ public class Insulin implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Insulin == false) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
-        Insulin rhs = (Insulin) obj;
-        return new EqualsBuilder().append(id, rhs.id).isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        // you pick a hard-coded, randomly chosen, non-zero, odd number
-        // ideally different for each class
-        return new HashCodeBuilder(31, 49).append(id).
-                toHashCode();
-    }
-
-    public InsulinType getType() {
-        return type;
-    }
-
-    public void setType(InsulinType type) {
-        this.type = type;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
+    
 }

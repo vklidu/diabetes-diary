@@ -18,7 +18,7 @@
 
 package org.diabetesdiary.calendar.action;
 
-import org.diabetesdiary.datamodel.api.DbLookUp;
+import org.diabetesdiary.calendar.utils.DbLookUp;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.HelpCtx;
@@ -28,10 +28,10 @@ import org.openide.util.actions.CallableSystemAction;
 public final class EditPatient extends CallableSystemAction {
     
     public void performAction() {
-        if(DbLookUp.getDiary().getCurrentPatient() != null){
+        if(DbLookUp.getDiaryRepo().getCurrentPatient() != null){
             NewPatientaction action = (NewPatientaction) CallableSystemAction.findObject(NewPatientaction.class);
             if(action!=null){
-                action.performAction(DbLookUp.getDiary().getCurrentPatient());
+                action.performAction(DbLookUp.getDiaryRepo().getCurrentPatient());
             }
         }else{
             DialogDisplayer.getDefault().notify(

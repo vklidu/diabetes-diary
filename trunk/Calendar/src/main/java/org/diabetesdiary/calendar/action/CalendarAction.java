@@ -22,7 +22,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import org.diabetesdiary.calendar.ui.*;
-import org.diabetesdiary.datamodel.api.Diary;
+import org.diabetesdiary.datamodel.api.DiaryRepository;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -42,7 +42,7 @@ public class CalendarAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent evt) {
         Lookup lookup = Lookup.getDefault();
-        Diary diary = (Diary)lookup.lookup(Diary.class);
+        DiaryRepository diary = (DiaryRepository)lookup.lookup(DiaryRepository.class);
         if (diary == null) {
             // this will show up as a flashing round button in the bottom-right corner
             ErrorManager.getDefault().notify(

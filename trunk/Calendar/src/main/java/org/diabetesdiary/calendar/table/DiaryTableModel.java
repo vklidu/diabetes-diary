@@ -27,12 +27,12 @@ import javax.swing.table.AbstractTableModel;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.RecordEditorTopComponent;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.api.Diary;
-import org.diabetesdiary.datamodel.pojo.RecordActivity;
-import org.diabetesdiary.datamodel.pojo.RecordFood;
-import org.diabetesdiary.datamodel.pojo.RecordInsulin;
-import org.diabetesdiary.datamodel.pojo.RecordInvest;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.api.DiaryRepository;
+import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
+import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
+import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
+import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
 
 /**
  *
@@ -55,7 +55,7 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
     private SumModel sumModel;
     private List<TableSubModel> activeModels;
     private Calendar month;
-    private Diary diary;
+    private DiaryRepository diary;
 
     /** Creates a new instance of CalendarTableModel */
     public DiaryTableModel() {
@@ -67,7 +67,7 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         month.set(Calendar.MILLISECOND, 0);
         month.set(Calendar.DAY_OF_MONTH, 1);
 
-        diary = DbLookUp.getDiary();
+        diary = DbLookUp.getDiaryRepo();
         dayModel = new DayModel(month);
 
         if (diary.getCurrentPatient() != null && diary.getCurrentPatient().isPumpUsage()) {
@@ -152,18 +152,18 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         Date to = aktual.getTime();
 
 
-        List<RecordInvest> records = getDiary().getRecordInvests(from, to, getDiary().getCurrentPatient().getIdPatient());
+        List<RecordInvestDO> records = getDiary().getRecordInvests(from, to, getDiary().getCurrentPatient().getIdPatient());
         investModel.setData(records);
         otherModel.setData(records);
 
-        List<RecordActivity> recordActs = getDiary().getRecordActivities(from, to, getDiary().getCurrentPatient().getIdPatient());        
+        List<RecordActivityDO> recordActs = getDiary().getRecordActivities(from, to, getDiary().getCurrentPatient().getIdPatient());
         activityModel.setData(recordActs);
 
-        List<RecordFood> recordFoods = getDiary().getRecordFoods(from, to, getDiary().getCurrentPatient().getIdPatient());
+        List<RecordFoodDO> recordFoods = getDiary().getRecordFoods(from, to, getDiary().getCurrentPatient().getIdPatient());
         foodModel.setData(recordFoods);
 
 
-        List<RecordInsulin> recordIns = diary.getRecordInsulins(from, to, diary.getCurrentPatient().getIdPatient());
+        List<RecordInsulinDO> recordIns = diary.getRecordInsulins(from, to, diary.getCurrentPatient().getIdPatient());
         insulinModel.setData(recordIns);
 
         RecordEditorTopComponent.getDefault().getFoodModel().fillData();
@@ -351,11 +351,11 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         }
     }
 
-    public Diary getDiary() {
+    public DiaryRepository getDiary() {
         return diary;
     }
 
-    public void setDiary(Diary diary) {
+    public void setDiary(DiaryRepository diary) {
         this.diary = diary;
     }
 

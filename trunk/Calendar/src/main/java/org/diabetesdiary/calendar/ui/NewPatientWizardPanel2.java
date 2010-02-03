@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.diabetesdiary.datamodel.pojo.Patient;
+import org.diabetesdiary.datamodel.pojo.PatientDO;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -68,7 +68,7 @@ public class NewPatientWizardPanel2 implements WizardDescriptor.Panel {
         }
     }
     
-    private Patient patient;
+    private PatientDO patient;
     
     public boolean isValid() {
         NewPatientVisualPanel2 comp = (NewPatientVisualPanel2) getComponent();
@@ -136,7 +136,7 @@ public class NewPatientWizardPanel2 implements WizardDescriptor.Panel {
     public void readSettings(Object settings) {}
     public void storeSettings(Object settings) {}
     
-    public void setPatient(Patient patient) {
+    public void setPatient(PatientDO patient) {
         NewPatientVisualPanel2 comp = (NewPatientVisualPanel2) getComponent();
         this.patient = patient;
         if(patient.getIdPatient() != null){
@@ -154,7 +154,7 @@ public class NewPatientWizardPanel2 implements WizardDescriptor.Panel {
         }
     }
     
-    public Patient getPatient() {
+    public PatientDO getPatient() {
         return patient;
     }
     

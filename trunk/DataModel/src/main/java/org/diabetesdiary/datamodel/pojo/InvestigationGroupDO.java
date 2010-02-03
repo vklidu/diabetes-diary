@@ -15,44 +15,32 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
 package org.diabetesdiary.datamodel.pojo;
 
-import java.text.Collator;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.BatchSize;
 
 /**
+ * @hibernate.class table="investigation_group"
  * @author Jiri Majer
  */
 @Entity
-@Table(name="activity_group")
-public class ActivityGroup extends AbstractDO implements Comparable<ActivityGroup> {
+@BatchSize(size = AbstractDO.BATCH_SIZE)
+@Table(name = "investigation_group")
+public class InvestigationGroupDO extends AbstractDO {
 
     @Column(nullable=false)
     private String name;
 
-    @Column
-    private String description;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "activityGroup")
-    @BatchSize(size = BATCH_SIZE)
-    private Set<Activity> activities;
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    @Override
-    public int compareTo(ActivityGroup o) {
-        Collator myCollator = Collator.getInstance();
-        return myCollator.compare(name, o.name);
-    }
+    @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy="group")
+    private Set<InvestigationDO> investigations;
 
     public String getName() {
         return name;
@@ -62,19 +50,17 @@ public class ActivityGroup extends AbstractDO implements Comparable<ActivityGrou
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public Set<InvestigationDO> getInvestigations() {
+        return investigations;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setInvestigations(Set<InvestigationDO> investigations) {
+        this.investigations = investigations;
     }
 
-    public Set<Activity> getActivities() {
-        return activities;
+    @Override
+    public String toString() {
+        return name;
     }
-
-    public void setActivities(Set<Activity> activities) {
-        this.activities = activities;
-    }
+    
 }

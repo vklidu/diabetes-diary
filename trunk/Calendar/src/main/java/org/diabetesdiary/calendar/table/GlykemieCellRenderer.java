@@ -25,8 +25,8 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.datamodel.pojo.Investigation;
-import org.diabetesdiary.datamodel.pojo.RecordInvest;
+import org.diabetesdiary.datamodel.pojo.InvestigationDO;
+import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
 
 /**
  *
@@ -66,18 +66,18 @@ public class GlykemieCellRenderer extends JLabel implements TableCellRenderer {
             result.setBackground(backColor);
         }
 
-        if (value instanceof RecordInvest) {
-            RecordInvest rec = (RecordInvest) value;
+        if (value instanceof RecordInvestDO) {
+            RecordInvestDO rec = (RecordInvestDO) value;
             if (rec.getValue() != null && rec.getInvest() != null) {
-                if (rec.getInvest().getId() == Investigation.Instances.ACETON.getID() || rec.getInvest().getId() == Investigation.Instances.SUGAR.getID()) {
+                if (rec.getInvest().getId() == InvestigationDO.Instances.ACETON.getID() || rec.getInvest().getId() == InvestigationDO.Instances.SUGAR.getID()) {
                     result.setText(getCharForValue(rec.getValue()));
-                } else if (rec.getInvest().getId() == Investigation.Instances.MENZES.getID()) {
+                } else if (rec.getInvest().getId() == InvestigationDO.Instances.MENZES.getID()) {
                     result.setText(getCharForMenzesValue(rec.getValue()));
                 } else {
                     result.setText(format.format(rec.getValue()));
                 }
 
-                if (rec.getInvest().getId() == Investigation.Instances.GLYCEMIE.getID()) {
+                if (rec.getInvest().getId() == InvestigationDO.Instances.GLYCEMIE.getID()) {
                     setGlycemieCellColors(result, rec.getValue(), isSelected);
                 }
                 if (rec.getNotice() != null && rec.getNotice().length() > 0) {
@@ -85,14 +85,14 @@ public class GlykemieCellRenderer extends JLabel implements TableCellRenderer {
                 }
                 result.setToolTipText(createToolTip(rec));
             }
-        } else if (value instanceof RecordInvest[]) {
-            RecordInvest[] values = (RecordInvest[]) value;
+        } else if (value instanceof RecordInvestDO[]) {
+            RecordInvestDO[] values = (RecordInvestDO[]) value;
             if (values.length > 0 && values[0] != null && values[0].getInvest() != null) {
 
-                for (RecordInvest val : values) {
-                    if (val.getInvest().getId() == Investigation.Instances.ACETON.getID() || val.getInvest().getId() == Investigation.Instances.SUGAR.getID()) {
+                for (RecordInvestDO val : values) {
+                    if (val.getInvest().getId() == InvestigationDO.Instances.ACETON.getID() || val.getInvest().getId() == InvestigationDO.Instances.SUGAR.getID()) {
                         result.setText(result.getText() + " " + getCharForValue(val.getValue()));
-                    } else if (val.getInvest().getId() == Investigation.Instances.MENZES.getID()) {
+                    } else if (val.getInvest().getId() == InvestigationDO.Instances.MENZES.getID()) {
                         result.setText(result.getText() + " " + getCharForMenzesValue(val.getValue()));
                     } else {
                         result.setText(result.getText() + VALUES_SEPARATOR + format.format(val.getValue()));
@@ -103,10 +103,10 @@ public class GlykemieCellRenderer extends JLabel implements TableCellRenderer {
                 }
                 result.setText(result.getText().substring(1));
 
-                if (values[0].getInvest().getId() == Investigation.Instances.GLYCEMIE.getID()) {
+                if (values[0].getInvest().getId() == InvestigationDO.Instances.GLYCEMIE.getID()) {
                     //average glycemie is count and the background color is set
                     double sum = 0;
-                    for (RecordInvest val : values) {
+                    for (RecordInvestDO val : values) {
                         sum += val.getValue();
                     }
                     setGlycemieCellColors(result, sum / values.length, isSelected);
@@ -165,7 +165,7 @@ public class GlykemieCellRenderer extends JLabel implements TableCellRenderer {
         }
     }
 
-    private static String createToolTip(RecordInvest rec) {
+    private static String createToolTip(RecordInvestDO rec) {
         if (rec == null || rec.getValue() == null || rec.getInvest() == null) {
             return null;
         }
@@ -178,13 +178,13 @@ public class GlykemieCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordInvest[] values) {
+    private static String createToolTip(RecordInvestDO[] values) {
         if (values == null || values.length < 1 || values[0] == null || values[0].getValue() == null || values[0].getInvest() == null) {
             return null;
         }
         DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
         StringBuffer result = new StringBuffer();
-        for (RecordInvest rec : values) {
+        for (RecordInvestDO rec : values) {
             result.append(timeFormat.format(rec.getId().getDate())).append('\n');
             result.append(rec.getInvest().getName()).append(": ").append(format.format(rec.getValue())).append(' ').append(rec.getInvest().getUnit());
             if (rec.getNotice() != null && rec.getNotice().length() > 0) {

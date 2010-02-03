@@ -33,8 +33,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
-import org.diabetesdiary.datamodel.pojo.RecordActivity;
-import org.diabetesdiary.datamodel.pojo.RecordInvest;
+import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
+import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
 import org.openide.util.NbBundle;
 
 /**
@@ -103,12 +103,12 @@ public class ActivityCellEditor extends DefaultCellEditor {
             int row, int column) {
         JFormattedTextField ftfLocal = (JFormattedTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
         ftfLocal.setValue(null);
-        if (value instanceof RecordActivity) {
-            ftfLocal.setValue(((RecordActivity) value).getDuration());
-        } else if (value instanceof RecordActivity[]) {
-            RecordActivity[] values = (RecordActivity[]) value;
+        if (value instanceof RecordActivityDO) {
+            ftfLocal.setValue(((RecordActivityDO) value).getDuration());
+        } else if (value instanceof RecordActivityDO[]) {
+            RecordActivityDO[] values = (RecordActivityDO[]) value;
             if (values.length > 0 && values[0] != null) {
-                ftfLocal.setValue(((RecordActivity[]) value)[0].getDuration());
+                ftfLocal.setValue(((RecordActivityDO[]) value)[0].getDuration());
             }
         }
         return ftfLocal;

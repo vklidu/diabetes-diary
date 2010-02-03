@@ -24,9 +24,9 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.api.Diary;
-import org.diabetesdiary.datamodel.pojo.RecordActivity;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.api.DiaryRepository;
+import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -38,15 +38,15 @@ public class RecordActivityEditTableModel extends AbstractTableModel {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private static DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
-    private List<RecordActivity> recs;
+    private List<RecordActivityDO> recs;
     private static final String DELETE_ICO = "org/diabetesdiary/calendar/resources/delete16.png";
     private Date dateTo;
-    private Diary diary;
+    private DiaryRepository diary;
     private Date dateFrom;
 
     /** Creates a new instance of CalendarTableModel */
     public RecordActivityEditTableModel(Date date) {
-        diary = DbLookUp.getDiary();
+        diary = DbLookUp.getDiaryRepo();
         setDate(date);
     }
 
@@ -59,7 +59,7 @@ public class RecordActivityEditTableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
-        RecordActivity rec = recs.get(rowIndex);
+        RecordActivityDO rec = recs.get(rowIndex);
         if (columnIndex == getColumnCount() - 1) {
             if (rec != null && rec.getDuration() != null) {
                 return new ImageIcon(Utilities.loadImage(DELETE_ICO, true));
@@ -96,7 +96,7 @@ public class RecordActivityEditTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
     }
 
-    public RecordActivity getRecord(int rowIndex, int columnIndex) {
+    public RecordActivityDO getRecord(int rowIndex, int columnIndex) {
         return recs == null ? null : recs.get(rowIndex);
     }
 

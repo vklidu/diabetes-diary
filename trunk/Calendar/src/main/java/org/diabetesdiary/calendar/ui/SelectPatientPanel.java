@@ -21,8 +21,8 @@ package org.diabetesdiary.calendar.ui;
 import java.util.List;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import org.diabetesdiary.datamodel.api.Diary;
-import org.diabetesdiary.datamodel.pojo.Patient;
+import org.diabetesdiary.datamodel.api.DiaryRepository;
+import org.diabetesdiary.datamodel.pojo.PatientDO;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -44,13 +44,13 @@ public class SelectPatientPanel extends javax.swing.JPanel {
     
     public ComboBoxModel createPatientComboModel(){
         Lookup lookup = Lookup.getDefault();
-        Diary diary = (Diary)lookup.lookup(Diary.class);
+        DiaryRepository diary = (DiaryRepository)lookup.lookup(DiaryRepository.class);
         if (diary == null) {
             // this will show up as a flashing round button in the bottom-right corner
             ErrorManager.getDefault().notify(
                     new IllegalStateException("Cannot locate Diary implementation"));
         }else{
-            List<Patient> patients = diary.getPatients();
+            List<PatientDO> patients = diary.getPatients();
             DefaultComboBoxModel model = new DefaultComboBoxModel(patients.toArray());
             return model;
         }
@@ -93,9 +93,9 @@ public class SelectPatientPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    public Patient getPatient() {
+    public PatientDO getPatient() {
         if(jComboBox1.getSelectedItem() != null){
-            return (Patient) jComboBox1.getSelectedItem();
+            return (PatientDO) jComboBox1.getSelectedItem();
         }
         return null;
     }

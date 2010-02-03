@@ -26,11 +26,11 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.api.Diary;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.api.DiaryRepository;
 import org.diabetesdiary.datamodel.api.FoodAdministrator;
 import org.diabetesdiary.datamodel.pojo.FoodSeason;
-import org.diabetesdiary.datamodel.pojo.RecordFood;
+import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -42,22 +42,22 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private boolean detail = false;
-    private Diary diary;
+    private DiaryRepository diary;
     private FoodAdministrator foodAdmin;
     private Date date;
     private Date dateFrom;
     private Date dateTo;
-    private List<RecordFood> recordFoods;
+    private List<RecordFoodDO> recordFoods;
     private static final String DELETE_ICO = "org/diabetesdiary/calendar/resources/delete16.png";
 
     /** Creates a new instance of CalendarTableModel */
     public RecordFoodEditTableModel(Date date) {
         foodAdmin = DbLookUp.getFoodAdmin();
-        diary = DbLookUp.getDiary();
+        diary = DbLookUp.getDiaryRepo();
         this.date = date;
     }
 
-    public List<RecordFood> getRecordFoods() {
+    public List<RecordFoodDO> getRecordFoods() {
         return recordFoods;
     }
 
@@ -122,7 +122,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
                     return format.format(getSumAmount(columnIndex)) + " " + getUnitAt(rowIndex, columnIndex);
             }
         } else {
-            RecordFood rec = recordFoods.get(rowIndex);
+            RecordFoodDO rec = recordFoods.get(rowIndex);
             double grams = rec.getAmount() * foodAdmin.getFoodUnit(rec.getId().getIdFood(), rec.getUnit()).getKoef();
             switch (columnIndex) {
                 case 0:
@@ -154,7 +154,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
 
     public double getDoubleValueInGramAt(int rowIndex, int columnIndex) {
         if (rowIndex < getRowCount() - 1) {
-            RecordFood rec = recordFoods.get(rowIndex);
+            RecordFoodDO rec = recordFoods.get(rowIndex);
             double koef = foodAdmin.getFoodUnit(rec.getId().getIdFood(), rec.getUnit()).getKoef();
             double grams = rec.getAmount() * koef;
             switch (columnIndex) {
@@ -196,7 +196,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
                     return "g";
             }
         } else {
-            RecordFood rec = recordFoods.get(rowIndex);
+            RecordFoodDO rec = recordFoods.get(rowIndex);
             switch (columnIndex) {
                 case 0:
                     return "";
@@ -234,7 +234,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
             try {
                 double newVal = format.parse(value.toString()).doubleValue();
                 double koef = newVal / oldVal;
-                for (RecordFood rec : recordFoods) {
+                for (RecordFoodDO rec : recordFoods) {
                     rec.setAmount(rec.getAmount() * koef);
                     diary.updateRecord(rec);
                     CalendarTopComponent.getDefault().getModel().fillData();
@@ -246,7 +246,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
         } else {
             //menim konkretni jidlo
             try {
-                RecordFood rec = recordFoods.get(rowIndex);
+                RecordFoodDO rec = recordFoods.get(rowIndex);
                 double koef = foodAdmin.getFoodUnit(rec.getId().getIdFood(), rec.getUnit()).getKoef();
                 double grams = rec.getAmount() * koef;
                 rec.setAmount(format.parse(value.toString()).doubleValue());
@@ -306,7 +306,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
         return date;
     }
 
-    public RecordFood getRecordAt(int row) {
+    public RecordFoodDO getRecordAt(int row) {
         if (row > -1 && row < getRowCount() - 1 && recordFoods != null) {
             return recordFoods.get(row);
         }

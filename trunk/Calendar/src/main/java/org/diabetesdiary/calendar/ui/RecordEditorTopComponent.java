@@ -38,29 +38,29 @@ import org.diabetesdiary.calendar.table.RecordInsulinEditTableModel;
 import org.diabetesdiary.calendar.table.RecordInsulinPumpBasal;
 import org.diabetesdiary.calendar.table.RecordInvestEditTableModel;
 import org.diabetesdiary.datamodel.api.ActivityAdministrator;
-import org.diabetesdiary.datamodel.api.DbLookUp;
-import org.diabetesdiary.datamodel.api.Diary;
+import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.datamodel.api.DiaryRepository;
 import org.diabetesdiary.datamodel.api.FoodAdministrator;
 import org.diabetesdiary.datamodel.api.InsulinAdministrator;
 import org.diabetesdiary.datamodel.api.InvestigationAdministrator;
-import org.diabetesdiary.datamodel.pojo.Activity;
-import org.diabetesdiary.datamodel.pojo.ActivityGroup;
-import org.diabetesdiary.datamodel.pojo.Food;
-import org.diabetesdiary.datamodel.pojo.FoodGroup;
+import org.diabetesdiary.datamodel.pojo.ActivityDO;
+import org.diabetesdiary.datamodel.pojo.ActivityGroupDO;
+import org.diabetesdiary.datamodel.pojo.FoodDO;
+import org.diabetesdiary.datamodel.pojo.FoodGroupDO;
 import org.diabetesdiary.datamodel.pojo.FoodSeason;
-import org.diabetesdiary.datamodel.pojo.FoodUnit;
-import org.diabetesdiary.datamodel.pojo.GlykSeason;
-import org.diabetesdiary.datamodel.pojo.Insulin;
+import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
+import org.diabetesdiary.datamodel.pojo.InvSeason;
+import org.diabetesdiary.datamodel.pojo.InsulinDO;
 import org.diabetesdiary.datamodel.pojo.InsulinSeason;
-import org.diabetesdiary.datamodel.pojo.InsulinType;
-import org.diabetesdiary.datamodel.pojo.Investigation;
-import org.diabetesdiary.datamodel.pojo.RecordActivity;
+import org.diabetesdiary.datamodel.pojo.InsulinTypeDO;
+import org.diabetesdiary.datamodel.pojo.InvestigationDO;
+import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
 import org.diabetesdiary.datamodel.pojo.RecordActivityPK;
-import org.diabetesdiary.datamodel.pojo.RecordFood;
+import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
 import org.diabetesdiary.datamodel.pojo.RecordFoodPK;
-import org.diabetesdiary.datamodel.pojo.RecordInsulin;
+import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
 import org.diabetesdiary.datamodel.pojo.RecordInsulinPK;
-import org.diabetesdiary.datamodel.pojo.RecordInvest;
+import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
 import org.diabetesdiary.datamodel.pojo.RecordInvestPK;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
@@ -85,7 +85,7 @@ public final class RecordEditorTopComponent extends TopComponent {
     private FoodAdministrator foodAdmin;
     private InsulinAdministrator insulinAdmin;
     private ActivityAdministrator actAdmin;
-    private Diary diary;
+    private DiaryRepository diary;
     private RecordFoodEditTableModel foodModel;
     private RecordInvestEditTableModel investModel;
     private RecordInsulinEditTableModel insulinModel;
@@ -156,7 +156,7 @@ public final class RecordEditorTopComponent extends TopComponent {
         foodAdmin = DbLookUp.getFoodAdmin();
         insulinAdmin = DbLookUp.getInsulinAdmin();
         actAdmin = DbLookUp.getActivityAdmin();
-        diary = DbLookUp.getDiary();
+        diary = DbLookUp.getDiaryRepo();
         numberFormat.setMaximumFractionDigits(2);
 
         initComponents();
@@ -195,7 +195,7 @@ public final class RecordEditorTopComponent extends TopComponent {
     }
 
     private ComboBoxModel createSeasonModel() {
-        DefaultComboBoxModel model = new DefaultComboBoxModel(GlykSeason.values());
+        DefaultComboBoxModel model = new DefaultComboBoxModel(InvSeason.values());
         //model.insertElementAt(null,0);
         //model.setSelectedItem(null);
         return model;
@@ -246,21 +246,21 @@ public final class RecordEditorTopComponent extends TopComponent {
         return investModel;
     }
 
-    private ComboBoxModel createFoodComboModel(FoodGroup group) {
+    private ComboBoxModel createFoodComboModel(FoodGroupDO group) {
         Object[] groups = foodAdmin.getFoodsByGroup(group).toArray();
         Arrays.sort(groups);
         DefaultComboBoxModel model = new DefaultComboBoxModel(groups);
         return model;
     }
 
-    private ComboBoxModel createActComboModel(ActivityGroup group) {
+    private ComboBoxModel createActComboModel(ActivityGroupDO group) {
         Object[] groups = actAdmin.getActivities(group.getId()).toArray();
         Arrays.sort(groups);
         DefaultComboBoxModel model = new DefaultComboBoxModel(groups);
         return model;
     }
 
-    private ComboBoxModel createFoodUnitsModel(Food food) {
+    private ComboBoxModel createFoodUnitsModel(FoodDO food) {
         DefaultComboBoxModel model = new DefaultComboBoxModel(foodAdmin.getFoodUnits(food.getIdFood()).toArray());
         if (food.getIdFood().equals(1)) {
             model.setSelectedItem(foodAdmin.getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT)));
@@ -275,7 +275,7 @@ public final class RecordEditorTopComponent extends TopComponent {
         return model;
     }
 
-    private ComboBoxModel createFoodGroupModel(FoodGroup parent) {
+    private ComboBoxModel createFoodGroupModel(FoodGroupDO parent) {
         Object[] foods = foodAdmin.getFoodGroupByParent(parent).toArray();
         Arrays.sort(foods);
         DefaultComboBoxModel model = new DefaultComboBoxModel(foods);
@@ -287,7 +287,7 @@ public final class RecordEditorTopComponent extends TopComponent {
         return model;
     }
 
-    private ComboBoxModel createUnitsModel(Investigation inv) {
+    private ComboBoxModel createUnitsModel(InvestigationDO inv) {
         DefaultComboBoxModel model = new DefaultComboBoxModel(new Object[]{inv.getUnit()});
         return model;
     }
@@ -321,7 +321,7 @@ public final class RecordEditorTopComponent extends TopComponent {
         return model;
     }
 
-    private ComboBoxModel createInsulinModel(InsulinType type) {
+    private ComboBoxModel createInsulinModel(InsulinTypeDO type) {
         Object[] groups = insulinAdmin.getInsulines(type.getId()).toArray();
         DefaultComboBoxModel model = new DefaultComboBoxModel(groups);
         return model;
@@ -1058,13 +1058,13 @@ public final class RecordEditorTopComponent extends TopComponent {
     }// </editor-fold>//GEN-END:initComponents
 
 private void insulinTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insulinTypeActionPerformed
-    InsulinType type = (InsulinType) insulinType.getSelectedItem();
+    InsulinTypeDO type = (InsulinTypeDO) insulinType.getSelectedItem();
     insulin.setModel(createInsulinModel(type));
 }//GEN-LAST:event_insulinTypeActionPerformed
 
 private void insulinSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insulinSaveActionPerformed
     if (recordInsulinValidation()) {
-        RecordInsulin recordInsulin = new RecordInsulin();
+        RecordInsulinDO recordInsulin = new RecordInsulinDO();
         RecordInsulinPK pk = new RecordInsulinPK(getInsulin().getId(), diary.getCurrentPatient().getIdPatient(), getInsulinDate());
         recordInsulin.setId(pk);
         recordInsulin.setInsulin(getInsulin());
@@ -1109,7 +1109,7 @@ private void jCheckBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIR
 
 private void foodSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodSaveActionPerformed
     if (recordFoodValidation()) {
-        RecordFood record = new RecordFood();
+        RecordFoodDO record = new RecordFoodDO();
         RecordFoodPK pk = new RecordFoodPK(getFood().getIdFood(), diary.getCurrentPatient().getIdPatient(), getFoodDate());
         record.setId(pk);
         record.setFood(getFood());
@@ -1126,7 +1126,7 @@ private void foodSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 }//GEN-LAST:event_foodSaveActionPerformed
 
 private void foodActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodActionPerformed
-    Food foodf = (Food) food.getSelectedItem();
+    FoodDO foodf = (FoodDO) food.getSelectedItem();
     if (foodf != null) {
         foodUnit.setModel(createFoodUnitsModel(foodf));
     }
@@ -1138,13 +1138,13 @@ private void foodTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:e
 
     //int column = foodTable.columnAtPoint(e.getPoint());
     if (!evt.isPopupTrigger()) {
-        RecordFood rec = getFoodModel().getRecordAt(row);
-        setRecordFoods(new RecordFood[]{rec});
+        RecordFoodDO rec = getFoodModel().getRecordAt(row);
+        setRecordFoods(new RecordFoodDO[]{rec});
     }
 
     if (column == getFoodModel().getColumnCount() - 1 && getFoodModel().getRowCount() > 1) {
         if (row == getFoodModel().getRowCount() - 1) {
-            for(RecordFood food : getFoodModel().getRecordFoods()){
+            for(RecordFoodDO food : getFoodModel().getRecordFoods()){
                 diary.deleteRecord(food);
             }            
         } else {
@@ -1171,7 +1171,7 @@ private void investDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 
 private void investSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_investSaveActionPerformed
     if (recordInvestValidation()) {
-        RecordInvest recordInvest = new RecordInvest();
+        RecordInvestDO recordInvest = new RecordInvestDO();
         RecordInvestPK pk = new RecordInvestPK(getInvest().getId(), diary.getCurrentPatient().getIdPatient(), getInvestDate());
         recordInvest.setId(pk);
         recordInvest.setInvest(getInvest());
@@ -1188,7 +1188,7 @@ private void investSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
 }//GEN-LAST:event_investSaveActionPerformed
 
 private void investActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_investActionPerformed
-    Investigation inv = (Investigation) invest.getSelectedItem();
+    InvestigationDO inv = (InvestigationDO) invest.getSelectedItem();
     investUnit.setModel(createUnitsModel(inv));
 }//GEN-LAST:event_investActionPerformed
 
@@ -1214,7 +1214,7 @@ private void foodValueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 private void investTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_investTableMouseClicked
     int row = investTable.rowAtPoint(evt.getPoint());
     int column = investTable.columnAtPoint(evt.getPoint());
-    RecordInvest rec = getInvestModel().getRecord(row, column);
+    RecordInvestDO rec = getInvestModel().getRecord(row, column);
     setRecord(rec);
     if (column == getInvestModel().getColumnCount() - 1 && rec != null && rec.getValue() != null) {
         diary.deleteRecord(rec);
@@ -1229,7 +1229,7 @@ private void investTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST
 private void insulinTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_insulinTableMouseClicked
     int row = insulinTable.rowAtPoint(evt.getPoint());
     int column = insulinTable.columnAtPoint(evt.getPoint());
-    RecordInsulin rec = getInsulinModel().getRecord(row, column);
+    RecordInsulinDO rec = getInsulinModel().getRecord(row, column);
     setRecord(rec);
     if (column == getInsulinModel().getColumnCount() - 1 && rec != null && rec.getAmount() != null) {
         diary.deleteRecord(rec);
@@ -1246,7 +1246,7 @@ private void activityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
 private void actSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actSaveActionPerformed
     if (recordActivityValidation()) {
-        RecordActivity recordActivity = new RecordActivity();
+        RecordActivityDO recordActivity = new RecordActivityDO();
         RecordActivityPK pk = new RecordActivityPK(getActivity().getId(), diary.getCurrentPatient().getIdPatient(), getActDate());
         recordActivity.setId(pk);
         recordActivity.setActivity(getActivity());
@@ -1262,7 +1262,7 @@ private void actSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
 }//GEN-LAST:event_actSaveActionPerformed
 
 private void actTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actTypeActionPerformed
-    activity.setModel(createActComboModel((ActivityGroup) actType.getSelectedItem()));
+    activity.setModel(createActComboModel((ActivityGroupDO) actType.getSelectedItem()));
 }//GEN-LAST:event_actTypeActionPerformed
 
 private void actValueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actValueActionPerformed
@@ -1284,7 +1284,7 @@ private void actDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
 private void actTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_actTableMouseClicked
     int row = actTable.rowAtPoint(evt.getPoint());
     int column = actTable.columnAtPoint(evt.getPoint());
-    RecordActivity rec = getActivityModel().getRecord(row, column);
+    RecordActivityDO rec = getActivityModel().getRecord(row, column);
     setRecord(rec);
     if (column == getActivityModel().getColumnCount() - 1 && rec != null && rec.getDuration() != null) {
         diary.deleteRecord(rec);
@@ -1453,11 +1453,11 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         }
     }
 
-    private Activity getActivity() {
-        return (Activity) activity.getSelectedItem();
+    private ActivityDO getActivity() {
+        return (ActivityDO) activity.getSelectedItem();
     }
 
-    private void setActivity(Activity act) {
+    private void setActivity(ActivityDO act) {
         activity.setSelectedItem(act);
     }
 
@@ -1493,11 +1493,11 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         return actNote.getText();
     }
 
-    public Investigation getInvest() {
-        return (Investigation) invest.getSelectedItem();
+    public InvestigationDO getInvest() {
+        return (InvestigationDO) invest.getSelectedItem();
     }
 
-    public void setInvest(Investigation investig) {
+    public void setInvest(InvestigationDO investig) {
         invest.setSelectedItem(investig);
     }
 
@@ -1522,11 +1522,11 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         investTime.setText(timeFormat.format(investDate));
     }
 
-    public GlykSeason getInvestSeason() {
-        return (GlykSeason) glykSeason.getSelectedItem();
+    public InvSeason getInvestSeason() {
+        return (InvSeason) glykSeason.getSelectedItem();
     }
 
-    public void setInvestSeason(GlykSeason investSeason) {
+    public void setInvestSeason(InvSeason investSeason) {
         glykSeason.setSelectedItem(investSeason);
     }
 
@@ -1550,11 +1550,11 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     //insulin start
-    public Insulin getInsulin() {
-        return (Insulin) insulin.getSelectedItem();
+    public InsulinDO getInsulin() {
+        return (InsulinDO) insulin.getSelectedItem();
     }
 
-    public void setInsulin(Insulin ins) {
+    public void setInsulin(InsulinDO ins) {
         insulin.setSelectedItem(ins);
     }
 
@@ -1599,25 +1599,25 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     //insulin end
-    public Food getFood() {
-        return (Food) food.getSelectedItem();
+    public FoodDO getFood() {
+        return (FoodDO) food.getSelectedItem();
     }
 
-    public FoodGroup getBaseFoodGroup() {
-        return (FoodGroup) baseGroup.getSelectedItem();
+    public FoodGroupDO getBaseFoodGroup() {
+        return (FoodGroupDO) baseGroup.getSelectedItem();
     }
 
-    public FoodGroup getFoodGroup() {
-        return (FoodGroup) foodGroup.getSelectedItem();
+    public FoodGroupDO getFoodGroup() {
+        return (FoodGroupDO) foodGroup.getSelectedItem();
     }
 
-    public void setFood(Food foodf) {
+    public void setFood(FoodDO foodf) {
         food.setSelectedItem(foodf);
     }
 
     public String getFoodUnit() {
         if (foodUnit.getSelectedItem() != null) {
-            return ((FoodUnit) foodUnit.getSelectedItem()).getId().getUnit();
+            return ((FoodUnitDO) foodUnit.getSelectedItem()).getId().getUnit();
         }
         return null;
     }
@@ -1786,16 +1786,16 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         actError.setText(error);
         actError.setVisible(true);
     }
-    private RecordInvest selectedInvestRecord;
-    private RecordInsulin selectedInsulinRecord;
-    private RecordActivity selectedActivityRecord;
+    private RecordInvestDO selectedInvestRecord;
+    private RecordInsulinDO selectedInsulinRecord;
+    private RecordActivityDO selectedActivityRecord;
 
-    public void setRecordInvests(RecordInvest[] recs) {
+    public void setRecordInvests(RecordInvestDO[] recs) {
         selectedInvestRecord = null;
         investDel.setEnabled(false);
 
         if (recs.length > 0 && recs[0] != null) {
-            RecordInvest rec = recs[0];
+            RecordInvestDO rec = recs[0];
             if (rec.getValue() != null) {
                 selectedInvestRecord = rec;
                 investDel.setEnabled(true);
@@ -1806,7 +1806,7 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             setInvest(rec.getInvest());
             setInvestValue(rec.getValue() != null ? rec.getValue() : 0d);
             if (rec.getSeason() != null) {
-                setInvestSeason(GlykSeason.valueOf(rec.getSeason()));
+                setInvestSeason(InvSeason.valueOf(rec.getSeason()));
             }
             setInvestNote(rec.getNotice());
         }
@@ -1814,17 +1814,17 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         getInvestModel().fireTableDataChanged();
     }
 
-    public void setRecordFoods(RecordFood[] recs) {
+    public void setRecordFoods(RecordFoodDO[] recs) {
         if (recs.length > 0 && recs[0] != null) {
-            RecordFood rec = recs[0];
+            RecordFoodDO rec = recs[0];
             activityPanel.setSelectedComponent(jPanel5);
             setFoodValue(rec.getAmount());
             foodModel.setDate(rec.getId().getDate());
             setFoodDate(rec.getId().getDate());
             setFoodNote(rec.getNotice());
-            FoodGroup foodGrp = foodAdmin.getFoodGroup(rec.getFood().getFoodGroup().getId());
+            FoodGroupDO foodGrp = foodAdmin.getFoodGroup(rec.getFood().getFoodGroup().getId());
             if (foodGrp.getParent() != null && foodGrp.getParent().getId() != null) {
-                FoodGroup parent = foodAdmin.getFoodGroup(foodGrp.getParent().getId());
+                FoodGroupDO parent = foodAdmin.getFoodGroup(foodGrp.getParent().getId());
                 baseGroup.setSelectedItem(parent);
                 foodGroup.setSelectedItem(foodGrp);
             } else {
@@ -1840,12 +1840,12 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         getFoodModel().fireTableDataChanged();
     }
 
-    public void setRecordInsulins(RecordInsulin[] recs) {
+    public void setRecordInsulins(RecordInsulinDO[] recs) {
         selectedInsulinRecord = null;
         insulinDel.setEnabled(false);
 
         if (recs.length > 0 && recs[0] != null) {
-            RecordInsulin rec = recs[0];
+            RecordInsulinDO rec = recs[0];
             getInsulinModel().setDate(rec.getId().getDate());
             setInsulinNote(rec.getNotice());
             if (rec.getAmount() != null) {
@@ -1866,12 +1866,12 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         }
     }
 
-    public void setRecordActivities(RecordActivity[] recs) {
+    public void setRecordActivities(RecordActivityDO[] recs) {
         selectedActivityRecord = null;
         actDel.setEnabled(false);
 
         if (recs.length > 0 && recs[0] != null) {
-            RecordActivity rec = recs[0];
+            RecordActivityDO rec = recs[0];
             getActivityModel().setDate(rec.getId().getDate());
             setActNote(rec.getNotice());
             if (rec.getDuration() != null) {
@@ -1889,25 +1889,25 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     public void setRecord(Object record) {
-        if (record instanceof RecordInvest[]) {
-            RecordInvest[] recs = (RecordInvest[]) record;
+        if (record instanceof RecordInvestDO[]) {
+            RecordInvestDO[] recs = (RecordInvestDO[]) record;
             setRecordInvests(recs);
-        } else if (record instanceof RecordInvest) {
-            setRecordInvests(new RecordInvest[]{(RecordInvest) record});
-        } else if (record instanceof RecordInsulin[]) {
-            RecordInsulin[] recs = (RecordInsulin[]) record;
+        } else if (record instanceof RecordInvestDO) {
+            setRecordInvests(new RecordInvestDO[]{(RecordInvestDO) record});
+        } else if (record instanceof RecordInsulinDO[]) {
+            RecordInsulinDO[] recs = (RecordInsulinDO[]) record;
             setRecordInsulins(recs);
-        } else if (record instanceof RecordInsulin) {
-            setRecordInsulins(new RecordInsulin[]{(RecordInsulin) record});
-        } else if (record instanceof RecordActivity[]) {
-            RecordActivity[] recs = (RecordActivity[]) record;
+        } else if (record instanceof RecordInsulinDO) {
+            setRecordInsulins(new RecordInsulinDO[]{(RecordInsulinDO) record});
+        } else if (record instanceof RecordActivityDO[]) {
+            RecordActivityDO[] recs = (RecordActivityDO[]) record;
             setRecordActivities(recs);
-        } else if (record instanceof RecordActivity) {
-            setRecordActivities(new RecordActivity[]{(RecordActivity) record});
-        } else if (record instanceof RecordFood) {
-            setRecordFoods(new RecordFood[]{(RecordFood) record});
-        } else if (record instanceof RecordFood[]) {
-            setRecordFoods((RecordFood[]) record);
+        } else if (record instanceof RecordActivityDO) {
+            setRecordActivities(new RecordActivityDO[]{(RecordActivityDO) record});
+        } else if (record instanceof RecordFoodDO) {
+            setRecordFoods(new RecordFoodDO[]{(RecordFoodDO) record});
+        } else if (record instanceof RecordFoodDO[]) {
+            setRecordFoods((RecordFoodDO[]) record);
         } else if (record instanceof RecordInsulinPumpBasal) {
             setRecordInsulins(((RecordInsulinPumpBasal) record).getData());
         }
