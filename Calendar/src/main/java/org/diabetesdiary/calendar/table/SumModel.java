@@ -23,12 +23,12 @@ import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
 import org.diabetesdiary.calendar.FormatUtils;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
-import org.diabetesdiary.datamodel.pojo.InvestigationDO;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
-import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.service.db.FoodUnitDO;
+import org.diabetesdiary.diary.service.db.InvestigationDO;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
+import org.diabetesdiary.diary.service.db.RecordInsulinDO;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.openide.util.NbBundle;
 
 /**
@@ -78,7 +78,7 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
             }
         }
         if (unit == null) {
-            unit = DbLookUp.getFoodAdmin().getFoodUnit(rec.getId().getIdFood(), rec.getUnit());
+            unit = MyLookup.getFoodAdmin().getFoodUnit(rec.getId().getIdFood(), rec.getUnit());
         }
         double sachUnits = unit.getKoef() * rec.getAmount() * rec.getFood().getSugar() / (100 * sachUnit.getKoef());
         return sachUnits;
@@ -109,7 +109,7 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
             }
         //suma food units
         } else if (col == 1 && foodModel != null) {
-            FoodUnitDO sachUnit = DbLookUp.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+            FoodUnitDO sachUnit = MyLookup.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
             for (int i = 0; i < foodModel.getColumnCount(); i++) {
                 Object obj = foodModel.getValueAt(row, i);
                 if (obj instanceof RecordFoodDO) {
@@ -129,7 +129,7 @@ public class SumModel implements TableSubModel, Comparable<TableSubModel> {
         //bolus/food
         } else if (col == 2 && foodModel != null && insulinModel != null) {
             double sumFood = 0;
-            FoodUnitDO sachUnit = DbLookUp.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+            FoodUnitDO sachUnit = MyLookup.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
             for (int i = 0; i < foodModel.getColumnCount(); i++) {
                 Object obj = foodModel.getValueAt(row, i);
                 if (obj instanceof RecordFoodDO) {

@@ -18,7 +18,7 @@
 package org.diabetesdiary.calendar.table;
 
 import java.text.NumberFormat;
-import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
+import org.diabetesdiary.diary.service.db.RecordInsulinDO;
 
 /**
  *

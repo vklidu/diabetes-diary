@@ -20,8 +20,8 @@ package org.diabetesdiary.calendar.action;
 
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.SelectPatientPanel;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
-import org.diabetesdiary.datamodel.pojo.PatientDO;
+import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.diary.service.db.PatientDO;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;

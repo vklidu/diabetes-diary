@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
-import org.diabetesdiary.datamodel.pojo.InsulinSeason;
-import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.diary.service.db.InsulinSeason;
+import org.diabetesdiary.diary.service.db.RecordInsulinDO;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -47,7 +47,7 @@ public class RecordInsulinEditTableModel extends AbstractTableModel {
 
     /** Creates a new instance of CalendarTableModel */
     public RecordInsulinEditTableModel(Date date) {
-        diary = DbLookUp.getDiaryRepo();
+        diary = MyLookup.getDiaryRepo();
         setDate(date);
     }
 

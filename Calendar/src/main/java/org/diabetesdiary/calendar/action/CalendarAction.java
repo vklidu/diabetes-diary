@@ -22,7 +22,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import org.diabetesdiary.calendar.ui.*;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
+import org.diabetesdiary.diary.api.DiaryRepository;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;

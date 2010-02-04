@@ -29,7 +29,7 @@ import javax.swing.JTable;
 import javax.swing.JToolTip;
 import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.MultiLineToolTip;
-import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
+import org.diabetesdiary.diary.service.db.RecordInsulinDO;
 
 /**
  *

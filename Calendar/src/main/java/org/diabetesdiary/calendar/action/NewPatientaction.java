@@ -25,9 +25,9 @@ import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.NewPatientWizard;
 import org.diabetesdiary.calendar.ui.NewPatientWizardPanel1;
 import org.diabetesdiary.calendar.ui.NewPatientWizardPanel2;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
-import org.diabetesdiary.datamodel.pojo.PatientDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.diary.service.db.PatientDO;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
@@ -58,7 +58,7 @@ public final class NewPatientaction extends CallableSystemAction {
         
         boolean cancelled = wizardDescriptor.getValue() != WizardDescriptor.FINISH_OPTION;
         if (!cancelled) {            
-            DiaryRepository diary = DbLookUp.getDiaryRepo();
+            DiaryRepository diary = MyLookup.getDiaryRepo();
             diary.newPatient(patient);
             diary.setCurrentPatient(patient);
             CalendarTopComponent.getDefault().getModel().fillData();

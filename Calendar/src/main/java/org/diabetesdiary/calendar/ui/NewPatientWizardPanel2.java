@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.diabetesdiary.datamodel.pojo.PatientDO;
+import org.diabetesdiary.diary.service.db.PatientDO;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;

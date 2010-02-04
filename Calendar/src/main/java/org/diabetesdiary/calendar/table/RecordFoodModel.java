@@ -24,10 +24,10 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.datamodel.api.FoodAdministrator;
-import org.diabetesdiary.datamodel.pojo.FoodSeason;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
+import org.diabetesdiary.diary.service.db.FoodSeason;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
 import org.diabetesdiary.datamodel.pojo.RecordFoodPK;
 import org.openide.util.NbBundle;
 
@@ -75,13 +75,13 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
         RecordFoodDO food = new RecordFoodDO();
         RecordFoodPK pk = new RecordFoodPK();
-        pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+        pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
         pk.setIdFood(1);
         pk.setDate(getClickCellDate(rowIndex, columnIndex));
         food.setId(pk);
 
         food.setSeason(FoodSeason.values()[columnIndex].name());
-        FoodAdministrator foodAdmin = DbLookUp.getFoodAdmin();
+        FoodAdministrator foodAdmin = MyLookup.getFoodAdmin();
         food.setFood(foodAdmin.getFood(pk.getIdFood()));
         food.setUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
         food.setAmount(0d);
@@ -92,7 +92,7 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
         if (value instanceof Double) {
             RecordFoodDO rec = new RecordFoodDO();
             RecordFoodPK pk = new RecordFoodPK();
-            pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+            pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
             pk.setIdFood(1);
             pk.setDate(getClickCellDate(rowIndex, columnIndex));
             rec.setId(pk);
@@ -101,9 +101,9 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
             rec.setTotalAmount(units);
             rec.setUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
             rec.setSeason(FoodSeason.values()[columnIndex].name());
-            rec.setFood(DbLookUp.getFoodAdmin().getFood(pk.getIdFood()));
+            rec.setFood(MyLookup.getFoodAdmin().getFood(pk.getIdFood()));
 
-            DbLookUp.getDiaryRepo().addRecord(rec);
+            MyLookup.getDiaryRepo().addRecord(rec);
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(rec.getId().getDate().getTime());
             int col = FoodSeason.valueOf(rec.getSeason()).ordinal();

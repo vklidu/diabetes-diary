@@ -25,8 +25,8 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.datamodel.pojo.InvestigationDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.service.db.InvestigationDO;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 
 /**
  *

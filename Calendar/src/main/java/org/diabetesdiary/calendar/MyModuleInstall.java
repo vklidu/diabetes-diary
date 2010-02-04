@@ -17,7 +17,7 @@
  */
 package org.diabetesdiary.calendar;
 
-import org.diabetesdiary.datamodel.api.DataInit;
+import org.diabetesdiary.diary.api.DataInit;
 import org.openide.modules.ModuleInstall;
 
 /**

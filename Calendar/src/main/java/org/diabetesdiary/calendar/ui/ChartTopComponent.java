@@ -37,15 +37,15 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.diabetesdiary.calendar.*;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
-import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
-import org.diabetesdiary.datamodel.pojo.InsulinTypeDO;
-import org.diabetesdiary.datamodel.pojo.InvestigationDO;
-import org.diabetesdiary.datamodel.pojo.PatientDO;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
-import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.diary.service.db.FoodUnitDO;
+import org.diabetesdiary.diary.service.db.InsulinTypeDO;
+import org.diabetesdiary.diary.service.db.InvestigationDO;
+import org.diabetesdiary.diary.service.db.PatientDO;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
+import org.diabetesdiary.diary.service.db.RecordInsulinDO;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.diabetesdiary.model.Hemoglobin;
 import org.diabetesdiary.model.SREnum;
 import org.diabetesdiary.model.SimulationManager;
@@ -90,7 +90,7 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
         setIcon(Utilities.loadImage(ICON_PATH, true));
         //insulinRadio.setVisible(false);
         thisWeekRadio.setVisible(false);
-        diary = DbLookUp.getDiaryRepo();
+        diary = MyLookup.getDiaryRepo();
         dateFrom.setValue(new Date());
         dateFrom.addPropertyChangeListener("value", this);
         dateTo.setValue(new Date());
@@ -213,7 +213,7 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
             myFormat.setMaximumFractionDigits(2);
             myFormat.setMinimumFractionDigits(1);
 
-            List<RecordInvestDO> records = DbLookUp.getDiaryRepo().getRecordInvests(getFrom(), getTo(), DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+            List<RecordInvestDO> records = MyLookup.getDiaryRepo().getRecordInvests(getFrom(), getTo(), MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
             Hemoglobin hemo = new Hemoglobin(records);
 
             StringBuffer buf = new StringBuffer();
@@ -635,7 +635,7 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
     }
 
     private ComboBoxModel createInvestModel() {
-        DefaultComboBoxModel model = new DefaultComboBoxModel(DbLookUp.getInvesAdmin().getInvestigations().toArray());
+        DefaultComboBoxModel model = new DefaultComboBoxModel(MyLookup.getInvesAdmin().getInvestigations().toArray());
         return model;
     }
 

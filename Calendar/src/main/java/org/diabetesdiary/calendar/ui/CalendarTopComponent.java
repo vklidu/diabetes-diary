@@ -52,12 +52,12 @@ import org.diabetesdiary.calendar.table.InsulinPumpBasalRenderer;
 import org.diabetesdiary.calendar.table.RecordInsulinPumpBasal;
 import org.diabetesdiary.calendar.table.SumModel;
 import org.diabetesdiary.calendar.table.TableSubModel;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
-import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
-import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.diary.service.db.RecordActivityDO;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
+import org.diabetesdiary.diary.service.db.RecordInsulinDO;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -102,7 +102,7 @@ public final class CalendarTopComponent extends TopComponent
                         popupMenu = CalendarPopupMenu.createPopupMenu(getModel().getValueAt(row, column));
                         popupMenu.show(jTable1, e.getX(), e.getY());
                     }
-                } else if (DbLookUp.getDiaryRepo().getCurrentPatient() != null) {
+                } else if (MyLookup.getDiaryRepo().getCurrentPatient() != null) {
                     Object record = getModel().getEverRecordValueAt(row, column);
                     RecordEditorTopComponent.getDefault().setRecord(record);
                 }

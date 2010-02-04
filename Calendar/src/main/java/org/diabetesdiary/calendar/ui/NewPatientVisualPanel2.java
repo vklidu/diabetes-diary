@@ -25,8 +25,8 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.InsulinDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.service.db.InsulinDO;
 import org.openide.util.NbBundle;
 
 public final class NewPatientVisualPanel2 extends JPanel {
@@ -70,7 +70,7 @@ public final class NewPatientVisualPanel2 extends JPanel {
     }
     
     private ComboBoxModel createInsulinCombo(){
-        ComboBoxModel model = new DefaultComboBoxModel(DbLookUp.getInsulinAdmin().getInsulines().toArray());
+        ComboBoxModel model = new DefaultComboBoxModel(MyLookup.getInsulinAdmin().getInsulines().toArray());
         return model;
     }
     

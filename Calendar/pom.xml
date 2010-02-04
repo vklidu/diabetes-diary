@@ -28,7 +28,7 @@
     </dependency>
     <dependency>
       <groupId>org.diabetesdiary</groupId>
-      <artifactId>datamodel</artifactId>
+      <artifactId>diary</artifactId>
       <version>${diary.version}</version>
     </dependency>
     <dependency>
@@ -38,7 +38,7 @@
     </dependency>
     <dependency>
       <groupId>org.diabetesdiary</groupId>
-      <artifactId>model</artifactId>
+      <artifactId>simulator</artifactId>
       <version>${diary.version}</version>
     </dependency>
     <dependency>
