@@ -5,3 +5,4 @@ OpenIDE-Module: org.diabetesdiary.datamodel
 OpenIDE-Module-Layer: org/diabetesdiary/datamodel/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/diabetesdiary/datamodel/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.2
+OpenIDE-Module-Install: org/diabetesdiary/diary/MyModuleInstall.class

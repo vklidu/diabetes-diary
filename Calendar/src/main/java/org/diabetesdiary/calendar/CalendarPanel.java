@@ -22,8 +22,8 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFormattedTextField;
 import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.diary.domain.FoodUnit;
 import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.service.db.FoodUnitDO;
 import org.openide.util.NbBundle;
 
 final class CalendarPanel extends javax.swing.JPanel {
@@ -140,7 +140,7 @@ final class CalendarPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     
     void load() {
-        FoodUnitDO unit = MyLookup.getFoodAdmin().getFoodUnit(1l,CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+        FoodUnit unit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
         jComboBox1.setModel(getSachUnitModel());
         jComboBox1.setSelectedItem(unit);
         lowGly.setValue(Double.valueOf(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_GLYKEMIE_LOW_NORMAL)));
@@ -148,7 +148,7 @@ final class CalendarPanel extends javax.swing.JPanel {
     }
     
     void store() {
-        FoodUnitDO unit = (FoodUnitDO) jComboBox1.getSelectedItem();
+        FoodUnit unit = (FoodUnit) jComboBox1.getSelectedItem();
         CalendarSettings.getSettings().setValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT,unit.getUnit());
         CalendarSettings.getSettings().setValue(CalendarSettings.KEY_GLYKEMIE_LOW_NORMAL,String.valueOf(((Number)lowGly.getValue()).doubleValue()));
         CalendarSettings.getSettings().setValue(CalendarSettings.KEY_GLYKEMIE_HIGH_NORMAL,String.valueOf(((Number)highGly.getValue()).doubleValue()));
@@ -163,7 +163,7 @@ final class CalendarPanel extends javax.swing.JPanel {
     
     
     private ComboBoxModel getSachUnitModel(){
-        return new DefaultComboBoxModel(MyLookup.getFoodAdmin().getFoodUnits(1l).toArray());
+        return new DefaultComboBoxModel(MyLookup.getDiaryRepo().getSacharidUnits().toArray());
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

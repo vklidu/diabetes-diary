@@ -17,6 +17,7 @@
  */
 package org.diabetesdiary.diary.service.db;
 
+import org.diabetesdiary.diary.domain.FoodSeason;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

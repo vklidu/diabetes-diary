@@ -22,9 +22,10 @@ import java.awt.event.ActionListener;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
-import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.service.db.RecordFoodDO;
+import org.diabetesdiary.diary.domain.RecordActivity;
+import org.diabetesdiary.diary.domain.RecordFood;
+import org.diabetesdiary.diary.domain.RecordInsulin;
+import org.diabetesdiary.diary.domain.RecordInvest;
 import org.openide.util.NbBundle;
 
 /**
@@ -39,17 +40,23 @@ public class CalendarPopupMenu {
         JMenuItem menuItemDelete = new JMenuItem(NbBundle.getMessage(CalendarPopupMenu.class, "Delete"));
         menuItemDelete.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
-                DiaryRepository diary = MyLookup.getDiaryRepo();
-                if (value instanceof RecordFoodDO) {
-                    RecordFoodDO food = (RecordFoodDO) value;
-                    diary.deleteRecordFood(food.getId().getIdPatient(), food.getId().getDate());
-                } else if (value instanceof RecordFoodDO[]) {
-                    for (RecordFoodDO food : (RecordFoodDO[]) value) {
-                        diary.deleteRecordFood(food.getId().getIdPatient(), food.getId().getDate());
+                if (value instanceof RecordFood) {
+                    RecordFood food = (RecordFood) value;
+                    food.delete();
+                } else if (value instanceof RecordFood[]) {
+                    for (RecordFood food : (RecordFood[]) value) {
+                        food.delete();
                     }
+                } else if (value instanceof RecordActivity) {
+                    ((RecordActivity) value).delete();
+                } else if (value instanceof RecordInsulin) {
+                    ((RecordInsulin) value).delete();
+                } else if (value instanceof RecordInvest) {
+                    ((RecordInvest) value).delete();
                 } else {
-                    diary.deleteRecord(value);
+                    throw new IllegalStateException();
                 }
                 CalendarTopComponent.getDefault().getModel().fillData();
                 CalendarTopComponent.getDefault().getModel().fireTableDataChanged();

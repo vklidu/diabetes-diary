@@ -26,9 +26,9 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.diary.domain.FoodUnit;
+import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.service.db.FoodUnitDO;
-import org.diabetesdiary.diary.service.db.RecordFoodDO;
 
 /**
  *
@@ -49,6 +49,7 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
         setOpaque(true);
     }
 
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         return createCell(table, value, isSelected);
     }
@@ -56,18 +57,19 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
     public static Component createCell(JTable table, Object value, boolean isSelected) {
         FoodCellRenderer result = new FoodCellRenderer();
         result.setHorizontalAlignment(CENTER);
-        FoodUnitDO sachUnit = MyLookup.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
-        if (value instanceof RecordFoodDO) {
-            RecordFoodDO rec = (RecordFoodDO) value;
+        if (value instanceof RecordFood) {
+            FoodUnit sachUnit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+            RecordFood rec = (RecordFood) value;
             //Double unit = rec.getAmount()
             if (rec.getAmount() != null) {
                 result.setText(format.format(countSachUnits(rec, sachUnit)));
                 result.setToolTipText(createToolTip(rec));
             }
-        } else if (value instanceof RecordFoodDO[]) {
-            RecordFoodDO[] recs = (RecordFoodDO[]) value;
+        } else if (value instanceof RecordFood[]) {
+            FoodUnit sachUnit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+            RecordFood[] recs = (RecordFood[]) value;
             double sum = 0;
-            for (RecordFoodDO rec : recs) {
+            for (RecordFood rec : recs) {
                 if (rec != null && rec.getAmount() != null) {
                     sum += countSachUnits(rec, sachUnit);
                 }
@@ -87,54 +89,42 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static Double countSachUnits(RecordFoodDO rec, FoodUnitDO sachUnit) {
+    private static Double countSachUnits(RecordFood rec, FoodUnit sachUnit) {
         if (rec.getAmount() == null) {
             return null;
         }
-        FoodUnitDO unit = null;
-        if (rec.getFood() != null && rec.getFood().getUnits() != null) {
-            for (Object un : rec.getFood().getUnits()) {
-                unit = (FoodUnitDO) un;
-                if (unit.getId().getUnit().equals(rec.getUnit())) {
-                    break;
-                }
-            }
-        }
-        if (unit == null) {
-            unit = MyLookup.getFoodAdmin().getFoodUnit(rec.getId().getIdFood(), rec.getUnit());
-        }
-        double sachUnits = unit.getKoef() * rec.getAmount() * rec.getFood().getSugar() / (100 * sachUnit.getKoef());
+        double sachUnits = rec.getUnit().getKoef() * rec.getAmount() * rec.getFood().getSugar() / (100 * sachUnit.getKoef());
         return sachUnits;
     }
 
-    private static String createToolTip(RecordFoodDO rec) {
+    private static String createToolTip(RecordFood rec) {
         if (rec == null || rec.getAmount() == null || rec.getFood() == null) {
             return null;
         }
 
-        String result = timeFormat.format(rec.getId().getDate()) + "\n";
+        String result = timeFormat.format(rec.getDatetime().toDate()) + "\n";
         result += rec.getFood().getName();
         result += " " + format.format(rec.getAmount()) + " " + rec.getUnit();
 
         return result;
     }
 
-    private static String createToolTip(RecordFoodDO[] recs) {
+    private static String createToolTip(RecordFood[] recs) {
         if (recs == null || recs.length < 1 || recs[0] == null || recs[0].getAmount() == null || recs[0].getFood() == null) {
             return null;
         }
         StringBuffer result = new StringBuffer();
         Date lastDate = null;
-        for (RecordFoodDO rec : recs) {
+        for (RecordFood rec : recs) {
             if (rec != null) {
-                if (lastDate == null || !lastDate.equals(rec.getId().getDate())) {
-                    result.append(timeFormat.format(rec.getId().getDate())).append('\n');
+                if (lastDate == null || !lastDate.equals(rec.getDatetime().toDate())) {
+                    result.append(timeFormat.format(rec.getDatetime().toDate())).append('\n');
                 }
                 result.append(rec.getFood().getName());
                 result.append(' ').append(format.format(rec.getAmount()));
                 result.append(' ').append(rec.getUnit());
                 result.append('\n');
-                lastDate = rec.getId().getDate();
+                lastDate = rec.getDatetime().toDate();
             }
         }
 

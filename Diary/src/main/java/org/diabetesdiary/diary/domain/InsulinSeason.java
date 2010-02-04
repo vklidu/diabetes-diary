@@ -18,7 +18,7 @@
 
 
 
-package org.diabetesdiary.diary.service.db;
+package org.diabetesdiary.diary.domain;
 
 import org.openide.util.NbBundle;
 

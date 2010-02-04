@@ -29,10 +29,11 @@ import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.RecordEditorTopComponent;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.service.db.RecordActivityDO;
-import org.diabetesdiary.diary.service.db.RecordFoodDO;
-import org.diabetesdiary.diary.service.db.RecordInsulinDO;
-import org.diabetesdiary.diary.service.db.RecordInvestDO;
+import org.diabetesdiary.diary.domain.RecordActivity;
+import org.diabetesdiary.diary.domain.RecordFood;
+import org.diabetesdiary.diary.domain.RecordInsulin;
+import org.diabetesdiary.diary.domain.RecordInvest;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -70,13 +71,13 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         diary = MyLookup.getDiaryRepo();
         dayModel = new DayModel(month);
 
-        if (diary.getCurrentPatient() != null && diary.getCurrentPatient().isPumpUsage()) {
+        if (MyLookup.getCurrentPatient() != null && MyLookup.getCurrentPatient().isPumpUsage()) {
             insulinModel = new RecordInsulinPumpModel(dayModel.getBaseIndex() + dayModel.getColumnCount(), month);
         } else {
             insulinModel = new RecordInsulinModel(dayModel.getBaseIndex() + dayModel.getColumnCount(), month);
         }
         investModel = new RecordInvestModel(insulinModel.getBaseIndex() + insulinModel.getColumnCount(), month);
-        otherModel = new OtherInvestModel(investModel.getBaseIndex() + investModel.getColumnCount(), diary.getCurrentPatient() != null ? diary.getCurrentPatient().isMale() : true, month);
+        otherModel = new OtherInvestModel(investModel.getBaseIndex() + investModel.getColumnCount(), MyLookup.getCurrentPatient() != null ? MyLookup.getCurrentPatient().isMale() : true, month);
         foodModel = new RecordFoodModel(otherModel.getBaseIndex() + otherModel.getColumnCount(), month);
         activityModel = new ActivityModel(foodModel.getBaseIndex() + foodModel.getColumnCount(), month, foodModel, otherModel);
         sumModel = new SumModel(activityModel.getBaseIndex() + activityModel.getColumnCount(), foodModel, insulinModel, otherModel);
@@ -107,14 +108,14 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         aktual.setTimeInMillis(month.getTimeInMillis());
 
         //no data => end
-        if (getDiary().getCurrentPatient() == null) {
+        if (MyLookup.getCurrentPatient() == null) {
             return;
         }
 
-        if (diary.getCurrentPatient().isPumpUsage() != insulinModel instanceof RecordInsulinPumpModel) {
+        if (MyLookup.getCurrentPatient().isPumpUsage() != insulinModel instanceof RecordInsulinPumpModel) {
             activeModels.remove(insulinModel);
             activeModels.remove(sumModel);
-            if (diary.getCurrentPatient().isPumpUsage()) {
+            if (MyLookup.getCurrentPatient().isPumpUsage()) {
                 insulinModel = new RecordInsulinPumpModel(insulinModel.getBaseIndex(), month);
                 sumModel = new SumModel(sumModel.getBaseIndex(), foodModel, insulinModel, otherModel);
             } else {
@@ -127,11 +128,11 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
             CalendarTopComponent.getDefault().recreateTableHeader();
         }
 
-        if (diary.getCurrentPatient().isMale() != ((OtherInvestModel) otherModel).isMale()) {
+        if (MyLookup.getCurrentPatient().isMale() != ((OtherInvestModel) otherModel).isMale()) {
             activeModels.remove(otherModel);
             activeModels.remove(sumModel);
             activeModels.remove(activityModel);
-            otherModel = new OtherInvestModel(investModel.getBaseIndex() + investModel.getColumnCount(), diary.getCurrentPatient().isMale(), month);
+            otherModel = new OtherInvestModel(investModel.getBaseIndex() + investModel.getColumnCount(), MyLookup.getCurrentPatient().isMale(), month);
             activityModel = new ActivityModel(foodModel.getBaseIndex() + foodModel.getColumnCount(), month, foodModel, otherModel);
             sumModel = new SumModel(sumModel.getBaseIndex(), foodModel, insulinModel, otherModel);
             activeModels.add(otherModel);
@@ -152,18 +153,18 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         Date to = aktual.getTime();
 
 
-        List<RecordInvestDO> records = getDiary().getRecordInvests(from, to, getDiary().getCurrentPatient().getIdPatient());
+        List<RecordInvest> records = MyLookup.getCurrentPatient().getRecordInvests(new DateTime(from), new DateTime(to));
         investModel.setData(records);
         otherModel.setData(records);
 
-        List<RecordActivityDO> recordActs = getDiary().getRecordActivities(from, to, getDiary().getCurrentPatient().getIdPatient());
+        List<RecordActivity> recordActs = MyLookup.getCurrentPatient().getRecordActivities(new DateTime(from), new DateTime(to));
         activityModel.setData(recordActs);
 
-        List<RecordFoodDO> recordFoods = getDiary().getRecordFoods(from, to, getDiary().getCurrentPatient().getIdPatient());
+        List<RecordFood> recordFoods = MyLookup.getCurrentPatient().getRecordFoods(new DateTime(from), new DateTime(to));
         foodModel.setData(recordFoods);
 
 
-        List<RecordInsulinDO> recordIns = diary.getRecordInsulins(from, to, diary.getCurrentPatient().getIdPatient());
+        List<RecordInsulin> recordIns = MyLookup.getCurrentPatient().getRecordInsulins(new DateTime(from), new DateTime(to));
         insulinModel.setData(recordIns);
 
         RecordEditorTopComponent.getDefault().getFoodModel().fillData();
@@ -194,10 +195,12 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         fireTableDataChanged();
     }
 
+    @Override
     public int getRowCount() {
         return getMonth().getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
+    @Override
     public int getColumnCount() {
         int sum = 0;
         for (TableSubModel model : getActiveSubModels()) {
@@ -219,6 +222,7 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         return result;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         TableSubModel sub = getSubModel(columnIndex);
         if (sub != null) {
@@ -238,7 +242,7 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
 
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        if (getDiary().getCurrentPatient() == null) {
+        if (MyLookup.getCurrentPatient() == null) {
             return;
         }
         TableSubModel sub = getSubModel(columnIndex);
@@ -277,6 +281,7 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         return Object.class;
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         //change in sacharid unit size 10g or 12g per unit
         if (evt.getPropertyName().equals(CalendarSettings.KEY_CARBOHYDRATE_UNIT)) {

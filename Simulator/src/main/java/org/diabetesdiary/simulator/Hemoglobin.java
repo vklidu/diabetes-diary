@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.math.stat.Frequency;
 import org.diabetesdiary.diary.domain.RecordInvest;
+import org.diabetesdiary.diary.domain.WKInvest;
 
 /**
  *
@@ -45,7 +46,7 @@ public class Hemoglobin {
     public Hemoglobin(List<RecordInvest> records) {        
         Frequency f = new Frequency();
         for(RecordInvest rec : records){
-            if(rec.isBloodGlucose()){
+            if(rec.getInvest().anyType(WKInvest.GLYCEMIE)){
                 f.addValue(rec.getValue());
             }
         }

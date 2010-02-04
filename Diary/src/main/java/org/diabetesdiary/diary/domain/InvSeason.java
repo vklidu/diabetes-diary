@@ -15,20 +15,28 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.diabetesdiary.calendar;
 
-import org.diabetesdiary.diary.api.DataInit;
-import org.openide.modules.ModuleInstall;
+
+package org.diabetesdiary.diary.domain;
+
+import org.openide.util.NbBundle;
 
 /**
- *
+ * First letter - Before/After
+ * B - breakfast
+ * FS- snack for dinner
+ * D - dinner
+ * S - snack
+ * V - supper
+ * SV- second supper
+ * M - night * 
  * @author Jiri Majer
  */
-public class MyModuleInstall extends ModuleInstall {
+public enum InvSeason {
+    BB, AB, BD, AD, BV, AV, BS, M;
 
     @Override
-    public void restored() {
-        super.restored();
-        DataInit.createExampleData();
+    public String toString(){
+        return NbBundle.getMessage(InvSeason.class,"glyk.season."+name());
     }
 }

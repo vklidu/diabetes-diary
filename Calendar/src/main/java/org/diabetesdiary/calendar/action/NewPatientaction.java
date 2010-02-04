@@ -26,8 +26,8 @@ import org.diabetesdiary.calendar.ui.NewPatientWizard;
 import org.diabetesdiary.calendar.ui.NewPatientWizardPanel1;
 import org.diabetesdiary.calendar.ui.NewPatientWizardPanel2;
 import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.service.db.PatientDO;
+import org.diabetesdiary.diary.api.DiaryService;
+import org.diabetesdiary.diary.domain.Patient;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
@@ -40,11 +40,12 @@ public final class NewPatientaction extends CallableSystemAction {
     private WizardDescriptor.Panel[] panels;
     private WizardDescriptor wizardDescriptor;
     
+    @Override
     public void performAction(){
-        performAction(new PatientDO());
+        performAction(null);
     }
     
-    public void performAction(PatientDO patient) {
+    public void performAction(Patient patient) {
         wizardDescriptor = new NewPatientWizard(getPanels());
         NewPatientWizardPanel1 panel = (NewPatientWizardPanel1) getPanels()[0];
         NewPatientWizardPanel2 panel2 = (NewPatientWizardPanel2) getPanels()[1];
@@ -57,10 +58,19 @@ public final class NewPatientaction extends CallableSystemAction {
         dialog.toFront();
         
         boolean cancelled = wizardDescriptor.getValue() != WizardDescriptor.FINISH_OPTION;
-        if (!cancelled) {            
-            DiaryRepository diary = MyLookup.getDiaryRepo();
-            diary.newPatient(patient);
-            diary.setCurrentPatient(patient);
+        if (!cancelled) {
+            if (patient == null) {
+                DiaryService diary = MyLookup.getDiaryService();
+                patient = diary.newPatient(panel.getName(), panel.getSurname(), panel.isMale(), panel.getBorn(), null, panel.isPumpUsage(), panel.getEmail(), null, null,
+                        panel2.getBasalInsulin(), panel2.getBolusInsulin(), panel2.getPerSensitivity(), panel2.getHepSensitivity(), panel2.getFiltrationRate(), panel2.getRenalThreshold());
+                MyLookup.setCurrentPatient(patient);
+            }
+            else {
+                patient.update(panel.getName(), panel.getSurname(), panel.isMale(), panel.getBorn(), null, panel.isPumpUsage(), panel.getEmail(), null, null,
+                        panel2.getBasalInsulin(), panel2.getBolusInsulin(), panel2.getPerSensitivity(), panel2.getHepSensitivity(), panel2.getFiltrationRate(), panel2.getRenalThreshold());
+                MyLookup.setCurrentPatient(MyLookup.getDiaryRepo().getPatient(patient.getId()));
+            }
+            
             CalendarTopComponent.getDefault().getModel().fillData();
             CalendarTopComponent.getDefault().getModel().fireTableDataChanged();            
         }
@@ -102,18 +112,22 @@ public final class NewPatientaction extends CallableSystemAction {
         return panels;
     }
     
+    @Override
     public String getName() {
         return NbBundle.getMessage(NewPatientaction.class, "CTL_NewPatientaction");
     }
     
+    @Override
     protected String iconResource() {
         return "org/diabetesdiary/calendar/resources/newpatient.png";
     }
     
+    @Override
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
     
+    @Override
     protected boolean asynchronous() {
         return false;
     }

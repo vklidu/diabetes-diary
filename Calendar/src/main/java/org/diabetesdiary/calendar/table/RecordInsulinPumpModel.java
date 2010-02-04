@@ -20,14 +20,10 @@ package org.diabetesdiary.calendar.table;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.StringTokenizer;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
-import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.service.db.InsulinSeason;
-import org.diabetesdiary.diary.service.db.RecordInsulinDO;
-import org.diabetesdiary.datamodel.pojo.RecordInsulinPK;
+import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.openide.util.NbBundle;
 
 /**
@@ -36,7 +32,7 @@ import org.openide.util.NbBundle;
  */
 public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSubModel> {
 
-    private RecordInsulinDO dataIns[][][];
+    private RecordInsulin dataIns[][][];
     private RecordInsulinPumpBasal dataBasal[][];
     private int baseIndex;
     private Calendar month;
@@ -47,10 +43,12 @@ public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSu
         this.month = month;
     }
 
+    @Override
     public int getColumnCount() {
         return 6;
     }
 
+    @Override
     public ColumnGroup getColumnHeader(TableColumnModel cm) {
         ColumnGroup gInsulin = new ColumnGroup(NbBundle.getMessage(RecordInsulinPumpModel.class, "Column.insulin"));
         ColumnGroup gBazal = new ColumnGroup(NbBundle.getMessage(RecordInsulinPumpModel.class, "Bazal_(v_desetinach_U)"));
@@ -72,6 +70,7 @@ public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSu
         return gInsulin;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (columnIndex < 4) {
             if (dataIns != null && rowIndex > -1) {
@@ -89,8 +88,10 @@ public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSu
         return null;
     }
 
+    @Override
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        RecordInsulinDO rec = new RecordInsulinDO();
+        /*
+        RecordInsulin rec = new RecordInsulin();
         RecordInsulinPK pk = new RecordInsulinPK();
         pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
 
@@ -119,11 +120,16 @@ public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSu
         rec.setAmount(null);
         rec.setSeason(seas.name());
         return rec;
+         *
+         */
+        return null;
     }
 
+    @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double && columnIndex < 4) {
-            RecordInsulinDO rec = new RecordInsulinDO();
+            /**
+            RecordInsulin rec = new RecordInsulin();
             RecordInsulinPK pk = new RecordInsulinPK();
             pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
             InsulinSeason seas;
@@ -168,7 +174,7 @@ public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSu
                 try {
                     if (val != null && val.length() > 0 && Character.isDigit(val.charAt(0))) {
                         double units = Double.valueOf(val) / 10;
-                        RecordInsulinDO rec = new RecordInsulinDO();
+                        RecordInsulin rec = new RecordInsulin();
                         RecordInsulinPK pk = new RecordInsulinPK();
                         pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
                         InsulinSeason seas = InsulinSeason.BASAL;
@@ -199,16 +205,19 @@ public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSu
                     i++;
                 }
             }
+             */
         }
     }
 
+    @Override
     public Class<?> getColumnClass(int columnIndex) {
         if (columnIndex < 4) {
-            return RecordInsulinDO.class;
+            return RecordInsulin.class;
         }
         return RecordInsulinPumpBasal.class;
     }
 
+    @Override
     public String getColumnName(int col) {
         switch (col) {
             case 0:
@@ -228,24 +237,26 @@ public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSu
         }
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         return true;
     }
 
+    @Override
     public void setData(Collection<?> data) {
-        dataIns = new RecordInsulinDO[31][6][1];
+        dataIns = new RecordInsulin[31][6][1];
         dataBasal = new RecordInsulinPumpBasal[31][2];
         for (Object record : data) {
-            if (record instanceof RecordInsulinDO) {
-                RecordInsulinDO rec = (RecordInsulinDO) record;
-                month.setTimeInMillis(rec.getId().getDate().getTime());
+            if (record instanceof RecordInsulin) {
+                RecordInsulin rec = (RecordInsulin) record;
+                month.setTimeInMillis(rec.getDatetime().getMillis());
                 if (!rec.isBasal()) {
-                    int col = InsulinSeason.valueOf(rec.getSeason()).ordinal();
+                    int col = rec.getSeason().ordinal();
                     if (dataIns[month.get(Calendar.DAY_OF_MONTH) - 1][col][0] == null) {
                         dataIns[month.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
                     } else {
-                        RecordInsulinDO[] pom = dataIns[month.get(Calendar.DAY_OF_MONTH) - 1][col];
-                        dataIns[month.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordInsulinDO[pom.length + 1];
+                        RecordInsulin[] pom = dataIns[month.get(Calendar.DAY_OF_MONTH) - 1][col];
+                        dataIns[month.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordInsulin[pom.length + 1];
                         for (int i = 0; i < pom.length; i++) {
                             dataIns[month.get(Calendar.DAY_OF_MONTH) - 1][col][i] = pom[i];
                         }
@@ -276,14 +287,17 @@ public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSu
         }
     }
 
+    @Override
     public void setBaseIndex(int baseIndex) {
         this.baseIndex = baseIndex;
     }
 
+    @Override
     public int getBaseIndex() {
         return baseIndex;
     }
 
+    @Override
     public int compareTo(TableSubModel o) {
         return Integer.valueOf(baseIndex).compareTo(o.getBaseIndex());
     }
@@ -315,13 +329,16 @@ public class RecordInsulinPumpModel implements TableSubModel, Comparable<TableSu
         return cal.getTime();
     }
 
+    @Override
     public int getRowCount() {
         throw new IllegalStateException("Don't use it.");
     }
 
+    @Override
     public void addTableModelListener(TableModelListener l) {
     }
 
+    @Override
     public void removeTableModelListener(TableModelListener l) {
     }
 }

@@ -26,7 +26,8 @@ import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.service.db.RecordActivityDO;
+import org.diabetesdiary.diary.domain.RecordActivity;
+import org.joda.time.DateTime;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -38,7 +39,7 @@ public class RecordActivityEditTableModel extends AbstractTableModel {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private static DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
-    private List<RecordActivityDO> recs;
+    private List<RecordActivity> recs;
     private static final String DELETE_ICO = "org/diabetesdiary/calendar/resources/delete16.png";
     private Date dateTo;
     private DiaryRepository diary;
@@ -50,16 +51,19 @@ public class RecordActivityEditTableModel extends AbstractTableModel {
         setDate(date);
     }
 
+    @Override
     public int getRowCount() {
         return recs == null ? 0 : recs.size();
     }
 
+    @Override
     public int getColumnCount() {
         return 5;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        RecordActivityDO rec = recs.get(rowIndex);
+        RecordActivity rec = recs.get(rowIndex);
         if (columnIndex == getColumnCount() - 1) {
             if (rec != null && rec.getDuration() != null) {
                 return new ImageIcon(Utilities.loadImage(DELETE_ICO, true));
@@ -74,9 +78,9 @@ public class RecordActivityEditTableModel extends AbstractTableModel {
             case 1:
                 return rec.getDuration() != null ? format.format(rec.getDuration()) + " min" : "";
             case 2:
-                return dateFormat.format(rec.getId().getDate());
+                return dateFormat.format(rec.getDatetime());
             case 3:
-                Double weight = diary.getWeight(rec.getId().getDate(), rec.getId().getIdPatient());
+                Double weight = rec.getPatient().getWeight(rec.getDatetime());
                 if(weight != null){
                     double res = rec.getDuration() * rec.getActivity().getPower() * weight;
                     return format.format(res);
@@ -96,7 +100,7 @@ public class RecordActivityEditTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
     }
 
-    public RecordActivityDO getRecord(int rowIndex, int columnIndex) {
+    public RecordActivity getRecord(int rowIndex, int columnIndex) {
         return recs == null ? null : recs.get(rowIndex);
     }
 
@@ -147,10 +151,10 @@ public class RecordActivityEditTableModel extends AbstractTableModel {
 
     public void fillData() {
         //no data => end
-        if (diary.getCurrentPatient() == null || dateFrom == null || dateTo == null) {
+        if (MyLookup.getCurrentPatient() == null || dateFrom == null || dateTo == null) {
             recs = null;
             return;
         }
-        recs = diary.getRecordActivities(dateFrom, dateTo, diary.getCurrentPatient().getIdPatient());
+        recs = MyLookup.getCurrentPatient().getRecordActivities(new DateTime(dateFrom), new DateTime(dateTo));
     }
 }

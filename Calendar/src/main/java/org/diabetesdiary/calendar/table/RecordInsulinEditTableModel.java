@@ -26,10 +26,10 @@ import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.service.db.InsulinSeason;
-import org.diabetesdiary.diary.service.db.RecordInsulinDO;
+import org.diabetesdiary.diary.domain.RecordInsulin;
+import org.joda.time.DateTime;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
 /**
  *
@@ -39,7 +39,7 @@ public class RecordInsulinEditTableModel extends AbstractTableModel {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private static DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
-    private List<RecordInsulinDO> recs;
+    private List<RecordInsulin> recs;
     private static final String DELETE_ICO = "org/diabetesdiary/calendar/resources/delete16.png";
     private Date dateTo;
     private DiaryRepository diary;
@@ -51,19 +51,22 @@ public class RecordInsulinEditTableModel extends AbstractTableModel {
         setDate(date);
     }
 
+    @Override
     public int getRowCount() {
         return recs == null ? 0 : recs.size();
     }
 
+    @Override
     public int getColumnCount() {
         return 5;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        RecordInsulinDO rec = recs.get(rowIndex);
+        RecordInsulin rec = recs.get(rowIndex);
         if (columnIndex == getColumnCount() - 1) {
             if (rec != null && rec.getAmount() != null) {
-                return new ImageIcon(Utilities.loadImage(DELETE_ICO, true));
+                return new ImageIcon(ImageUtilities.loadImage(DELETE_ICO, true));
             } else {
                 return null;
             }
@@ -75,9 +78,9 @@ public class RecordInsulinEditTableModel extends AbstractTableModel {
             case 1:
                 return rec.getAmount() != null ? format.format(rec.getAmount()) + " U" : "";
             case 2:
-                return dateFormat.format(rec.getId().getDate());
+                return dateFormat.format(rec.getDatetime().toDate());
             case 3:
-                return rec.getSeason() != null ? InsulinSeason.valueOf(rec.getSeason()).toString() : "";
+                return rec.getSeason() != null ? rec.getSeason().toString() : "";
         }
 
         return "";
@@ -92,7 +95,7 @@ public class RecordInsulinEditTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
     }
 
-    public RecordInsulinDO getRecord(int rowIndex, int columnIndex) {
+    public RecordInsulin getRecord(int rowIndex, int columnIndex) {
         return recs == null ? null : recs.get(rowIndex);
     }
 
@@ -143,10 +146,10 @@ public class RecordInsulinEditTableModel extends AbstractTableModel {
 
     public void fillData() {
         //no data => end
-        if (diary.getCurrentPatient() == null || dateFrom == null || dateTo == null) {
+        if (MyLookup.getCurrentPatient() == null || dateFrom == null || dateTo == null) {
             recs = null;
             return;
         }
-        recs = diary.getRecordInsulins(dateFrom, dateTo, diary.getCurrentPatient().getIdPatient());
+        recs = MyLookup.getCurrentPatient().getRecordInsulins(new DateTime(dateFrom), new DateTime(dateTo));
     }
 }

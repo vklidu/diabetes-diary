@@ -15,7 +15,6 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package org.diabetesdiary.calendar.action;
 
 import org.diabetesdiary.diary.utils.MyLookup;
@@ -26,33 +25,37 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 
 public final class EditPatient extends CallableSystemAction {
-    
+
+    @Override
     public void performAction() {
-        if(MyLookup.getDiaryRepo().getCurrentPatient() != null){
+        if (MyLookup.getCurrentPatient() != null) {
             NewPatientaction action = (NewPatientaction) CallableSystemAction.findObject(NewPatientaction.class);
-            if(action!=null){
-                action.performAction(MyLookup.getDiaryRepo().getCurrentPatient());
+            if (action != null) {
+                action.performAction(MyLookup.getCurrentPatient());
             }
-        }else{
+        } else {
             DialogDisplayer.getDefault().notify(
-                    new NotifyDescriptor.Message(NbBundle.getMessage(EditPatient.class,"Neni_vybran_zadny_pacient."), NotifyDescriptor.INFORMATION_MESSAGE));
+                    new NotifyDescriptor.Message(NbBundle.getMessage(EditPatient.class, "Neni_vybran_zadny_pacient."), NotifyDescriptor.INFORMATION_MESSAGE));
         }
     }
-    
+
+    @Override
     public String getName() {
         return NbBundle.getMessage(EditPatient.class, "CTL_EditPatient");
     }
-    
+
+    @Override
     protected String iconResource() {
         return "org/diabetesdiary/calendar/resources/editpatient.png";
     }
-    
+
+    @Override
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
-    
+
+    @Override
     protected boolean asynchronous() {
         return false;
     }
-    
 }

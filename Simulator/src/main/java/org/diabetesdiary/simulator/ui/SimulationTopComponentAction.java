@@ -21,8 +21,8 @@ package org.diabetesdiary.simulator.ui;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 
 /**
@@ -32,7 +32,7 @@ public class SimulationTopComponentAction extends AbstractAction {
     
     public SimulationTopComponentAction() {
         super(NbBundle.getMessage(SimulationTopComponentAction.class, "CTL_SimulationTopComponentAction"));
-        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(SimulationTopComponentTopComponent.ICON_PATH, true)));
+        putValue(SMALL_ICON, new ImageIcon(ImageUtilities.loadImage(SimulationTopComponentTopComponent.ICON_PATH, true)));
     }
     
     public void actionPerformed(ActionEvent evt) {

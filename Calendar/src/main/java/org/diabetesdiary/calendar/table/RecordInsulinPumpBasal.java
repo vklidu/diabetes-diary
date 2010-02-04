@@ -18,7 +18,7 @@
 package org.diabetesdiary.calendar.table;
 
 import java.text.NumberFormat;
-import org.diabetesdiary.diary.service.db.RecordInsulinDO;
+import org.diabetesdiary.diary.domain.RecordInsulin;
 
 /**
  *
@@ -26,11 +26,11 @@ import org.diabetesdiary.diary.service.db.RecordInsulinDO;
  */
 public class RecordInsulinPumpBasal {
 
-    private RecordInsulinDO[] data;
+    private RecordInsulin[] data;
 
     /** Creates a new instance of RecordInsulinPumpBasal */
     public RecordInsulinPumpBasal() {
-        data = new RecordInsulinDO[12];
+        data = new RecordInsulin[12];
     }
 
     @Override
@@ -40,7 +40,7 @@ public class RecordInsulinPumpBasal {
         format.setMinimumIntegerDigits(2);
 
         String result = "";
-        for (RecordInsulinDO rec : data) {
+        for (RecordInsulin rec : data) {
             if (rec != null) {
                 result += format.format(rec.getAmount() * 10);
             } else {
@@ -51,7 +51,7 @@ public class RecordInsulinPumpBasal {
         return result.substring(0, result.length() - 1);
     }
 
-    public RecordInsulinDO[] getData() {
+    public RecordInsulin[] getData() {
         return data;
     }
 }

@@ -32,7 +32,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.NumberFormatter;
-import org.diabetesdiary.diary.service.db.RecordFoodDO;
+import org.diabetesdiary.diary.domain.RecordFood;
 import org.openide.util.NbBundle;
 
 /**
@@ -69,6 +69,7 @@ public class FoodCellEditor extends DefaultCellEditor {
                 "check");
         formattedTF.getActionMap().put("check", new AbstractAction() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (!formattedTF.isEditValid()) { //The text is invalid.
 
@@ -96,8 +97,8 @@ public class FoodCellEditor extends DefaultCellEditor {
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         JFormattedTextField ftf = (JFormattedTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
         ftf.setValue(null);
-        if (value instanceof RecordFoodDO) {
-            RecordFoodDO recFood = (RecordFoodDO) value;
+        if (value instanceof RecordFood) {
+            RecordFood recFood = (RecordFood) value;
             if (recFood.getAmount() != null) {
                 double unit = recFood.getAmount();
                 ftf.setValue(unit);

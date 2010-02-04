@@ -1,6 +1,6 @@
 "name";"energy";"protein";"fat";"sacharid";"cholesterol";"vlaknina";"unit";"amount";"idgroup"
 "Výměnná jednotka";"null";"null";"null";"null";"null";"null";"g";"null";"null"
-"Výměnná jednotka";"1700";"0";"0";"100";"0";"0";"u10";"100";"null"
+"Výměnná jednotka";"1700";"0";"0";"100";"0";"0";"u10";"100";"null";"SACCHARIDE"
 "Zelenina, luštěniny, houby";"null";"null";"null";"null";"null";"null";"g";"null";"null"
 "Zelenina - 100 g";"null";"null";"null";"null";"null";"null";"g";"null";"0"
 "Artyčoky";"170";"2.4";"0.1";"2.6";"0";"10.8";"g";"100";"3"
