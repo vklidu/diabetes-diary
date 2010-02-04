@@ -22,8 +22,8 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFormattedTextField;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.service.db.FoodUnitDO;
 import org.openide.util.NbBundle;
 
 final class CalendarPanel extends javax.swing.JPanel {
@@ -140,7 +140,7 @@ final class CalendarPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     
     void load() {
-        FoodUnitDO unit = DbLookUp.getFoodAdmin().getFoodUnit(1l,CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+        FoodUnitDO unit = MyLookup.getFoodAdmin().getFoodUnit(1l,CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
         jComboBox1.setModel(getSachUnitModel());
         jComboBox1.setSelectedItem(unit);
         lowGly.setValue(Double.valueOf(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_GLYKEMIE_LOW_NORMAL)));
@@ -163,7 +163,7 @@ final class CalendarPanel extends javax.swing.JPanel {
     
     
     private ComboBoxModel getSachUnitModel(){
-        return new DefaultComboBoxModel(DbLookUp.getFoodAdmin().getFoodUnits(1l).toArray());
+        return new DefaultComboBoxModel(MyLookup.getFoodAdmin().getFoodUnits(1l).toArray());
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

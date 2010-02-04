@@ -23,11 +23,11 @@ import java.util.Date;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
-import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.datamodel.api.InvestigationAdministrator;
-import org.diabetesdiary.datamodel.pojo.InvSeason;
-import org.diabetesdiary.datamodel.pojo.InvestigationDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.service.db.InvSeason;
+import org.diabetesdiary.diary.service.db.InvestigationDO;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.diabetesdiary.datamodel.pojo.RecordInvestPK;
 import org.openide.util.NbBundle;
 
@@ -63,10 +63,10 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
         RecordInvestDO gl = new RecordInvestDO();
         RecordInvestPK pk = new RecordInvestPK();
-        pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+        pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
         pk.setIdInvest(getClickCellInvestId(rowIndex, columnIndex));
         pk.setDate(getClickCellDate(rowIndex, columnIndex));
-        InvestigationAdministrator invAdmin = DbLookUp.getInvesAdmin();
+        InvestigationAdministrator invAdmin = MyLookup.getInvesAdmin();
         gl.setInvest(invAdmin.getInvestigation(getClickCellInvestId(rowIndex, columnIndex)));
         gl.setValue(null);
         gl.setId(pk);
@@ -213,16 +213,16 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
         if (value instanceof Double) {
             RecordInvestDO gl = new RecordInvestDO();
             RecordInvestPK pk = new RecordInvestPK();
-            pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+            pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
             pk.setIdInvest(getClickCellInvestId(rowIndex, columnIndex));
             pk.setDate(getClickCellDate(rowIndex, columnIndex));
 
-            gl.setInvest(DbLookUp.getInvesAdmin().getInvestigation(getClickCellInvestId(rowIndex, columnIndex)));
+            gl.setInvest(MyLookup.getInvesAdmin().getInvestigation(getClickCellInvestId(rowIndex, columnIndex)));
 
             gl.setId(pk);
             gl.setValue((Double) value);
             gl.setSeason(InvSeason.BB.name());
-            DbLookUp.getDiaryRepo().addRecord(gl);
+            MyLookup.getDiaryRepo().addRecord(gl);
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(gl.getId().getDate().getTime());
             dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = gl;

@@ -26,9 +26,9 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.service.db.FoodUnitDO;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
 
 /**
  *
@@ -56,7 +56,7 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
     public static Component createCell(JTable table, Object value, boolean isSelected) {
         FoodCellRenderer result = new FoodCellRenderer();
         result.setHorizontalAlignment(CENTER);
-        FoodUnitDO sachUnit = DbLookUp.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+        FoodUnitDO sachUnit = MyLookup.getFoodAdmin().getFoodUnit(1, CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
         if (value instanceof RecordFoodDO) {
             RecordFoodDO rec = (RecordFoodDO) value;
             //Double unit = rec.getAmount()
@@ -101,7 +101,7 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
             }
         }
         if (unit == null) {
-            unit = DbLookUp.getFoodAdmin().getFoodUnit(rec.getId().getIdFood(), rec.getUnit());
+            unit = MyLookup.getFoodAdmin().getFoodUnit(rec.getId().getIdFood(), rec.getUnit());
         }
         double sachUnits = unit.getKoef() * rec.getAmount() * rec.getFood().getSugar() / (100 * sachUnit.getKoef());
         return sachUnits;

@@ -24,13 +24,13 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
 import org.diabetesdiary.datamodel.api.ActivityAdministrator;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.FoodUnitDO;
-import org.diabetesdiary.datamodel.pojo.InvestigationDO;
-import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.service.db.FoodUnitDO;
+import org.diabetesdiary.diary.service.db.InvestigationDO;
+import org.diabetesdiary.diary.service.db.RecordActivityDO;
 import org.diabetesdiary.datamodel.pojo.RecordActivityPK;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.openide.util.NbBundle;
 
 /**
@@ -70,8 +70,8 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
         }
         RecordActivityDO gl = new RecordActivityDO();
         RecordActivityPK pk = new RecordActivityPK();
-        pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
-        ActivityAdministrator admin = DbLookUp.getActivityAdmin();
+        pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
+        ActivityAdministrator admin = MyLookup.getActivityAdmin();
         pk.setIdActivity(1);
         gl.setActivity(admin.getActivity(1));
         pk.setDate(getClickCellDate(rowIndex, columnIndex));
@@ -189,12 +189,12 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
     }
 
     private Integer getNumberOfYears(int rowIndex) {
-        if (DbLookUp.getDiaryRepo() != null && DbLookUp.getDiaryRepo().getCurrentPatient() != null) {
+        if (MyLookup.getDiaryRepo() != null && MyLookup.getDiaryRepo().getCurrentPatient() != null) {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(month.getTimeInMillis());
             cal.set(Calendar.DAY_OF_MONTH, rowIndex + 1);
 
-            Date born = DbLookUp.getDiaryRepo().getCurrentPatient().getBorn();
+            Date born = MyLookup.getDiaryRepo().getCurrentPatient().getBorn();
             Calendar cal2 = Calendar.getInstance();
             cal2.setTimeInMillis(born.getTime());
             cal.add(Calendar.YEAR, -(cal2.get(Calendar.YEAR)));
@@ -204,8 +204,8 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
     }
 
     private Boolean isMale() {
-        if (DbLookUp.getDiaryRepo() != null && DbLookUp.getDiaryRepo().getCurrentPatient() != null) {
-            return DbLookUp.getDiaryRepo().getCurrentPatient().isMale();
+        if (MyLookup.getDiaryRepo() != null && MyLookup.getDiaryRepo().getCurrentPatient() != null) {
+            return MyLookup.getDiaryRepo().getCurrentPatient().isMale();
         }
         return null;
     }
@@ -340,7 +340,7 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
             }
         }
         if (unit == null) {
-            unit = DbLookUp.getFoodAdmin().getFoodUnit(rec.getId().getIdFood(), rec.getUnit());
+            unit = MyLookup.getFoodAdmin().getFoodUnit(rec.getId().getIdFood(), rec.getUnit());
         }
         double sachUnits = unit.getKoef() * rec.getAmount() * rec.getFood().getEnergy() / 100;
         return sachUnits;
@@ -364,14 +364,14 @@ public class ActivityModel implements TableSubModel, Comparable<TableSubModel> {
         if (value instanceof Integer) {
             RecordActivityDO rec = new RecordActivityDO();
             RecordActivityPK pk = new RecordActivityPK();
-            pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+            pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
             pk.setIdActivity(1);
-            rec.setActivity(DbLookUp.getActivityAdmin().getActivity(1));
+            rec.setActivity(MyLookup.getActivityAdmin().getActivity(1));
 
             pk.setDate(getClickCellDate(rowIndex, columnIndex));
             rec.setId(pk);
             rec.setDuration((Integer) value);
-            DbLookUp.getDiaryRepo().addRecord(rec);
+            MyLookup.getDiaryRepo().addRecord(rec);
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(rec.getId().getDate().getTime());
             dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][cal.get(Calendar.HOUR_OF_DAY) < 12 ? 0 : 1][0] = rec;

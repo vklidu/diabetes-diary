@@ -33,7 +33,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.openide.util.NbBundle;
 
 /**

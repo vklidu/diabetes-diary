@@ -27,12 +27,12 @@ import javax.swing.table.AbstractTableModel;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.RecordEditorTopComponent;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
-import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
-import org.diabetesdiary.datamodel.pojo.RecordInsulinDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.diary.service.db.RecordActivityDO;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
+import org.diabetesdiary.diary.service.db.RecordInsulinDO;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 
 /**
  *
@@ -67,7 +67,7 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         month.set(Calendar.MILLISECOND, 0);
         month.set(Calendar.DAY_OF_MONTH, 1);
 
-        diary = DbLookUp.getDiaryRepo();
+        diary = MyLookup.getDiaryRepo();
         dayModel = new DayModel(month);
 
         if (diary.getCurrentPatient() != null && diary.getCurrentPatient().isPumpUsage()) {

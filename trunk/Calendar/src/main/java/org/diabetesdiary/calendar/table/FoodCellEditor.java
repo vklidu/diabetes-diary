@@ -32,7 +32,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.NumberFormatter;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
 import org.openide.util.NbBundle;
 
 /**

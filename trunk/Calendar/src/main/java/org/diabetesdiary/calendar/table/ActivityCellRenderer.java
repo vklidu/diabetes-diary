@@ -24,7 +24,7 @@ import java.text.NumberFormat;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
-import org.diabetesdiary.datamodel.pojo.RecordActivityDO;
+import org.diabetesdiary.diary.service.db.RecordActivityDO;
 import org.openide.util.NbBundle;
 
 /**

@@ -26,11 +26,11 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.datamodel.api.FoodAdministrator;
-import org.diabetesdiary.datamodel.pojo.FoodSeason;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
+import org.diabetesdiary.diary.service.db.FoodSeason;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -52,8 +52,8 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
 
     /** Creates a new instance of CalendarTableModel */
     public RecordFoodEditTableModel(Date date) {
-        foodAdmin = DbLookUp.getFoodAdmin();
-        diary = DbLookUp.getDiaryRepo();
+        foodAdmin = MyLookup.getFoodAdmin();
+        diary = MyLookup.getDiaryRepo();
         this.date = date;
     }
 

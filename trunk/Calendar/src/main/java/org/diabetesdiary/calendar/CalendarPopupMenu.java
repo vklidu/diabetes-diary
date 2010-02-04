@@ -22,9 +22,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
-import org.diabetesdiary.datamodel.pojo.RecordFoodDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
 import org.openide.util.NbBundle;
 
 /**
@@ -40,7 +40,7 @@ public class CalendarPopupMenu {
         menuItemDelete.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                DiaryRepository diary = DbLookUp.getDiaryRepo();
+                DiaryRepository diary = MyLookup.getDiaryRepo();
                 if (value instanceof RecordFoodDO) {
                     RecordFoodDO food = (RecordFoodDO) value;
                     diary.deleteRecordFood(food.getId().getIdPatient(), food.getId().getDate());

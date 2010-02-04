@@ -24,9 +24,9 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.api.DiaryRepository;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -46,7 +46,7 @@ public class RecordInvestEditTableModel extends AbstractTableModel {
 
     /** Creates a new instance of CalendarTableModel */
     public RecordInvestEditTableModel(Date date) {
-        diary = DbLookUp.getDiaryRepo();
+        diary = MyLookup.getDiaryRepo();
         setDate(date);
     }
 

@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.diabetesdiary.calendar.utils.DbLookUp;
-import org.diabetesdiary.datamodel.pojo.PatientDO;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.diary.service.db.PatientDO;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -98,7 +98,7 @@ public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
             setError(NbBundle.getMessage(NewPatientWizardPanel1.class,"Musite_vyplnit_login."));
             return false;
         }
-        if(DbLookUp.getDiaryRepo().getPatient(patient.getIdPatient()) != null){
+        if(MyLookup.getDiaryRepo().getPatient(patient.getIdPatient()) != null){
             setError(NbBundle.getMessage(NewPatientWizardPanel1.class,"Pacient_s_timto_loginem_ji_existuje._Ulozenim_zmenite_jeho_udaje."));
             return true;
         }        

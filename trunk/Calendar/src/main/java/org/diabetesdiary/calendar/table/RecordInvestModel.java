@@ -23,11 +23,11 @@ import java.util.Date;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
-import org.diabetesdiary.calendar.utils.DbLookUp;
+import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.datamodel.api.InvestigationAdministrator;
-import org.diabetesdiary.datamodel.pojo.InvSeason;
-import org.diabetesdiary.datamodel.pojo.InvestigationDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestDO;
+import org.diabetesdiary.diary.service.db.InvSeason;
+import org.diabetesdiary.diary.service.db.InvestigationDO;
+import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.diabetesdiary.datamodel.pojo.RecordInvestPK;
 import org.openide.util.NbBundle;
 
@@ -90,10 +90,10 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
         RecordInvestDO gl = new RecordInvestDO();
         RecordInvestPK pk = new RecordInvestPK();
-        pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+        pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
         pk.setIdInvest(InvestigationDO.Instances.GLYCEMIE.getID());
         pk.setDate(getClickCellDate(rowIndex, columnIndex));
-        InvestigationAdministrator invAdmin = DbLookUp.getInvesAdmin();
+        InvestigationAdministrator invAdmin = MyLookup.getInvesAdmin();
         gl.setInvest(invAdmin.getInvestigation(InvestigationDO.Instances.GLYCEMIE.getID()));
         gl.setValue(null);
         gl.setId(pk);
@@ -109,11 +109,11 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
         if (value instanceof Double) {
             RecordInvestDO gl = new RecordInvestDO();
             RecordInvestPK pk = new RecordInvestPK();
-            pk.setIdPatient(DbLookUp.getDiaryRepo().getCurrentPatient().getIdPatient());
+            pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
             pk.setIdInvest(InvestigationDO.Instances.GLYCEMIE.getID());
             pk.setDate(getClickCellDate(rowIndex, columnIndex));
 
-            gl.setInvest(DbLookUp.getInvesAdmin().getInvestigation(InvestigationDO.Instances.GLYCEMIE.getID()));
+            gl.setInvest(MyLookup.getInvesAdmin().getInvestigation(InvestigationDO.Instances.GLYCEMIE.getID()));
 
             gl.setId(pk);
             gl.setValue((Double) value);
@@ -122,7 +122,7 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
             } else {
                 gl.setSeason(InvSeason.values()[columnIndex - 1].name());
             }
-            DbLookUp.getDiaryRepo().addRecord(gl);
+            MyLookup.getDiaryRepo().addRecord(gl);
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(gl.getId().getDate().getTime());
             dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = gl;
