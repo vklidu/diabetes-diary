@@ -21,10 +21,8 @@ package org.diabetesdiary.calendar.ui;
 import java.util.List;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.service.db.PatientDO;
-import org.openide.ErrorManager;
-import org.openide.util.Lookup;
+import org.diabetesdiary.diary.domain.Patient;
+import org.diabetesdiary.diary.utils.MyLookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -38,23 +36,15 @@ public class SelectPatientPanel extends javax.swing.JPanel {
         initComponents();
     }
     
+    @Override
     public void requestFocus() {
         jComboBox1.requestFocus();
     }
     
     public ComboBoxModel createPatientComboModel(){
-        Lookup lookup = Lookup.getDefault();
-        DiaryRepository diary = (DiaryRepository)lookup.lookup(DiaryRepository.class);
-        if (diary == null) {
-            // this will show up as a flashing round button in the bottom-right corner
-            ErrorManager.getDefault().notify(
-                    new IllegalStateException("Cannot locate Diary implementation"));
-        }else{
-            List<PatientDO> patients = diary.getPatients();
-            DefaultComboBoxModel model = new DefaultComboBoxModel(patients.toArray());
-            return model;
-        }
-        return new DefaultComboBoxModel();
+        List<Patient> patients = MyLookup.getDiaryRepo().getPatients();
+        DefaultComboBoxModel model = new DefaultComboBoxModel(patients.toArray());
+        return model;
     }
     
     /** This method is called from within the constructor to
@@ -93,9 +83,9 @@ public class SelectPatientPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    public PatientDO getPatient() {
+    public Patient getPatient() {
         if(jComboBox1.getSelectedItem() != null){
-            return (PatientDO) jComboBox1.getSelectedItem();
+            return (Patient) jComboBox1.getSelectedItem();
         }
         return null;
     }

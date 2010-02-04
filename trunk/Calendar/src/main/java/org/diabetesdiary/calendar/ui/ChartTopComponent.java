@@ -39,17 +39,17 @@ import org.diabetesdiary.calendar.*;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.service.db.FoodUnitDO;
-import org.diabetesdiary.diary.service.db.InsulinTypeDO;
-import org.diabetesdiary.diary.service.db.InvestigationDO;
-import org.diabetesdiary.diary.service.db.PatientDO;
-import org.diabetesdiary.diary.service.db.RecordFoodDO;
-import org.diabetesdiary.diary.service.db.RecordInsulinDO;
-import org.diabetesdiary.diary.service.db.RecordInvestDO;
-import org.diabetesdiary.model.Hemoglobin;
-import org.diabetesdiary.model.SREnum;
-import org.diabetesdiary.model.SimulationManager;
-import org.diabetesdiary.model.SimulationResult;
+import org.diabetesdiary.diary.domain.FoodUnit;
+import org.diabetesdiary.diary.domain.InsulinType;
+import org.diabetesdiary.diary.domain.Investigation;
+import org.diabetesdiary.diary.domain.Patient;
+import org.diabetesdiary.diary.domain.RecordFood;
+import org.diabetesdiary.diary.domain.RecordInsulin;
+import org.diabetesdiary.diary.domain.RecordInvest;
+import org.diabetesdiary.simulator.Hemoglobin;
+import org.diabetesdiary.simulator.SREnum;
+import org.diabetesdiary.simulator.SimulationManager;
+import org.diabetesdiary.simulator.SimulationResult;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -64,9 +64,10 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.TextAnchor;
+import org.joda.time.DateTime;
 import org.openide.ErrorManager;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -79,7 +80,7 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
     /** path to the icon used by the component and its open action */
     public static final String ICON_PATH = "org/diabetesdiary/calendar/resources/chart.png";
     private static final String PREFERRED_ID = "ChartTopComponent";
-    private DiaryRepository diary;
+    private DiaryRepository diary = MyLookup.getDiaryRepo();
     private int row;
     private int max;
 
@@ -87,10 +88,9 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
         initComponents();
         setName(NbBundle.getMessage(ChartTopComponent.class, "CTL_ChartTopComponent"));
         setToolTipText(NbBundle.getMessage(ChartTopComponent.class, "HINT_ChartTopComponent"));
-        setIcon(Utilities.loadImage(ICON_PATH, true));
+        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         //insulinRadio.setVisible(false);
         thisWeekRadio.setVisible(false);
-        diary = MyLookup.getDiaryRepo();
         dateFrom.setValue(new Date());
         dateFrom.addPropertyChangeListener("value", this);
         dateTo.setValue(new Date());
@@ -98,23 +98,23 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
         setError(null);
     }
 
-    private SimulationResult simulate(Date from, Date to) {
+    private SimulationResult simulate(DateTime from, DateTime to) {
 
         if (diary == null) {
             // this will show up as a flashing round button in the bottom-right corner
             ErrorManager.getDefault().notify(
                     new IllegalStateException("Cannot locate Diary implementation"));
         } else {
-            PatientDO currPati = diary.getCurrentPatient();
+            Patient currPati = MyLookup.getCurrentPatient();
             SimulationManager man = new SimulationManager(currPati.getHepSensitivity().floatValue(), currPati.getPerSensitivity().floatValue(), 70.0f);
-            List<RecordFoodDO> foods = diary.getRecordFoods(from, to, currPati.getIdPatient());
-            for (RecordFoodDO food : foods) {
-                man.addCarbohydrateIntake(food.getAmount(), food.getId().getDate());
+            List<RecordFood> foods = currPati.getRecordFoods(from, to);
+            for (RecordFood food : foods) {
+                man.addCarbohydrateIntake(food.getAmount(), food.getDatetime().toDate());
             }
 
-            List<RecordInsulinDO> insulins = diary.getRecordInsulins(from, to, diary.getCurrentPatient().getIdPatient());
-            for (RecordInsulinDO ins : insulins) {
-                man.addInsulinInjection(ins.getInsulin().getType(), ins.getAmount(), ins.getId().getDate());
+            List<RecordInsulin> insulins = currPati.getRecordInsulins(from, to);
+            for (RecordInsulin ins : insulins) {
+                man.addInsulinInjection(ins.getInsulin().getType(), ins.getAmount(), ins.getDatetime().toDate());
             }
             return man.getSimulationResult();
         }
@@ -122,16 +122,16 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
     }
 
     public void createChart() {
-        if (!isOpened() || !valid() || diary.getCurrentPatient() == null) {
+        if (!isOpened() || !valid() || MyLookup.getCurrentPatient() == null) {
             return;
         }
 
         if (insulinRadio.isSelected()) {
-            List<RecordInsulinDO> insulins = diary.getRecordInsulins(getFrom(), getTo(), diary.getCurrentPatient().getIdPatient());
+            List<RecordInsulin> insulins = MyLookup.getCurrentPatient().getRecordInsulins(new DateTime(getFrom()), new DateTime(getTo()));
             //TimeSeries series = new TimeSeries(NbBundle.getMessage(ChartTopComponent.class, "insulin"), Minute.class);
-            Map<InsulinTypeDO, TimeSeries> insSer = new HashMap<InsulinTypeDO, TimeSeries>();
-            for (RecordInsulinDO rec : insulins) {
-                Hour sec = new Hour(rec.getId().getDate());
+            Map<InsulinType, TimeSeries> insSer = new HashMap<InsulinType, TimeSeries>();
+            for (RecordInsulin rec : insulins) {
+                Hour sec = new Hour(rec.getDatetime().toDate());
                 if (insSer.get(rec.getInsulin().getType()) == null) {
                     TimeSeries ser = new TimeSeries(rec.getInsulin().getType().getName(), Hour.class);
                     ser.add(sec, rec.getAmount());
@@ -154,11 +154,11 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
             plot.setRenderer(0,new ClusteredXYBarRenderer(0.5,true));            
             viewChart(chart);
         } else if (investRadio.isSelected() && getInvest() != null) {
-            List<RecordInvestDO> invests = diary.getRecordInvests(getFrom(), getTo(), diary.getCurrentPatient().getIdPatient());
+            List<RecordInvest> invests = MyLookup.getCurrentPatient().getRecordInvests(getFrom(), getTo());
             TimeSeries series = new TimeSeries(getInvest().getName(), Minute.class);
-            for (RecordInvestDO rec : invests) {
+            for (RecordInvest rec : invests) {
                 if (rec.getInvest().equals(getInvest())) {
-                    Minute sec = new Minute(rec.getId().getDate());
+                    Minute sec = new Minute(rec.getDatetime().toDate());
                     series.add(sec, rec.getValue());
                 }
             }
@@ -189,12 +189,12 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
             }
             viewChart(chart);
         } else if (foodRadio.isSelected()) {
-            List<RecordFoodDO> foods = diary.getRecordFoods(getFrom(), getTo(), diary.getCurrentPatient().getIdPatient());
+            List<RecordFood> foods = MyLookup.getCurrentPatient().getRecordFoods(getFrom(), getTo());
             double sumSach = 0;
             double sumFat = 0;
             double sumProt = 0;
-            for (RecordFoodDO rec : foods) {
-                FoodUnitDO unit = (FoodUnitDO) rec.getFood().getUnits().toArray()[0];
+            for (RecordFood rec : foods) {
+                FoodUnit unit = (FoodUnit) rec.getFood().getUnits().toArray()[0];
                 sumSach += rec.getFood().getSugar() / 100 * rec.getAmount() * unit.getKoef();
                 sumFat += rec.getFood().getFat() / 100 * rec.getAmount() * unit.getKoef();
                 sumProt += rec.getFood().getProtein() / 100 * rec.getAmount() * unit.getKoef();
@@ -213,7 +213,7 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
             myFormat.setMaximumFractionDigits(2);
             myFormat.setMinimumFractionDigits(1);
 
-            List<RecordInvestDO> records = MyLookup.getDiaryRepo().getRecordInvests(getFrom(), getTo(), MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
+            List<RecordInvest> records = MyLookup.getCurrentPatient().getRecordInvests(getFrom(), getTo());
             Hemoglobin hemo = new Hemoglobin(records);
 
             StringBuffer buf = new StringBuffer();
@@ -241,7 +241,7 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
         TimeSeries series = new TimeSeries(sre.toString(), Minute.class);
         if (profile != null) {
             for (Date date : profile.getProfile().keySet()) {
-                if ((date.after(getFrom()) && date.before(getTo()))) {
+                if ((date.after(getFrom().toDate()) && date.before(getTo().toDate()))) {
                     double value = 0;
                     switch (sre) {
                         case ACTIVE_INSULIN:
@@ -635,12 +635,12 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
     }
 
     private ComboBoxModel createInvestModel() {
-        DefaultComboBoxModel model = new DefaultComboBoxModel(MyLookup.getInvesAdmin().getInvestigations().toArray());
+        DefaultComboBoxModel model = new DefaultComboBoxModel(diary.getInvestigations().toArray());
         return model;
     }
 
-    private InvestigationDO getInvest() {
-        return (InvestigationDO) investCombo.getSelectedItem();
+    private Investigation getInvest() {
+        return (Investigation) investCombo.getSelectedItem();
     }
 
     private void todayRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_todayRadioActionPerformed
@@ -769,24 +769,26 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
         return true;
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         createChart();
     }
 
-    private Date getFrom() {
-        return (Date) dateFrom.getValue();
+    private DateTime getFrom() {
+        return new DateTime(dateFrom.getValue());
     }
 
-    private Date getTo() {
+    private DateTime getTo() {
         Date to = (Date) dateTo.getValue();
         if (to != null) {
-            return new Date(to.getTime() + 24 * 60 * 60 * 1000);
+            return new DateTime(to).plusDays(1);
         }
         return null;
     }
     private int firstDay = 1;
     private int lastDay = 31;
 
+    @Override
     public void valueChanged(ListSelectionEvent e) {
         if (e.getValueIsAdjusting()) {
             return;

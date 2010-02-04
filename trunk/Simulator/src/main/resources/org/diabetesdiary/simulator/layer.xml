@@ -3,21 +3,21 @@
 <filesystem>
     <folder name="Actions">
         <folder name="Window">
-            <file name="org-diabetesdiary-model-ui-SimulationTopComponentAction.instance"/>
+            <file name="org-diabetesdiary-simulator-ui-SimulationTopComponentAction.instance"/>
         </folder>
     </folder>
     <folder name="Menu">
         <folder name="Window">
             <file name="SimulationTopComponentAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-model-ui-SimulationTopComponentAction.instance"/>
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-simulator-ui-SimulationTopComponentAction.instance"/>
             </file>
         </folder>
     </folder>
     <folder name="Toolbars">
         <folder name="Simulation">
-            <attr name="org-diabetesdiary-model-ui-SimulationTopComponentAction.shadow" boolvalue="true"/>
-            <file name="org-diabetesdiary-model-ui-SimulationTopComponentAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-model-ui-SimulationTopComponentAction.instance"/>
+            <attr name="org-diabetesdiary-simulator-ui-SimulationTopComponentAction.shadow" boolvalue="true"/>
+            <file name="org-diabetesdiary-simulator-ui-SimulationTopComponentAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-simulator-ui-SimulationTopComponentAction.instance"/>
             </file>            
         </folder>
     </folder>

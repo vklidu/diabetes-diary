@@ -33,7 +33,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
-import org.diabetesdiary.diary.service.db.RecordInsulinDO;
+import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.openide.util.NbBundle;
 
 /**
@@ -101,8 +101,8 @@ public class InsulinCellEditor extends DefaultCellEditor {
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         JFormattedTextField ftf = (JFormattedTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
         ftf.setValue(null);
-        if (value instanceof RecordInsulinDO) {
-            ftf.setValue(((RecordInsulinDO) value).getAmount());
+        if (value instanceof RecordInsulin) {
+            ftf.setValue(((RecordInsulin) value).getAmount());
         }
         return ftf;
     }

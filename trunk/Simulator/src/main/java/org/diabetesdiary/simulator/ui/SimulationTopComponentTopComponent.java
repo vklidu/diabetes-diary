@@ -70,8 +70,8 @@ final class SimulationTopComponentTopComponent extends TopComponent {
     
     private static SimulationTopComponentTopComponent instance;
     /** path to the icon used by the component and its open action */
-    static final String ICON_PATH = "org/diabetesdiary/model/resources/simulation.png";
-    static final String ICON_PATH_SMALL = "org/diabetesdiary/model/resources/simulation16.png";
+    static final String ICON_PATH = "org/diabetesdiary/simulator/resources/simulation.png";
+    static final String ICON_PATH_SMALL = "org/diabetesdiary/simulator/resources/simulation16.png";
     
     private static final String PREFERRED_ID = "SimulationTopComponentTopComponent";
     

@@ -17,8 +17,11 @@
  */
 package org.diabetesdiary.diary.service.db;
 
+import org.diabetesdiary.diary.domain.WKInvest;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -37,6 +40,10 @@ public class InvestigationDO extends AbstractDO {
 
     @Column(nullable=false)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable=true, unique=true)
+    private WKInvest wkinvest;
 
     @Column(nullable=false)
     private String unit;
@@ -92,47 +99,12 @@ public class InvestigationDO extends AbstractDO {
         this.normalMax = normalMax;
     }
 
-    public enum Instances {
+    public WKInvest getWkinvest() {
+        return wkinvest;
+    }
 
-        MENZES, ACETON, WEIGHT, SUGAR, GLYCEMIE, TALL;
-
-        public int getID() {
-            switch (this) {
-                case GLYCEMIE:
-                    return 1;
-                case WEIGHT:
-                    return 2;
-                case TALL:
-                    return 3;
-                case MENZES:
-                    return 4;
-                case SUGAR:
-                    return 5;
-                case ACETON:
-                    return 6;
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-
-        public static Instances getInvestInstanceByID(int id) {
-            switch (id) {
-                case 1:
-                    return InvestigationDO.Instances.GLYCEMIE;
-                case 2:
-                    return InvestigationDO.Instances.WEIGHT;
-                case 3:
-                    return InvestigationDO.Instances.TALL;
-                case 4:
-                    return InvestigationDO.Instances.MENZES;
-                case 5:
-                    return InvestigationDO.Instances.SUGAR;
-                case 6:
-                    return InvestigationDO.Instances.ACETON;
-                default:
-                    throw new ArrayIndexOutOfBoundsException();
-            }
-        }
+    public void setWkinvest(WKInvest wkinvest) {
+        this.wkinvest = wkinvest;
     }
 
 }

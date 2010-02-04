@@ -15,7 +15,7 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.diabetesdiary.diary.service.db;
+package org.diabetesdiary.diary.domain;
 
 import org.openide.util.NbBundle;
 
@@ -29,6 +29,6 @@ public enum FoodSeason {
 
     @Override
     public String toString() {
-        return NbBundle.getMessage(FoodDO.class, "food.season." + name());
+        return NbBundle.getMessage(FoodSeason.class, "food.season." + name());
     }
 }

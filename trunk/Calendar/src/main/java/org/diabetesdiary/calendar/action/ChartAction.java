@@ -22,8 +22,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import org.diabetesdiary.calendar.ui.ChartTopComponent;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 
 /**
@@ -33,9 +33,10 @@ public class ChartAction extends AbstractAction {
     
     public ChartAction() {
         super(NbBundle.getMessage(ChartAction.class, "CTL_ChartAction"));
-        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(ChartTopComponent.ICON_PATH, true)));
+        putValue(SMALL_ICON, new ImageIcon(ImageUtilities.loadImage(ChartTopComponent.ICON_PATH, true)));
     }
     
+    @Override
     public void actionPerformed(ActionEvent evt) {
         TopComponent win = ChartTopComponent.findInstance();
         win.open();

@@ -19,34 +19,34 @@
 package org.diabetesdiary.calendar.ui;
 
 import java.awt.Component;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.service.db.PatientDO;
+import org.diabetesdiary.diary.domain.Patient;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
 public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
     
-    private PatientDO patient;
+    private String name;
+    private String surname;
+    private boolean male;
+    private LocalDate born;
+    private String email;
+    private boolean pumpUsage;
+
     
     private WizardDescriptor settings;
-    /**
-     * The visual component that displays this panel. If you need to access the
-     * component from this class, just use getComponent().
-     */
     private Component component;
     
-    // Get the visual component for the panel. In this template, the component
-    // is kept separate. This can be more efficient: if the wizard is created
-    // but never displayed, or not all panels are displayed, it is better to
-    // create only those which really need to be visible.
+    @Override
     public Component getComponent() {
         if (component == null) {
             component = new NewPatientVisualPanel1(this);
@@ -60,48 +60,34 @@ public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
         }
     }
     
+    @Override
     public HelpCtx getHelp() {
-        // Show no Help button for this panel:
         return HelpCtx.DEFAULT_HELP;
-        // If you have context help:
-        // return new HelpCtx(SampleWizardPanel1.class);
     }
     
-    public PatientDO getPatient(){
-        return patient;
-    }
-    
+    @Override
     public boolean isValid() {
         NewPatientVisualPanel1 comp = (NewPatientVisualPanel1) getComponent();
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                NbBundle.getMessage(NewPatientWizardPanel1.class,"NewRecord_DatePattern"));
-        patient.setIdPatient(comp.getLogin());
-        patient.setEmail(comp.getEmail());
-        patient.setMale(comp.isMale());
-        patient.setName(comp.getPatientName());
-        patient.setSurname(comp.getSurname());
-        patient.setPumpUsage(comp.isPumpUsage());
+
+        DateTimeFormatter dateFormat = DateTimeFormat.forPattern(NbBundle.getMessage(NewPatientWizardPanel1.class,"NewRecord_DatePattern"));
+        email = comp.getEmail();
+        male = comp.isMale();
+        name = comp.getPatientName();
+        surname = comp.getSurname();
+        pumpUsage = comp.isPumpUsage();
         
-        if(patient.getName() == null || patient.getName().length() < 1 || patient.getSurname() == null || patient.getSurname().length() < 1){
+        if(getName() == null || getName().length() < 1 || getSurname() == null || getSurname().length() < 1){
             setError(NbBundle.getMessage(NewPatientWizardPanel1.class,"Musite_vyplnit_jmeno_i_prijmeni."));
             return false;
         }
         try {
-            patient.setBorn(dateFormat.parse(comp.getDateBorn()));
-        } catch (ParseException ex) {
+            born = dateFormat.parseDateTime(comp.getDateBorn()).toLocalDate();
+        } catch (IllegalArgumentException ex) {
             setError(NbBundle.getMessage(NewPatientWizardPanel1.class, "NewRecord_DatePatternMessage",
                     NbBundle.getMessage(NewPatientWizardPanel1.class,"NewRecord_DatePattern"),
                     NbBundle.getMessage(NewPatientWizardPanel1.class,"NewRecord_TimePattern")));
             return false;
         }
-        if(patient.getIdPatient() == null || patient.getIdPatient().length() < 1){
-            setError(NbBundle.getMessage(NewPatientWizardPanel1.class,"Musite_vyplnit_login."));
-            return false;
-        }
-        if(MyLookup.getDiaryRepo().getPatient(patient.getIdPatient()) != null){
-            setError(NbBundle.getMessage(NewPatientWizardPanel1.class,"Pacient_s_timto_loginem_ji_existuje._Ulozenim_zmenite_jeho_udaje."));
-            return true;
-        }        
         
         setError(null);
         return true;
@@ -109,16 +95,21 @@ public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
     
     
     private final Set<ChangeListener> listeners = new HashSet<ChangeListener>(1);
+    
+    @Override
     public final void addChangeListener(ChangeListener l) {
         synchronized (listeners) {
             listeners.add(l);
         }
     }
+    
+    @Override
     public final void removeChangeListener(ChangeListener l) {
         synchronized (listeners) {
             listeners.remove(l);
         }
     }
+    
     protected final void fireChangeEvent() {
         Iterator<ChangeListener> it;
         synchronized (listeners) {
@@ -130,42 +121,59 @@ public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
         }
     }
     
-    
-// You can use a settings object to keep track of state. Normally the
-// settings object will be the WizardDescriptor, so you can use
-// WizardDescriptor.getProperty & putProperty to store information entered
-// by the user.
+    @Override
     public void readSettings(Object settings) {}
+    @Override
     public void storeSettings(Object settings) {}
     
     public void setDescriptor(WizardDescriptor wizardDescriptor) {
         this.settings = wizardDescriptor;
     }
     
-    public void setPatient(PatientDO patient) {
-        NewPatientVisualPanel1 comp = (NewPatientVisualPanel1) getComponent();
-        this.patient = patient;
+    public void setPatient(Patient patient) {
+        NewPatientVisualPanel1 comp = (NewPatientVisualPanel1) getComponent();      
         
-        if(patient.getIdPatient() == null){
+        if(patient == null){
             comp.setDateBorn(null);
             comp.setEmail(null);
-            comp.setLogin(null);
             comp.setPatientName(null);
             comp.setSex(true);
             comp.setSurname(null);
             comp.setPumpUsage(false);            
         }else{
-            SimpleDateFormat dateFormat = new SimpleDateFormat(
-                    NbBundle.getMessage(NewPatientWizardPanel1.class,"NewRecord_DatePattern"));            
+            SimpleDateFormat dateFormat = new SimpleDateFormat(NbBundle.getMessage(NewPatientWizardPanel1.class, "NewRecord_DatePattern"));
             comp.setDateBorn(dateFormat.format(patient.getBorn()));
             comp.setEmail(patient.getEmail());
-            comp.setLogin(patient.getIdPatient());
             comp.setPatientName(patient.getName());
             comp.setSex(patient.isMale());
             comp.setSurname(patient.getSurname());
             comp.setPumpUsage(patient.isPumpUsage());
         }
-        comp.setPatientEdit(patient.getIdPatient() != null);
+        comp.setPatientEdit(patient != null);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public boolean isMale() {
+        return male;
+    }
+
+    public LocalDate getBorn() {
+        return born;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public boolean isPumpUsage() {
+        return pumpUsage;
     }
     
 }

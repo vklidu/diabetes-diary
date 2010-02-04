@@ -24,7 +24,7 @@ import java.text.NumberFormat;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
-import org.diabetesdiary.diary.service.db.RecordActivityDO;
+import org.diabetesdiary.diary.domain.RecordActivity;
 import org.openide.util.NbBundle;
 
 /**
@@ -44,6 +44,7 @@ public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
         setOpaque(true);
     }
 
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         return createCell(table, value, isSelected);
     }
@@ -64,30 +65,36 @@ public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
                 result.setText(NbBundle.getMessage(ActivityCellRenderer.class, "unknown.weight.tall"));
                 result.setToolTipText(result.getText());
             }
-        } else if (value instanceof RecordActivityDO) {
-            RecordActivityDO rec = (RecordActivityDO) value;
+        } else if (value instanceof RecordActivity) {
+            RecordActivity rec = (RecordActivity) value;
             if (rec.getDuration() != null && rec.getActivity() != null) {
+                /*
                 if (rec.getWeight() != null) {
                     result.setText(format.format(rec.getActivity().getPower() * rec.getDuration() * rec.getWeight()));
                 } else {
                     result.setText(NbBundle.getMessage(SumModel.class, "unknown.weight"));                    
                 }
+                 * TODO
+                 */
                 if (rec.getNotice() != null && rec.getNotice().length() > 0) {
                     result.setText(result.getText() + "!");
                 }
                 result.setToolTipText(createToolTip(rec));
             }
-        } else if (value instanceof RecordActivityDO[]) {
-            RecordActivityDO[] values = (RecordActivityDO[]) value;
+        } else if (value instanceof RecordActivity[]) {
+            RecordActivity[] values = (RecordActivity[]) value;
             if (values.length > 0 && values[0] != null && values[0].getActivity() != null) {
                 boolean note = false;
                 Double sum = 0d;
-                for (RecordActivityDO val : values) {
+                for (RecordActivity val : values) {
+                    /*
                     if (val.getWeight() != null) {
                         sum += val.getActivity().getPower() * val.getDuration() * val.getWeight();
                     } else {
                         sum = Double.NEGATIVE_INFINITY;
                     }
+                     * TODO
+                     */
                     if (val.getNotice() != null && val.getNotice().length() > 0) {
                         note = true;
                     }
@@ -107,12 +114,12 @@ public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordActivityDO rec) {
+    private static String createToolTip(RecordActivity rec) {
         if (rec == null || rec.getDuration() == null || rec.getActivity() == null) {
             return null;
         }
         DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
-        String result = timeFormat.format(rec.getId().getDate()) + "\n";
+        String result = timeFormat.format(rec.getDatetime().toDate()) + "\n";
         result += rec.getActivity().getName() + ": " + format.format(rec.getDuration()) + " min";
         if (rec.getNotice() != null && rec.getNotice().length() > 0) {
             return result + "\n(" + rec.getNotice() + ")";
@@ -120,14 +127,14 @@ public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordActivityDO[] values) {
+    private static String createToolTip(RecordActivity[] values) {
         if (values == null || values.length < 1 || values[0] == null || values[0].getDuration() == null || values[0].getActivity() == null) {
             return null;
         }
         DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
         StringBuffer result = new StringBuffer();
-        for (RecordActivityDO rec : values) {
-            result.append(timeFormat.format(rec.getId().getDate())).append('\n');
+        for (RecordActivity rec : values) {
+            result.append(timeFormat.format(rec.getDatetime().toDate())).append('\n');
             result.append(rec.getActivity().getName()).append(": ").append(format.format(rec.getDuration())).append(' ').append(" min");
             if (rec.getNotice() != null && rec.getNotice().length() > 0) {
                 result.append("\n(").append(rec.getNotice()).append(')');

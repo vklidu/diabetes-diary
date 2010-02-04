@@ -23,12 +23,8 @@ import java.util.Date;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
-import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.datamodel.api.InvestigationAdministrator;
-import org.diabetesdiary.diary.service.db.InvSeason;
-import org.diabetesdiary.diary.service.db.InvestigationDO;
-import org.diabetesdiary.diary.service.db.RecordInvestDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestPK;
+import org.diabetesdiary.diary.domain.RecordInvest;
+import org.diabetesdiary.diary.domain.WKInvest;
 import org.openide.util.NbBundle;
 
 /**
@@ -40,7 +36,7 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
     private int baseIndex;
     private boolean male;
     private Calendar month;
-    private RecordInvestDO[][][] dataOtherInvest;
+    private RecordInvest[][][] dataOtherInvest;
 
     public OtherInvestModel(int baseIndex, boolean male, Calendar month) {
         this.baseIndex = baseIndex;
@@ -48,6 +44,7 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
         this.month = month;
     }
 
+    @Override
     public ColumnGroup getColumnHeader(TableColumnModel columnModel) {
         ColumnGroup gSum = new ColumnGroup(NbBundle.getMessage(OtherInvestModel.class, "Column.otherInvest"));
         gSum.add(columnModel.getColumn(baseIndex));
@@ -60,8 +57,11 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
         return gSum;
     }
 
+    @Override
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        RecordInvestDO gl = new RecordInvestDO();
+        return null;
+        /*
+        RecordInvest gl = new RecordInvest();
         RecordInvestPK pk = new RecordInvestPK();
         pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
         pk.setIdInvest(getClickCellInvestId(rowIndex, columnIndex));
@@ -72,24 +72,26 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
         gl.setId(pk);
         gl.setSeason(null);
         return gl;
+         * 
+         */
     }
 
+    @Override
     public void setData(Collection<?> data) {
-        dataOtherInvest = new RecordInvestDO[31][4][1];
+        dataOtherInvest = new RecordInvest[31][4][1];
         Calendar cal = Calendar.getInstance();
         for (Object record : data) {
-            if (record instanceof RecordInvestDO) {
-                RecordInvestDO rec = (RecordInvestDO) record;
-                int id = rec.getId().getIdInvest();
-                if (id != InvestigationDO.Instances.GLYCEMIE.getID()) {
-                    cal.setTimeInMillis(rec.getId().getDate().getTime());
-                    InvestigationDO.Instances inst = InvestigationDO.Instances.getInvestInstanceByID(id);
+            if (record instanceof RecordInvest) {
+                RecordInvest rec = (RecordInvest) record;
+                if (!rec.getInvest().anyType(WKInvest.GLYCEMIE)) {
+                    cal.setTimeInMillis(rec.getDatetime().getMillis());
+                    WKInvest inst = rec.getInvest().getWKInvest();
 
                     if (dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][getColumnIndexForInvest(inst)][0] == null) {
                         dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][getColumnIndexForInvest(inst)][0] = rec;
                     } else {
-                        RecordInvestDO[] pom = dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][getColumnIndexForInvest(inst)];
-                        dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][getColumnIndexForInvest(inst)] = new RecordInvestDO[pom.length + 1];
+                        RecordInvest[] pom = dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][getColumnIndexForInvest(inst)];
+                        dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][getColumnIndexForInvest(inst)] = new RecordInvest[pom.length + 1];
                         for (int i = 0; i < pom.length; i++) {
                             dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][getColumnIndexForInvest(inst)][i] = pom[i];
                         }
@@ -100,22 +102,27 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
         }
     }
 
+    @Override
     public int getBaseIndex() {
         return baseIndex;
     }
 
+    @Override
     public void setBaseIndex(int baseIndex) {
         this.baseIndex = baseIndex;
     }
 
+    @Override
     public int getRowCount() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public int getColumnCount() {
         return isMale() ? 3 : 4;
     }
 
+    @Override
     public String getColumnName(int index) {
         switch (index) {
             case 0:
@@ -131,26 +138,29 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
         }
     }
 
+    @Override
     public Class<?> getColumnClass(int index) {
         switch (index) {
             case 0:
-                return RecordInvestDO.class;
+                return RecordInvest.class;
             case 1:
-                return RecordInvestDO.class;
+                return RecordInvest.class;
             case 2:
-                return RecordInvestDO.class;
+                return RecordInvest.class;
             case 3:
-                return RecordInvestDO.class;
+                return RecordInvest.class;
             default:
                 throw new IndexOutOfBoundsException();
 
         }
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         return true;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (dataOtherInvest != null && rowIndex > -1) {
             if (dataOtherInvest[rowIndex][columnIndex] != null && dataOtherInvest[rowIndex][columnIndex].length == 1) {
@@ -173,45 +183,47 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
         return cal.getTime();
     }
 
-    private Integer getColumnIndexForInvest(InvestigationDO.Instances inst) {
+    private Integer getColumnIndexForInvest(WKInvest inst) {
         switch (inst) {
             case WEIGHT:
                 return 0;
-            case SUGAR:
+            case URINE_SUGAR:
                 return 1;
             case ACETON:
                 return 2;
-            case MENZES:
+            case MENSES:
                 return 3;
-            case TALL:
+            case HEIGHT:
                 return 0;                
             default:
                 throw new ArrayIndexOutOfBoundsException();
         }
     }
 
-    private Integer getClickCellInvestId(int rowIndex, int columnIndex) {
+    private WKInvest getClickCellInvestId(int rowIndex, int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return InvestigationDO.Instances.WEIGHT.getID();//weight
+                return WKInvest.WEIGHT;//weight
 
             case 1:
-                return InvestigationDO.Instances.SUGAR.getID();//sugar
+                return WKInvest.URINE_SUGAR;//sugar
 
             case 2:
-                return InvestigationDO.Instances.ACETON.getID();//aceton
+                return WKInvest.ACETON;//aceton
 
             case 3:
-                return InvestigationDO.Instances.MENZES.getID();//menses
+                return WKInvest.MENSES;//menses
 
             default:
-                throw new ArrayIndexOutOfBoundsException();
+                throw new IllegalStateException();
         }
     }
 
+    @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
-            RecordInvestDO gl = new RecordInvestDO();
+            /*
+            RecordInvest gl = new RecordInvest();
             RecordInvestPK pk = new RecordInvestPK();
             pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
             pk.setIdInvest(getClickCellInvestId(rowIndex, columnIndex));
@@ -226,15 +238,20 @@ public class OtherInvestModel implements TableSubModel, Comparable<TableSubModel
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(gl.getId().getDate().getTime());
             dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = gl;
+             * 
+             */
         }
     }
 
+    @Override
     public void addTableModelListener(TableModelListener arg0) {
     }
 
+    @Override
     public void removeTableModelListener(TableModelListener arg0) {
     }
 
+    @Override
     public int compareTo(TableSubModel o) {
         return Integer.valueOf(getBaseIndex()).compareTo(o.getBaseIndex());
     }

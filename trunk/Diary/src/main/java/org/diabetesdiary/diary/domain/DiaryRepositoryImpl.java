@@ -20,17 +20,18 @@ package org.diabetesdiary.diary.domain;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.domain.Activity;
-import org.diabetesdiary.diary.domain.ActivityGroup;
-import org.diabetesdiary.diary.domain.Food;
-import org.diabetesdiary.diary.domain.FoodGroup;
-import org.diabetesdiary.diary.domain.FoodUnit;
-import org.diabetesdiary.diary.domain.Insulin;
-import org.diabetesdiary.diary.domain.InsulinType;
-import org.diabetesdiary.diary.domain.Investigation;
-import org.diabetesdiary.diary.domain.InvestigationGroup;
-import org.diabetesdiary.diary.domain.Patient;
+import org.diabetesdiary.diary.service.db.ActivityDO;
+import org.diabetesdiary.diary.service.db.ActivityGroupDO;
+import org.diabetesdiary.diary.service.db.FoodDO;
+import org.diabetesdiary.diary.service.db.FoodGroupDO;
+import org.diabetesdiary.diary.service.db.FoodUnitDO;
+import org.diabetesdiary.diary.service.db.InsulinDO;
+import org.diabetesdiary.diary.service.db.InsulinTypeDO;
+import org.diabetesdiary.diary.service.db.InvestigationDO;
+import org.diabetesdiary.diary.service.db.InvestigationGroupDO;
 import org.diabetesdiary.diary.service.db.PatientDO;
+import org.diabetesdiary.diary.service.db.RecordFoodDO;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,100 +40,112 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Jiri Majer
  */
 @Repository
+@Transactional(readOnly=true)
 public class DiaryRepositoryImpl extends AbstractRepository implements DiaryRepository {
 
-    private transient Patient curPat = null;
-
     @Override
-    @Transactional(readOnly=true)
     public List<Patient> getPatients() {
         return Lists.newArrayList(Lists.transform(getSession().createCriteria(PatientDO.class).list(), Patient.CREATE_FUNCTION));
     }
 
     @Override
-    @Transactional(readOnly=true)
     public Patient getPatient(Long idPatient) {
         return new Patient((PatientDO) getSession().load(PatientDO.class, idPatient));
     }
 
     @Override
     public List<Activity> getActivities() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Lists.newArrayList(Lists.transform(getSession().createCriteria(ActivityDO.class).list(), Activity.CREATE_FUNCTION));
     }
 
     @Override
     public List<ActivityGroup> getActivityGroups() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Lists.newArrayList(Lists.transform(getSession().createCriteria(ActivityGroupDO.class).list(), ActivityGroup.CREATE_FUNCTION));
     }
 
     @Override
     public Activity getActivity(Long idActivity) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public List<Food> getFoods() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public FoodUnit getFoodUnit(Long idFood, String unit) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new Activity((ActivityDO) getSession().load(ActivityDO.class, idActivity));
     }
 
     @Override
     public List<FoodGroup> getFoodGroups() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Lists.newArrayList(Lists.transform(getSession().createCriteria(FoodGroupDO.class).list(), FoodGroup.CREATE_FUNCTION));
     }
 
     @Override
     public List<FoodGroup> getBaseFoodGroups() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Lists.newArrayList(Lists.transform(getSession()
+                .createCriteria(FoodGroupDO.class)
+                .add(Restrictions.isNull("parent"))
+                .list(), FoodGroup.CREATE_FUNCTION));
     }
 
     @Override
     public Food getFood(Long idFood) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new Food((FoodDO) getSession().load(FoodDO.class, idFood));
     }
 
     @Override
     public FoodGroup getFoodGroup(Long idGroup) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new FoodGroup((FoodGroupDO) getSession().load(FoodGroupDO.class, idGroup));
     }
 
     @Override
     public List<Insulin> getInsulines() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Lists.newArrayList(Lists.transform(getSession().createCriteria(InsulinDO.class).list(), Insulin.CREATE_FUNCTION));
     }
 
     @Override
     public List<InsulinType> getInsulinTypes() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Lists.newArrayList(Lists.transform(getSession().createCriteria(InsulinTypeDO.class).list(), InsulinType.CREATE_FUNCTION));
     }
 
     @Override
     public Insulin getInsulin(Long idInsulin) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new Insulin((InsulinDO) getSession().load(InsulinDO.class, idInsulin));
     }
 
     @Override
     public List<Investigation> getInvestigations() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Lists.newArrayList(Lists.transform(getSession().createCriteria(InvestigationDO.class).list(), Investigation.CREATE_FUNCTION));
     }
 
     @Override
     public List<InvestigationGroup> getInvestigationGroups() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return Lists.newArrayList(Lists.transform(getSession().createCriteria(InvestigationGroupDO.class).list(), InvestigationGroup.CREATE_FUNCTION));
     }
 
     @Override
     public Investigation getInvestigation(Long idInvestigation) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new Investigation((InvestigationDO) getSession().load(InvestigationDO.class, idInvestigation));
     }
 
     @Override
     public InvestigationGroup getInvestigationGroup(Long idGroup) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new InvestigationGroup((InvestigationGroupDO) getSession().load(InvestigationGroupDO.class, idGroup));
+    }
+
+    @Override
+    public FoodUnit getSacharidUnit(String unit) {
+        FoodUnitDO res = (FoodUnitDO) getSession().createCriteria(FoodUnitDO.class)
+                .createAlias("food", "food")
+                .add(Restrictions.eq("food.wkfood", WKFood.SACCHARIDE))
+                .add(Restrictions.eq("unit", unit)).uniqueResult();
+        return res == null ? null : new FoodUnit(res);
+    }
+
+    @Override
+    public List<FoodUnit> getSacharidUnits() {
+        List<FoodUnitDO> res = getSession().createCriteria(FoodUnitDO.class)
+                .add(Restrictions.eq("food.wkfood", WKFood.SACCHARIDE))
+                .list();
+        return Lists.newArrayList(Lists.transform(res, FoodUnit.CREATE_FUNCTION));
+    }
+
+    @Override
+    public RecordFood getRecordFood(Long id) {
+        return new RecordFood((RecordFoodDO) getSession().load(RecordFoodDO.class, id));
     }
 
 }

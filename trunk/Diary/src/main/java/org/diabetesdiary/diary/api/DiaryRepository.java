@@ -28,6 +28,7 @@ import org.diabetesdiary.diary.domain.InsulinType;
 import org.diabetesdiary.diary.domain.Investigation;
 import org.diabetesdiary.diary.domain.InvestigationGroup;
 import org.diabetesdiary.diary.domain.Patient;
+import org.diabetesdiary.diary.domain.RecordFood;
 
 /**
  *
@@ -45,9 +46,9 @@ public interface DiaryRepository {
 
     public Activity getActivity(Long idActivity);
 
-    public List<Food> getFoods();
+    public FoodUnit getSacharidUnit(String unit);
 
-    public FoodUnit getFoodUnit(Long idFood, String unit);
+    public List<FoodUnit> getSacharidUnits();
 
     public List<FoodGroup> getFoodGroups();
 
@@ -70,4 +71,6 @@ public interface DiaryRepository {
     public Investigation getInvestigation(Long idInvestigation);
 
     public InvestigationGroup getInvestigationGroup(Long idGroup);
+
+    public RecordFood getRecordFood(Long id);
 }

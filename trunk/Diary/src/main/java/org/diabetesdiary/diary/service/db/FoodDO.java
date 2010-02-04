@@ -17,11 +17,14 @@
  */
 package org.diabetesdiary.diary.service.db;
 
+import org.diabetesdiary.diary.domain.WKFood;
 import java.text.Collator;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -44,6 +47,10 @@ public class FoodDO extends AbstractDO implements Comparable<FoodDO> {
 
     @Column(nullable = false)
     private Double protein;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable=true, unique=true)
+    private WKFood wkfood;
 
     @Column(nullable = false)
     private Double fat;
@@ -139,6 +146,14 @@ public class FoodDO extends AbstractDO implements Comparable<FoodDO> {
 
     public void setFoodGroup(FoodGroupDO foodGroup) {
         this.foodGroup = foodGroup;
+    }
+
+    public WKFood getWkfood() {
+        return wkfood;
+    }
+
+    public void setWkfood(WKFood wkfood) {
+        this.wkfood = wkfood;
     }
     
 }

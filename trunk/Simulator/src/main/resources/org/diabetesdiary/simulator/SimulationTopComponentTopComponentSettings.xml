@@ -3,6 +3,6 @@
 <settings version="1.0">
     <module name="org.diabetesdiary.model" spec="1.0"/>
     <instanceof class="org.openide.windows.TopComponent"/>
-    <instanceof class="org.diabetesdiary.model.ui.SimulationTopComponentTopComponent"/>
-    <instance class="org.diabetesdiary.model.ui.SimulationTopComponentTopComponent" method="getDefault"/>
+    <instanceof class="org.diabetesdiary.simulator.ui.SimulationTopComponentTopComponent"/>
+    <instance class="org.diabetesdiary.simulator.ui.SimulationTopComponentTopComponent" method="getDefault"/>
 </settings>

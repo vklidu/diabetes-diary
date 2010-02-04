@@ -23,12 +23,7 @@ import java.util.Date;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
-import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.datamodel.api.FoodAdministrator;
-import org.diabetesdiary.diary.service.db.FoodSeason;
-import org.diabetesdiary.diary.service.db.RecordFoodDO;
-import org.diabetesdiary.datamodel.pojo.RecordFoodPK;
+import org.diabetesdiary.diary.domain.RecordFood;
 import org.openide.util.NbBundle;
 
 /**
@@ -37,7 +32,7 @@ import org.openide.util.NbBundle;
  */
 public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel> {
 
-    private RecordFoodDO dataFood[][][];
+    private RecordFood dataFood[][][];
     private int baseIndex;
     private Calendar month;
 
@@ -47,10 +42,12 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
         this.month = month;
     }
 
+    @Override
     public int getColumnCount() {
         return 6;
     }
 
+    @Override
     public ColumnGroup getColumnHeader(TableColumnModel columnModel) {
         ColumnGroup gFood = new ColumnGroup(NbBundle.getMessage(RecordFoodModel.class, "Column.food"));
         for (int i = baseIndex; i < baseIndex + getColumnCount(); i++) {
@@ -59,21 +56,24 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
         return gFood;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (dataFood != null && rowIndex > -1) {
             if (dataFood[rowIndex][columnIndex] != null && dataFood[rowIndex][columnIndex].length == 1) {
-                RecordFoodDO res = dataFood[rowIndex][columnIndex][0];
+                RecordFood res = dataFood[rowIndex][columnIndex][0];
                 return res;
             } else {
-                RecordFoodDO[] res = dataFood[rowIndex][columnIndex];
+                RecordFood[] res = dataFood[rowIndex][columnIndex];
                 return res;
             }
         }
         return null;
     }
 
+    @Override
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        RecordFoodDO food = new RecordFoodDO();
+        /*
+        RecordFood food = new RecordFood();
         RecordFoodPK pk = new RecordFoodPK();
         pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
         pk.setIdFood(1);
@@ -86,11 +86,16 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
         food.setUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
         food.setAmount(0d);
         return food;
+         * 
+         */
+        return null;
     }
 
+    @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
-            RecordFoodDO rec = new RecordFoodDO();
+            /*
+            RecordFood rec = new RecordFood();
             RecordFoodPK pk = new RecordFoodPK();
             pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
             pk.setIdFood(1);
@@ -113,21 +118,25 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
                 if (rec.getId().getIdFood().equals(dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0].getId().getIdFood())) {
                     dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
                 } else {
-                    RecordFoodDO[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
-                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordFoodDO[pom.length + 1];
+                    RecordFood[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
+                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordFood[pom.length + 1];
                     dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
                     for (int i = 0; i < pom.length; i++) {
                         dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][i + 1] = pom[i];
                     }
                 }
             }
+             * 
+             */
         }
     }
 
+    @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return RecordFoodDO.class;
+        return RecordFood.class;
     }
 
+    @Override
     public String getColumnName(int col) {
         switch (col) {
             case 0:
@@ -177,25 +186,27 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
         return cal.getTime();
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         return true;
     }
 
+    @Override
     public void setData(Collection<?> data) {
         //max number of days
-        dataFood = new RecordFoodDO[31][6][1];
+        dataFood = new RecordFood[31][6][1];
         Calendar cal = Calendar.getInstance();
         for (Object record : data) {
-            if (record instanceof RecordFoodDO) {
-                RecordFoodDO rec = (RecordFoodDO) record;
-                cal.setTimeInMillis(rec.getId().getDate().getTime());
-                int col = FoodSeason.valueOf(rec.getSeason()).ordinal();
+            if (record instanceof RecordFood) {
+                RecordFood rec = (RecordFood) record;
+                cal.setTimeInMillis(rec.getDatetime().getMillis());
+                int col = rec.getSeason().ordinal();
 
                 if (dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] == null) {
                     dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
                 } else {
-                    RecordFoodDO[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
-                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordFoodDO[pom.length + 1];
+                    RecordFood[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
+                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordFood[pom.length + 1];
                     for (int i = 0; i < pom.length; i++) {
                         dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][i] = pom[i];
                     }
@@ -205,25 +216,31 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
         }
     }
 
+    @Override
     public int getBaseIndex() {
         return baseIndex;
     }
 
+    @Override
     public void setBaseIndex(int baseIndex) {
         this.baseIndex = baseIndex;
     }
 
+    @Override
     public int compareTo(TableSubModel o) {
         return Integer.valueOf(baseIndex).compareTo(o.getBaseIndex());
     }
 
+    @Override
     public int getRowCount() {
         throw new IllegalStateException("Don't use it.");
     }
 
+    @Override
     public void addTableModelListener(TableModelListener l) {
     }
 
+    @Override
     public void removeTableModelListener(TableModelListener l) {
     }
 }

@@ -52,14 +52,12 @@ import org.diabetesdiary.calendar.table.InsulinPumpBasalRenderer;
 import org.diabetesdiary.calendar.table.RecordInsulinPumpBasal;
 import org.diabetesdiary.calendar.table.SumModel;
 import org.diabetesdiary.calendar.table.TableSubModel;
+import org.diabetesdiary.diary.domain.RecordActivity;
+import org.diabetesdiary.diary.domain.RecordFood;
+import org.diabetesdiary.diary.domain.RecordInsulin;
+import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.service.db.RecordActivityDO;
-import org.diabetesdiary.diary.service.db.RecordFoodDO;
-import org.diabetesdiary.diary.service.db.RecordInsulinDO;
-import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.openide.ErrorManager;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.CallableSystemAction;
@@ -102,7 +100,7 @@ public final class CalendarTopComponent extends TopComponent
                         popupMenu = CalendarPopupMenu.createPopupMenu(getModel().getValueAt(row, column));
                         popupMenu.show(jTable1, e.getX(), e.getY());
                     }
-                } else if (MyLookup.getDiaryRepo().getCurrentPatient() != null) {
+                } else if (MyLookup.getCurrentPatient() != null) {
                     Object record = getModel().getEverRecordValueAt(row, column);
                     RecordEditorTopComponent.getDefault().setRecord(record);
                 }
@@ -155,17 +153,17 @@ public final class CalendarTopComponent extends TopComponent
             }
 
         };
-        jTable1.setDefaultEditor(RecordInvestDO.class,new GlykemieCellEditor());
-        jTable1.setDefaultEditor(RecordActivityDO.class,new ActivityCellEditor());
-        jTable1.setDefaultEditor(RecordFoodDO.class,new FoodCellEditor());
-        jTable1.setDefaultEditor(RecordInsulinDO.class,new InsulinCellEditor());
+        jTable1.setDefaultEditor(RecordInvest.class,new GlykemieCellEditor());
+        jTable1.setDefaultEditor(RecordActivity.class,new ActivityCellEditor());
+        jTable1.setDefaultEditor(RecordFood.class,new FoodCellEditor());
+        jTable1.setDefaultEditor(RecordInsulin.class,new InsulinCellEditor());
         jTable1.setDefaultEditor(RecordInsulinPumpBasal.class,new InsulinPumpBasalEditor());
 
         jTable1.setDefaultRenderer(CalendarDay.class,new DayRenderer());
-        jTable1.setDefaultRenderer(RecordInvestDO.class,new GlykemieCellRenderer());
-        jTable1.setDefaultRenderer(RecordFoodDO.class,new FoodCellRenderer());
-        jTable1.setDefaultRenderer(RecordActivityDO.class,new ActivityCellRenderer());
-        jTable1.setDefaultRenderer(RecordInsulinDO.class,new InsulinCellRenderer());
+        jTable1.setDefaultRenderer(RecordInvest.class,new GlykemieCellRenderer());
+        jTable1.setDefaultRenderer(RecordFood.class,new FoodCellRenderer());
+        jTable1.setDefaultRenderer(RecordActivity.class,new ActivityCellRenderer());
+        jTable1.setDefaultRenderer(RecordInsulin.class,new InsulinCellRenderer());
         jTable1.setDefaultRenderer(RecordInsulinPumpBasal.class,new InsulinPumpBasalRenderer());
         backward = new javax.swing.JButton();
         forward = new javax.swing.JButton();
@@ -432,18 +430,10 @@ private void activityVisibleActionPerformed(java.awt.event.ActionEvent evt) {//G
 
     @Override
     public void componentOpened() {
-        Lookup lookup = Lookup.getDefault();
-        DiaryRepository diary = (DiaryRepository) lookup.lookup(DiaryRepository.class);
-        if (diary == null) {
-            // this will show up as a flashing round button in the bottom-right corner
-            ErrorManager.getDefault().notify(
-                    new IllegalStateException("Cannot locate Diary implementation"));
-        } else {
-            if (diary.getCurrentPatient() == null) {
-                SelectPatientAction action = (SelectPatientAction) CallableSystemAction.findObject(SelectPatientAction.class);
-                if (action != null) {
-                    action.performAction();
-                }
+        if (MyLookup.getCurrentPatient() == null) {
+            SelectPatientAction action = (SelectPatientAction) CallableSystemAction.findObject(SelectPatientAction.class);
+            if (action != null) {
+                action.performAction();
             }
         }
     }
@@ -480,6 +470,7 @@ private void activityVisibleActionPerformed(java.awt.event.ActionEvent evt) {//G
         return model;
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         Object source = evt.getSource();
         if (source == selMonth) {

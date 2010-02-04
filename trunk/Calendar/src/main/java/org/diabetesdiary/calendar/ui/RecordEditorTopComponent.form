@@ -4,6 +4,7 @@
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -58,27 +59,27 @@
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="insulinType" alignment="0" pref="274" max="32767" attributes="0"/>
+                                  <Component id="insulinType" alignment="0" pref="303" max="32767" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="insulinDatum" min="-2" pref="106" max="-2" attributes="1"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="insulinTime" pref="162" max="32767" attributes="0"/>
+                                      <Component id="insulinTime" pref="191" max="32767" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="insulinValue" min="-2" pref="72" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="insulinSave" pref="157" max="32767" attributes="0"/>
+                                      <Component id="insulinSave" pref="172" max="32767" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="insulinDel" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <Component id="insulinSeason" alignment="0" pref="274" max="32767" attributes="1"/>
-                                  <Component id="insulinUnit" alignment="1" pref="274" max="32767" attributes="0"/>
-                                  <Component id="insulin" alignment="1" pref="274" max="32767" attributes="1"/>
+                                  <Component id="insulinSeason" alignment="0" pref="303" max="32767" attributes="1"/>
+                                  <Component id="insulinUnit" alignment="1" pref="303" max="32767" attributes="0"/>
+                                  <Component id="insulin" alignment="1" pref="303" max="32767" attributes="1"/>
                               </Group>
                           </Group>
                           <Component id="jLabel23" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jScrollPane6" alignment="0" pref="341" max="32767" attributes="0"/>
-                          <Component id="jScrollPane5" alignment="1" pref="341" max="32767" attributes="0"/>
+                          <Component id="jScrollPane6" alignment="0" pref="348" max="32767" attributes="0"/>
+                          <Component id="jScrollPane5" alignment="1" pref="348" max="32767" attributes="0"/>
                           <Component id="jLabel24" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -129,7 +130,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel24" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane6" pref="139" max="32767" attributes="0"/>
+                      <Component id="jScrollPane6" pref="167" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -347,22 +348,22 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="investDatum" min="-2" pref="106" max="-2" attributes="1"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="investTime" pref="150" max="32767" attributes="0"/>
+                                      <Component id="investTime" pref="165" max="32767" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="investValue" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="investSave" min="-2" pref="62" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="investDel" pref="113" max="32767" attributes="0"/>
+                                      <Component id="investDel" pref="157" max="32767" attributes="0"/>
                                   </Group>
-                                  <Component id="investUnit" alignment="0" pref="262" max="32767" attributes="0"/>
-                                  <Component id="invest" alignment="0" pref="262" max="32767" attributes="1"/>
-                                  <Component id="glykSeason" alignment="0" pref="262" max="32767" attributes="1"/>
+                                  <Component id="investUnit" alignment="0" pref="277" max="32767" attributes="0"/>
+                                  <Component id="invest" alignment="0" pref="277" max="32767" attributes="1"/>
+                                  <Component id="glykSeason" alignment="0" pref="277" max="32767" attributes="1"/>
                               </Group>
                           </Group>
-                          <Component id="jScrollPane4" alignment="0" pref="341" max="32767" attributes="0"/>
-                          <Component id="jScrollPane1" alignment="1" pref="341" max="32767" attributes="0"/>
+                          <Component id="jScrollPane4" alignment="0" pref="348" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" alignment="1" pref="348" max="32767" attributes="0"/>
                           <Component id="jLabel21" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -414,7 +415,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel21" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane4" pref="165" max="32767" attributes="0"/>
+                      <Component id="jScrollPane4" pref="188" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -600,11 +601,11 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jScrollPane2" alignment="0" pref="341" max="32767" attributes="0"/>
-                          <Component id="jScrollPane3" alignment="0" pref="341" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" alignment="0" pref="348" max="32767" attributes="0"/>
+                          <Component id="jScrollPane3" alignment="0" pref="348" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="jCheckBox1" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="106" max="32767" attributes="0"/>
+                              <EmptySpace pref="173" max="32767" attributes="0"/>
                               <Component id="jLabel15" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="jLabel7" alignment="0" min="-2" pref="67" max="-2" attributes="0"/>
@@ -622,18 +623,18 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="foodDatum" min="-2" pref="106" max="-2" attributes="1"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="foodTime" pref="162" max="32767" attributes="0"/>
+                                      <Component id="foodTime" pref="191" max="32767" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="foodValue" min="-2" pref="72" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="foodSave" pref="196" max="32767" attributes="0"/>
+                                      <Component id="foodSave" pref="225" max="32767" attributes="0"/>
                                   </Group>
-                                  <Component id="foodSeason" alignment="0" pref="274" max="32767" attributes="1"/>
-                                  <Component id="foodUnit" alignment="1" pref="274" max="32767" attributes="0"/>
-                                  <Component id="baseGroup" alignment="1" pref="274" max="32767" attributes="0"/>
-                                  <Component id="food" alignment="1" pref="274" max="32767" attributes="1"/>
-                                  <Component id="foodGroup" alignment="0" pref="274" max="32767" attributes="0"/>
+                                  <Component id="foodSeason" alignment="0" pref="303" max="32767" attributes="1"/>
+                                  <Component id="foodUnit" alignment="1" pref="303" max="32767" attributes="0"/>
+                                  <Component id="baseGroup" alignment="1" pref="303" max="32767" attributes="0"/>
+                                  <Component id="food" alignment="1" pref="303" max="32767" attributes="1"/>
+                                  <Component id="foodGroup" alignment="0" pref="303" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Component id="foodError" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -700,7 +701,7 @@
                           <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane3" pref="115" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" pref="136" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -917,13 +918,13 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="actValue" min="-2" pref="72" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="actSave" pref="158" max="32767" attributes="0"/>
+                              <Component id="actSave" pref="172" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="actDel" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="jLabel31" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jScrollPane8" alignment="0" pref="341" max="32767" attributes="0"/>
-                          <Component id="jScrollPane7" alignment="1" pref="341" max="32767" attributes="0"/>
+                          <Component id="jScrollPane8" alignment="0" pref="348" max="32767" attributes="0"/>
+                          <Component id="jScrollPane7" alignment="1" pref="348" max="32767" attributes="0"/>
                           <Component id="jLabel32" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
@@ -935,10 +936,10 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="actDate" min="-2" pref="88" max="-2" attributes="1"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="actTime" pref="189" max="32767" attributes="0"/>
+                                      <Component id="actTime" pref="206" max="32767" attributes="0"/>
                                   </Group>
-                                  <Component id="actType" alignment="0" pref="283" max="32767" attributes="0"/>
-                                  <Component id="activity" alignment="1" pref="283" max="32767" attributes="1"/>
+                                  <Component id="actType" alignment="0" pref="300" max="32767" attributes="0"/>
+                                  <Component id="activity" alignment="1" pref="300" max="32767" attributes="1"/>
                               </Group>
                           </Group>
                       </Group>
@@ -980,7 +981,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel32" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane8" pref="142" max="32767" attributes="0"/>
+                      <Component id="jScrollPane8" pref="171" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="59" max="-2" attributes="0"/>
                   </Group>
               </Group>

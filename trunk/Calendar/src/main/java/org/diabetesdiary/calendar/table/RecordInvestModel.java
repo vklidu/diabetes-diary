@@ -23,12 +23,9 @@ import java.util.Date;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
-import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.datamodel.api.InvestigationAdministrator;
-import org.diabetesdiary.diary.service.db.InvSeason;
-import org.diabetesdiary.diary.service.db.InvestigationDO;
-import org.diabetesdiary.diary.service.db.RecordInvestDO;
-import org.diabetesdiary.datamodel.pojo.RecordInvestPK;
+import org.diabetesdiary.diary.domain.RecordInvest;
+import org.diabetesdiary.diary.domain.InvSeason;
+import org.diabetesdiary.diary.domain.WKInvest;
 import org.openide.util.NbBundle;
 
 /**
@@ -37,7 +34,7 @@ import org.openide.util.NbBundle;
  */
 public class RecordInvestModel implements TableSubModel, Comparable<TableSubModel> {
 
-    private RecordInvestDO dataInvest[][][];
+    private RecordInvest dataInvest[][][];
     private int baseIndex;
     private Calendar month;
 
@@ -47,10 +44,12 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
         this.month = month;
     }
 
+    @Override
     public int getColumnCount() {
         return 9;
     }
 
+    @Override
     public ColumnGroup getColumnHeader(TableColumnModel cm) {
         ColumnGroup gGlyk = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.glykemie"));
         ColumnGroup gBreak = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.breakfest"));
@@ -76,6 +75,7 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
         return gGlyk;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (dataInvest != null && rowIndex > -1) {
             if (dataInvest[rowIndex][columnIndex] != null && dataInvest[rowIndex][columnIndex].length == 1) {
@@ -87,8 +87,10 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
         return null;
     }
 
+    @Override
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        RecordInvestDO gl = new RecordInvestDO();
+        /**
+        RecordInvest gl = new RecordInvest();
         RecordInvestPK pk = new RecordInvestPK();
         pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
         pk.setIdInvest(InvestigationDO.Instances.GLYCEMIE.getID());
@@ -103,11 +105,15 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
             gl.setSeason(InvSeason.values()[columnIndex - 1].name());
         }
         return gl;
+         */
+        return null;
     }
 
+    @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
-            RecordInvestDO gl = new RecordInvestDO();
+            /*
+            RecordInvest gl = new RecordInvest();
             RecordInvestPK pk = new RecordInvestPK();
             pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
             pk.setIdInvest(InvestigationDO.Instances.GLYCEMIE.getID());
@@ -126,13 +132,17 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(gl.getId().getDate().getTime());
             dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = gl;
+             *
+             */
         }
     }
 
+    @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return RecordInvestDO.class;
+        return RecordInvest.class;
     }
 
+    @Override
     public String getColumnName(int col) {
         switch (col) {
             case 0:
@@ -158,20 +168,22 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
         }
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         return true;
     }
 
+    @Override
     public void setData(Collection<?> data) {
-        dataInvest = new RecordInvestDO[31][getColumnCount()][1];
+        dataInvest = new RecordInvest[31][getColumnCount()][1];
         Calendar cal = Calendar.getInstance();
         for (Object record : data) {
-            if (record instanceof RecordInvestDO) {
-                RecordInvestDO rec = (RecordInvestDO) record;
-                if (rec.getId().getIdInvest().equals(InvestigationDO.Instances.GLYCEMIE.getID())) {
-                    cal.setTimeInMillis(rec.getId().getDate().getTime());
-                    int column = InvSeason.valueOf(rec.getSeason()).ordinal() + 1;
-                    if (InvSeason.valueOf(rec.getSeason()).equals(InvSeason.M)) {
+            if (record instanceof RecordInvest) {
+                RecordInvest rec = (RecordInvest) record;
+                if (rec.getInvest().anyType(WKInvest.GLYCEMIE)) {
+                    cal.setTimeInMillis(rec.getDatetime().getMillis());
+                    int column = rec.getSeason().ordinal() + 1;
+                    if (rec.getSeason() == InvSeason.M) {
                         if (cal.get(Calendar.HOUR_OF_DAY) < 12) {
                             column = 0;
                         } else {
@@ -181,8 +193,8 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
                     if (dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column][0] == null) {
                         dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column][0] = rec;
                     } else {
-                        RecordInvestDO[] pom = dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column];
-                        dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column] = new RecordInvestDO[pom.length + 1];
+                        RecordInvest[] pom = dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column];
+                        dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column] = new RecordInvest[pom.length + 1];
                         for (int i = 0; i < pom.length; i++) {
                             dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][column][i] = pom[i];
                         }
@@ -193,25 +205,31 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
         }
     }
 
+    @Override
     public void setBaseIndex(int baseIndex) {
         this.baseIndex = baseIndex;
     }
 
+    @Override
     public int getBaseIndex() {
         return baseIndex;
     }
 
+    @Override
     public int compareTo(TableSubModel o) {
         return Integer.valueOf(baseIndex).compareTo(o.getBaseIndex());
     }
 
+    @Override
     public int getRowCount() {
         throw new IllegalStateException("Don't use it.");
     }
 
+    @Override
     public void addTableModelListener(TableModelListener l) {
     }
 
+    @Override
     public void removeTableModelListener(TableModelListener l) {
     }
 

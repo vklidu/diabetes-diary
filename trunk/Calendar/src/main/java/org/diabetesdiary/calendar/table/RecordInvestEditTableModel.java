@@ -26,9 +26,10 @@ import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryRepository;
-import org.diabetesdiary.diary.service.db.RecordInvestDO;
+import org.diabetesdiary.diary.domain.RecordInvest;
+import org.joda.time.DateTime;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
 /**
  *
@@ -38,7 +39,7 @@ public class RecordInvestEditTableModel extends AbstractTableModel {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private static DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
-    private List<RecordInvestDO> recs;
+    private List<RecordInvest> recs;
     private static final String DELETE_ICO = "org/diabetesdiary/calendar/resources/delete16.png";
     private Date dateTo;
     private DiaryRepository diary;
@@ -50,19 +51,22 @@ public class RecordInvestEditTableModel extends AbstractTableModel {
         setDate(date);
     }
 
+    @Override
     public int getRowCount() {
         return recs == null ? 0 : recs.size();
     }
 
+    @Override
     public int getColumnCount() {
         return 4;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        RecordInvestDO rec = recs.get(rowIndex);
+        RecordInvest rec = recs.get(rowIndex);
         if (columnIndex == getColumnCount() - 1) {
             if (rec != null && rec.getValue() != null) {
-                return new ImageIcon(Utilities.loadImage(DELETE_ICO, true));
+                return new ImageIcon(ImageUtilities.loadImage(DELETE_ICO, true));
             } else {
                 return null;
             }
@@ -74,7 +78,7 @@ public class RecordInvestEditTableModel extends AbstractTableModel {
             case 1:
                 return rec.getValue() != null ? format.format(rec.getValue()) + " " + rec.getInvest().getUnit() : "";
             case 2:
-                return dateFormat.format(rec.getId().getDate());
+                return dateFormat.format(rec.getDatetime().toDate());
         }
 
         return "";
@@ -89,7 +93,7 @@ public class RecordInvestEditTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
     }
 
-    public RecordInvestDO getRecord(int rowIndex, int columnIndex) {
+    public RecordInvest getRecord(int rowIndex, int columnIndex) {
         return recs == null ? null : recs.get(rowIndex);
     }
 
@@ -138,10 +142,10 @@ public class RecordInvestEditTableModel extends AbstractTableModel {
 
     public void fillData() {
         //no data => end
-        if (diary.getCurrentPatient() == null || dateFrom == null || dateTo == null) {
+        if (MyLookup.getCurrentPatient() == null || dateFrom == null || dateTo == null) {
             recs = null;
             return;
         }
-        recs = diary.getRecordInvests(dateFrom, dateTo, diary.getCurrentPatient().getIdPatient());
+        recs = MyLookup.getCurrentPatient().getRecordInvests(new DateTime(dateFrom), new DateTime(dateTo));
     }
 }

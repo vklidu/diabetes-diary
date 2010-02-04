@@ -26,11 +26,8 @@ import java.text.NumberFormat;
 import java.util.Date;
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.JToolTip;
 import javax.swing.table.TableCellRenderer;
-import org.diabetesdiary.calendar.MultiLineToolTip;
-import org.diabetesdiary.diary.service.db.RecordInsulinDO;
-
+import org.diabetesdiary.diary.domain.RecordInsulin;
 /**
  *
  * @author Jiri Majer
@@ -50,6 +47,7 @@ public class InsulinPumpBasalRenderer extends JLabel implements TableCellRendere
     }
     
     
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         return createCell(table, value, isSelected);
     }
@@ -79,22 +77,22 @@ public class InsulinPumpBasalRenderer extends JLabel implements TableCellRendere
         double lastVal = -1;
         Date firstDate = null;
         Date lastDate = null;        
-        for(RecordInsulinDO rec : records.getData()){
+        for(RecordInsulin rec : records.getData()){
             if(rec != null){
                 if(lastVal == -1){
-                    firstDate = rec.getId().getDate();
-                    lastDate = rec.getId().getDate();
+                    firstDate = rec.getDatetime().toDate();
+                    lastDate = rec.getDatetime().toDate();
                     lastVal = rec.getAmount();
                 }else if(rec.getAmount() != lastVal){
                     result.append(dateFormat.format(firstDate));
                     result.append("-");
-                    result.append(dateFormat.format(new Date(rec.getId().getDate().getTime())));
+                    result.append(dateFormat.format(new Date(rec.getDatetime().toDate().getTime())));
                     result.append(" ").append(lastVal).append("U\n");
                     lastVal = rec.getAmount();
-                    firstDate = rec.getId().getDate();
-                    lastDate = rec.getId().getDate();
+                    firstDate = rec.getDatetime().toDate();
+                    lastDate = rec.getDatetime().toDate();
                 }else{
-                    lastDate = rec.getId().getDate();
+                    lastDate = rec.getDatetime().toDate();
                 }
             }else if(lastVal != -1){
                 result.append(dateFormat.format(firstDate));
