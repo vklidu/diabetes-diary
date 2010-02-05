@@ -59,14 +59,14 @@
             <version>3.1.0.GA</version>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>1.6</version>
+            <groupId>org.diabetesdiary</groupId>
+            <artifactId>commons</artifactId>
+            <version>${diary.version}</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time-hibernate</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>cglib</groupId>

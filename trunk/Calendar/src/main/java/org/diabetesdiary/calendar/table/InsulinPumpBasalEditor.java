@@ -41,7 +41,6 @@ import org.openide.util.NbBundle;
 public class InsulinPumpBasalEditor extends DefaultCellEditor {
     private JFormattedTextField ftf;
     private MaskFormatter maskFormat;
-    private boolean DEBUG = false;
     
     private static final String basalMask = "##-##-##-##-##-##-##-##-##-##-##-##";
     
