@@ -122,6 +122,16 @@ public class DiaryRepositoryImpl extends AbstractRepository implements DiaryRepo
     }
 
     @Override
+    public Investigation getWellKnownInvestigation(WKInvest wKInvest) {
+        return new Investigation((InvestigationDO) getSession().createCriteria(InvestigationDO.class).add(Restrictions.eq("wkinvest", wKInvest)).uniqueResult());
+    }
+
+    @Override
+    public Food getWellKnownFood(WKFood wKFood) {
+        return new Food((FoodDO) getSession().createCriteria(FoodDO.class).add(Restrictions.eq("wkfood", wKFood)).uniqueResult());
+    }
+
+    @Override
     public InvestigationGroup getInvestigationGroup(Long idGroup) {
         return new InvestigationGroup((InvestigationGroupDO) getSession().load(InvestigationGroupDO.class, idGroup));
     }
@@ -138,6 +148,7 @@ public class DiaryRepositoryImpl extends AbstractRepository implements DiaryRepo
     @Override
     public List<FoodUnit> getSacharidUnits() {
         List<FoodUnitDO> res = getSession().createCriteria(FoodUnitDO.class)
+                .createAlias("food", "food")
                 .add(Restrictions.eq("food.wkfood", WKFood.SACCHARIDE))
                 .list();
         return Lists.newArrayList(Lists.transform(res, FoodUnit.CREATE_FUNCTION));

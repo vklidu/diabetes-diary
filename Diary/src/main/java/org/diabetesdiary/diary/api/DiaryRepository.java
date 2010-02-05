@@ -29,6 +29,8 @@ import org.diabetesdiary.diary.domain.Investigation;
 import org.diabetesdiary.diary.domain.InvestigationGroup;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordFood;
+import org.diabetesdiary.diary.domain.WKFood;
+import org.diabetesdiary.diary.domain.WKInvest;
 
 /**
  *
@@ -69,6 +71,10 @@ public interface DiaryRepository {
     public List<InvestigationGroup> getInvestigationGroups();
 
     public Investigation getInvestigation(Long idInvestigation);
+
+    public Investigation getWellKnownInvestigation(WKInvest wKInvest);
+
+    public Food getWellKnownFood(WKFood wKFood);
 
     public InvestigationGroup getInvestigationGroup(Long idGroup);
 

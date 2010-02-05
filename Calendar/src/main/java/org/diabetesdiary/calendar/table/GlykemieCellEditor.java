@@ -45,7 +45,6 @@ public class GlykemieCellEditor extends DefaultCellEditor {
     JFormattedTextField ftf;
     NumberFormat numberFormat;
     private Double minimum,  maximum;
-    private boolean DEBUG = false;
 
     public GlykemieCellEditor() {
         super(new JFormattedTextField());

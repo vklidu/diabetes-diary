@@ -19,11 +19,17 @@ package org.diabetesdiary.calendar.table;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
+import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.diary.domain.Food;
+import org.diabetesdiary.diary.domain.FoodSeason;
+import org.diabetesdiary.diary.domain.FoodUnit;
 import org.diabetesdiary.diary.domain.RecordFood;
+import org.diabetesdiary.diary.domain.WKFood;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.joda.time.DateTime;
 import org.openide.util.NbBundle;
 
 /**
@@ -94,28 +100,17 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
-            /*
-            RecordFood rec = new RecordFood();
-            RecordFoodPK pk = new RecordFoodPK();
-            pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
-            pk.setIdFood(1);
-            pk.setDate(getClickCellDate(rowIndex, columnIndex));
-            rec.setId(pk);
-            Double units = (Double) value;
-            rec.setAmount(units);
-            rec.setTotalAmount(units);
-            rec.setUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
-            rec.setSeason(FoodSeason.values()[columnIndex].name());
-            rec.setFood(MyLookup.getFoodAdmin().getFood(pk.getIdFood()));
-
-            MyLookup.getDiaryRepo().addRecord(rec);
+            Food food = MyLookup.getDiaryRepo().getWellKnownFood(WKFood.SACCHARIDE);
+            FoodUnit unit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+            RecordFood rec = MyLookup.getCurrentPatient().addRecordFood(getClickCellDate(rowIndex, columnIndex),
+                    food, (Double) value, (Double) value, unit, FoodSeason.values()[columnIndex], null);
             Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(rec.getId().getDate().getTime());
-            int col = FoodSeason.valueOf(rec.getSeason()).ordinal();
+            cal.setTimeInMillis(rec.getDatetime().getMillis());
+            int col = rec.getSeason().ordinal();
             if (dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] == null) {
                 dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
             } else {
-                if (rec.getId().getIdFood().equals(dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0].getId().getIdFood())) {
+                if (rec.getFood().equals(dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0].getFood())) {
                     dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
                 } else {
                     RecordFood[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
@@ -126,8 +121,6 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
                     }
                 }
             }
-             * 
-             */
         }
     }
 
@@ -156,7 +149,7 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
         }
     }
 
-    public Date getClickCellDate(int row, int column) {
+    public DateTime getClickCellDate(int row, int column) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(month.getTimeInMillis());
         cal.set(Calendar.DAY_OF_MONTH, row + 1);
@@ -183,7 +176,7 @@ public class RecordFoodModel implements TableSubModel, Comparable<TableSubModel>
                 cal.set(Calendar.HOUR_OF_DAY, 20);
                 break;
         }
-        return cal.getTime();
+        return new DateTime(cal.getTime());
     }
 
     @Override

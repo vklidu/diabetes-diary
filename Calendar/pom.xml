@@ -67,10 +67,9 @@
       <version>1.0.3</version>
     </dependency>
     <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>1.6</version>
-      <type>jar</type>
+      <groupId>org.diabetesdiary</groupId>
+      <artifactId>commons</artifactId>
+      <version>${diary.version}</version>
     </dependency>
   </dependencies>
   <build>

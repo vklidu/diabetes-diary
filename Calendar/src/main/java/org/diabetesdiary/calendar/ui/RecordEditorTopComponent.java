@@ -1051,7 +1051,12 @@ private void insulinTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 private void insulinSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insulinSaveActionPerformed
     if (recordInsulinValidation()) {
         InsUnit un = (InsUnit) insulinUnit.getSelectedItem();
-        selectedInsulinRecord = MyLookup.getCurrentPatient().addRecordInsulin(new DateTime(getInsulinDate()), un.isBasal(), getInsulin(), getInsulinValue(), getInsulinSeason(), false, getInsulinNote());
+        if (selectedInsulinRecord == null) {
+            selectedInsulinRecord = MyLookup.getCurrentPatient().addRecordInsulin(getInsulinDate(), un.isBasal(), getInsulin(), getInsulinValue(), getInsulinSeason(), getInsulinNote());
+        } else {
+            selectedInsulinRecord.update(getInsulinDate(), un.isBasal(), getInsulin(), getInsulinValue(), getInsulinSeason(), getInsulinNote());
+        }
+
         CalendarTopComponent.getDefault().getModel().fillData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
     }
@@ -1086,22 +1091,11 @@ private void jCheckBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIR
 
 private void foodSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodSaveActionPerformed
     if (recordFoodValidation()) {
-        /*
-        RecordFoodDO record = new RecordFoodDO();
-        RecordFoodPK pk = new RecordFoodPK(getFood().getIdFood(), diary.getCurrentPatient().getIdPatient(), getFoodDate());
-        record.setId(pk);
-        record.setFood(getFood());
-        record.setNotice(getFoodNote());
-        record.setSeason(getFoodSeason().name());
-        record.setAmount(getFoodValue());
-        record.setTotalAmount(getFoodValue());
-        record.setUnit(getFoodUnit());
-        diary.addRecord(record);
+        MyLookup.getCurrentPatient().addRecordFood(getFoodDate(), getFood(),
+                getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
         CalendarTopComponent.getDefault().getModel().fillData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
-        getFoodModel().setDate(getFoodDate());
-         * 
-         */
+        getFoodModel().setDate(getFoodDate().toDate());
     }
 }//GEN-LAST:event_foodSaveActionPerformed
 
@@ -1151,22 +1145,16 @@ private void investDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 
 private void investSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_investSaveActionPerformed
     if (recordInvestValidation()) {
-        /*
-        RecordInvestDO recordInvest = new RecordInvestDO();
-        RecordInvestPK pk = new RecordInvestPK(getInvest().getId(), diary.getCurrentPatient().getIdPatient(), getInvestDate());
-        recordInvest.setId(pk);
-        recordInvest.setInvest(getInvest());
-        recordInvest.setNotice(getInvestNote());
-        recordInvest.setSeason(getInvestSeason().name());
-        recordInvest.setValue(getInvestValue());
-        diary.addRecord(recordInvest);
-        selectedInvestRecord = recordInvest;
+        if (selectedInvestRecord == null) {
+            selectedInvestRecord = MyLookup.getCurrentPatient().addRecordInvest(
+                getInvestDate(), getInvestValue(), getInvest(), getInvestSeason(), getInvestNote());
+        } else {
+            selectedInvestRecord.update(getInvestDate(), getInvestValue(), getInvest(), getInvestSeason(), getInvestNote());
+        }
         CalendarTopComponent.getDefault().getModel().fillData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getInvestModel().fillData();
         getInvestModel().fireTableDataChanged();
-         * 
-         */
     }
 }//GEN-LAST:event_investSaveActionPerformed
 
@@ -1229,21 +1217,15 @@ private void activityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
 private void actSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actSaveActionPerformed
     if (recordActivityValidation()) {
-        /*
-        RecordActivityDO recordActivity = new RecordActivityDO();
-        RecordActivityPK pk = new RecordActivityPK(getActivity().getId(), diary.getCurrentPatient().getIdPatient(), getActDate());
-        recordActivity.setId(pk);
-        recordActivity.setActivity(getActivity());
-        recordActivity.setDuration(getActValue());
-        recordActivity.setNotice(getActNote());
-        diary.addRecord(recordActivity);
-        selectedActivityRecord = recordActivity;
+        if (selectedActivityRecord == null) {
+            selectedActivityRecord = MyLookup.getCurrentPatient().addRecordActivity(getActDate(), getActivity(), getActValue(), getActNote());
+        } else {
+            selectedActivityRecord.update(getActDate(), getActivity(), getActValue(), getActNote());
+        }
         CalendarTopComponent.getDefault().getModel().fillData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getActivityModel().fillData();
         getActivityModel().fireTableDataChanged();
-         * 
-         */
     }
 }//GEN-LAST:event_actSaveActionPerformed
 
@@ -1447,9 +1429,9 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         activity.setSelectedItem(act);
     }
 
-    public Date getActDate() {
+    public DateTime getActDate() {
         try {
-            return dateTimeFormat.parse(actDate.getText() + " " + actTime.getText());
+            return new DateTime(dateTimeFormat.parse(actDate.getText() + " " + actTime.getText()));
         } catch (ParseException ex) {
             return null;
         }
@@ -1495,9 +1477,9 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         investUnit.setSelectedItem(investUnitS);
     }
 
-    public Date getInvestDate() {
+    public DateTime getInvestDate() {
         try {
-            return dateTimeFormat.parse(investDatum.getText() + " " + investTime.getText());
+            return new DateTime(dateTimeFormat.parse(investDatum.getText() + " " + investTime.getText()));
         } catch (ParseException ex) {
             return null;
         }
@@ -1552,9 +1534,9 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         insulinUnit.setSelectedItem(insulin);
     }
 
-    public Date getInsulinDate() {
+    public DateTime getInsulinDate() {
         try {
-            return dateTimeFormat.parse(insulinDatum.getText() + " " + insulinTime.getText());
+            return new DateTime(dateTimeFormat.parse(insulinDatum.getText() + " " + insulinTime.getText()));
         } catch (ParseException ex) {
             return null;
         }
@@ -1601,9 +1583,9 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         food.setSelectedItem(foodf);
     }
 
-    public String getFoodUnit() {
+    public FoodUnit getFoodUnit() {
         if (foodUnit.getSelectedItem() != null) {
-            return ((FoodUnit) foodUnit.getSelectedItem()).getUnit();
+            return (FoodUnit) foodUnit.getSelectedItem();
         }
         return null;
     }
@@ -1612,9 +1594,9 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         foodUnit.setSelectedItem(foodUnitS);
     }
 
-    public Date getFoodDate() {
+    public DateTime getFoodDate() {
         try {
-            return dateTimeFormat.parse(foodDatum.getText() + " " + foodTime.getText());
+            return new DateTime(dateTimeFormat.parse(foodDatum.getText() + " " + foodTime.getText()));
         } catch (ParseException ex) {
             return null;
         }
@@ -1634,7 +1616,10 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     public Double getFoodValue() {
-        return ((Number) foodValue.getValue()).doubleValue();
+        if (foodValue.getValue() instanceof Number) {
+            return ((Number) foodValue.getValue()).doubleValue();
+        }
+        return null;
     }
 
     public void setFoodValue(Double foodV) {

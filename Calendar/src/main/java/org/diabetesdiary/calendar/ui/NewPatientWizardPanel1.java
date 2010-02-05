@@ -141,8 +141,8 @@ public class NewPatientWizardPanel1 implements WizardDescriptor.Panel {
             comp.setSurname(null);
             comp.setPumpUsage(false);            
         }else{
-            SimpleDateFormat dateFormat = new SimpleDateFormat(NbBundle.getMessage(NewPatientWizardPanel1.class, "NewRecord_DatePattern"));
-            comp.setDateBorn(dateFormat.format(patient.getBorn()));
+            String pattern = NbBundle.getMessage(NewPatientWizardPanel1.class,"NewRecord_DatePattern");
+            comp.setDateBorn(patient.getBorn().toString(pattern));
             comp.setEmail(patient.getEmail());
             comp.setPatientName(patient.getName());
             comp.setSex(patient.isMale());

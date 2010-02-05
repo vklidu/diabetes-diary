@@ -19,13 +19,15 @@ package org.diabetesdiary.calendar.table;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.ColumnGroup;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.domain.InvSeason;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.WKInvest;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.joda.time.DateTime;
 import org.openide.util.NbBundle;
 
 /**
@@ -112,28 +114,23 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
-            /*
-            RecordInvest gl = new RecordInvest();
-            RecordInvestPK pk = new RecordInvestPK();
-            pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
-            pk.setIdInvest(InvestigationDO.Instances.GLYCEMIE.getID());
-            pk.setDate(getClickCellDate(rowIndex, columnIndex));
-
-            gl.setInvest(MyLookup.getInvesAdmin().getInvestigation(InvestigationDO.Instances.GLYCEMIE.getID()));
-
-            gl.setId(pk);
-            gl.setValue((Double) value);
+            Patient pat = MyLookup.getCurrentPatient();
+            InvSeason seas;
             if (columnIndex == 0) {
-                gl.setSeason(InvSeason.M.name());
+                seas = InvSeason.M;
             } else {
-                gl.setSeason(InvSeason.values()[columnIndex - 1].name());
+                seas = InvSeason.values()[columnIndex - 1];
             }
-            MyLookup.getDiaryRepo().addRecord(gl);
+
+            RecordInvest rec = pat.addRecordInvest(
+                    getClickCellDate(rowIndex, columnIndex),
+                    (Double) value,
+                    MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCEMIE),
+                    seas,
+                    null);
             Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(gl.getId().getDate().getTime());
-            dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = gl;
-             *
-             */
+            cal.setTimeInMillis(rec.getDatetime().getMillis());
+            dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = rec;
         }
     }
 
@@ -233,7 +230,7 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
     public void removeTableModelListener(TableModelListener l) {
     }
 
-    private Date getClickCellDate(int row, int column) {
+    private DateTime getClickCellDate(int row, int column) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(month.getTimeInMillis());
         cal.set(Calendar.DAY_OF_MONTH, row + 1);
@@ -271,6 +268,6 @@ public class RecordInvestModel implements TableSubModel, Comparable<TableSubMode
                 break;
         }
 
-        return cal.getTime();
+        return new DateTime(cal.getTime());
     }
 }
