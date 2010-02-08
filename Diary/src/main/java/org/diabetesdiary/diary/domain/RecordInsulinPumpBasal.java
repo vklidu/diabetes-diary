@@ -15,31 +15,42 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+package org.diabetesdiary.diary.domain;
 
-
-package org.diabetesdiary.calendar.table;
-
-import org.joda.time.DateTime;
+import java.text.NumberFormat;
 
 /**
  *
  * @author Jiri Majer
  */
-public class CalendarDay {
-    
-    private DateTime date;
-    
-    /** Creates a new instance of Day */
-    public CalendarDay(DateTime date) {
-        this.date = date;
+public class RecordInsulinPumpBasal {
+
+    private RecordInsulin[] data;
+
+    /** Creates a new instance of RecordInsulinPumpBasal */
+    public RecordInsulinPumpBasal() {
+        data = new RecordInsulin[12];
     }
 
-    public DateTime getDate() {
-        return date;
+    @Override
+    public String toString() {
+        NumberFormat format = NumberFormat.getInstance();
+        format.setMaximumFractionDigits(0);
+        format.setMinimumIntegerDigits(2);
+
+        String result = "";
+        for (RecordInsulin rec : data) {
+            if (rec != null) {
+                result += format.format(rec.getAmount() * 10);
+            } else {
+                result += "00";
+            }
+            result += "-";
+        }
+        return result.substring(0, result.length() - 1);
     }
 
-    public void setDate(DateTime date) {
-        this.date = date;
+    public RecordInsulin[] getData() {
+        return data;
     }
-    
 }

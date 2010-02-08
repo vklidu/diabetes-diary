@@ -22,9 +22,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.text.ParseException;
 import javax.swing.JFormattedTextField;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
@@ -32,31 +30,34 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.CalendarPopupMenu;
-import org.diabetesdiary.calendar.ColumnGroup;
-import org.diabetesdiary.calendar.table.DiaryTableModel;
-import org.diabetesdiary.calendar.table.GlykemieCellRenderer;
-import org.diabetesdiary.calendar.GroupableTableHeader;
+import org.diabetesdiary.calendar.table.header.ColumnGroup;
+import org.diabetesdiary.calendar.table.model.DiaryTableModel;
+import org.diabetesdiary.calendar.table.renderer.GlykemieCellRenderer;
+import org.diabetesdiary.calendar.table.header.GroupableTableHeader;
 import org.diabetesdiary.calendar.MultiLineToolTip;
 import org.diabetesdiary.calendar.action.SelectPatientAction;
-import org.diabetesdiary.calendar.table.ActivityCellEditor;
-import org.diabetesdiary.calendar.table.ActivityCellRenderer;
+import org.diabetesdiary.calendar.table.editor.ActivityCellEditor;
+import org.diabetesdiary.calendar.table.renderer.ActivityCellRenderer;
 import org.diabetesdiary.calendar.table.CalendarDay;
-import org.diabetesdiary.calendar.table.DayRenderer;
-import org.diabetesdiary.calendar.table.FoodCellEditor;
-import org.diabetesdiary.calendar.table.FoodCellRenderer;
-import org.diabetesdiary.calendar.table.GlykemieCellEditor;
-import org.diabetesdiary.calendar.table.InsulinCellEditor;
-import org.diabetesdiary.calendar.table.InsulinCellRenderer;
-import org.diabetesdiary.calendar.table.InsulinPumpBasalEditor;
-import org.diabetesdiary.calendar.table.InsulinPumpBasalRenderer;
-import org.diabetesdiary.calendar.table.RecordInsulinPumpBasal;
-import org.diabetesdiary.calendar.table.SumModel;
-import org.diabetesdiary.calendar.table.TableSubModel;
+import org.diabetesdiary.calendar.table.renderer.DayRenderer;
+import org.diabetesdiary.calendar.table.editor.FoodCellEditor;
+import org.diabetesdiary.calendar.table.renderer.FoodCellRenderer;
+import org.diabetesdiary.calendar.table.editor.GlykemieCellEditor;
+import org.diabetesdiary.calendar.table.editor.InsulinCellEditor;
+import org.diabetesdiary.calendar.table.renderer.InsulinCellRenderer;
+import org.diabetesdiary.calendar.table.editor.InsulinPumpBasalEditor;
+import org.diabetesdiary.calendar.table.renderer.InsulinPumpBasalRenderer;
+import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
+import org.diabetesdiary.calendar.table.model.SumModel;
+import org.diabetesdiary.calendar.table.model.TableSubModel;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.utils.MyLookup;
+import org.joda.time.DateTime;
+import org.joda.time.ReadableInstant;
+import org.joda.time.format.DateTimeFormat;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -72,7 +73,18 @@ public final class CalendarTopComponent extends TopComponent
 
     private DiaryTableModel model;
     private static final long serialVersionUID = 1L;
-    private static SimpleDateFormat monthFormat = new SimpleDateFormat(NbBundle.getMessage(CalendarTopComponent.class, "Calendar_selectedMonthPattern"));
+    private static JFormattedTextField.AbstractFormatter monthFormat = new JFormattedTextField.AbstractFormatter() {
+
+        @Override
+        public Object stringToValue(String text) throws ParseException {
+            return DateTimeFormat.forPattern(NbBundle.getMessage(CalendarTopComponent.class, "Calendar_selectedMonthPattern")).parseDateTime(text);
+        }
+
+        @Override
+        public String valueToString(Object value) throws ParseException {
+            return DateTimeFormat.forPattern(NbBundle.getMessage(CalendarTopComponent.class, "Calendar_selectedMonthPattern")).print((ReadableInstant)value);
+        }
+    };
     private static CalendarTopComponent instance;
     /** path to the icon used by the component and its open action */
     public static final String ICON_PATH = "org/diabetesdiary/calendar/resources/calendar.png";
@@ -126,12 +138,8 @@ public final class CalendarTopComponent extends TopComponent
         rowSM.addListSelectionListener(ChartTopComponent.getDefault());
         jTable1.setPreferredScrollableViewportSize(new java.awt.Dimension(500, 400));
         selMonth.addPropertyChangeListener("value", this);
-        Calendar pomCal = Calendar.getInstance();
-        pomCal.set(Calendar.HOUR_OF_DAY, 0);
-        pomCal.set(Calendar.MINUTE, 0);
-        pomCal.set(Calendar.SECOND, 0);
-        pomCal.set(Calendar.MILLISECOND, 0);
-        selMonth.setValue(pomCal.getTime());
+        DateTime pomCal = new DateTime().withTime(0, 0, 0, 0);
+        selMonth.setValue(pomCal);
     }
 
     /** This method is called from within the constructor to
@@ -353,22 +361,22 @@ public final class CalendarTopComponent extends TopComponent
 
     private void yearBackwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yearBackwardActionPerformed
         getModel().yearBackward();
-        selMonth.setValue(getModel().getMonth().getTime());
+        selMonth.setValue(getModel().getMonth());
     }//GEN-LAST:event_yearBackwardActionPerformed
 
     private void yearForwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yearForwardActionPerformed
         getModel().yearForward();
-        selMonth.setValue(getModel().getMonth().getTime());
+        selMonth.setValue(getModel().getMonth());
     }//GEN-LAST:event_yearForwardActionPerformed
 
     private void forwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forwardActionPerformed
         getModel().monthForward();
-        selMonth.setValue(getModel().getMonth().getTime());
+        selMonth.setValue(getModel().getMonth());
     }//GEN-LAST:event_forwardActionPerformed
 
     private void backwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backwardActionPerformed
         getModel().monthBackward();
-        selMonth.setValue(getModel().getMonth().getTime());
+        selMonth.setValue(getModel().getMonth());
     }//GEN-LAST:event_backwardActionPerformed
 
 private void otherVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherVisibleActionPerformed
@@ -474,7 +482,7 @@ private void activityVisibleActionPerformed(java.awt.event.ActionEvent evt) {//G
     public void propertyChange(PropertyChangeEvent evt) {
         Object source = evt.getSource();
         if (source == selMonth) {
-            getModel().setDate((Date) selMonth.getValue());
+            getModel().setDate((DateTime) selMonth.getValue());
         }
     }
 }
