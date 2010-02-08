@@ -17,29 +17,39 @@
  */
 
 
-package org.diabetesdiary.calendar.table;
+package org.diabetesdiary.calendar.table.model;
 
+import java.util.Collection;
+import javax.swing.table.TableColumnModel;
+import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.joda.time.DateTime;
 
 /**
  *
  * @author Jiri Majer
  */
-public class CalendarDay {
+public interface TableSubModel<T> {
+     
+    public ColumnGroup getColumnHeader(TableColumnModel columnModel);
+     
+    public void setData(Collection<T> data);
     
-    private DateTime date;
-    
-    /** Creates a new instance of Day */
-    public CalendarDay(DateTime date) {
-        this.date = date;
-    }
+    public int getColumnCount();
 
-    public DateTime getDate() {
-        return date;
-    }
+    public String getColumnName(int columnIndex);
 
-    public void setDate(DateTime date) {
-        this.date = date;
-    }
+    public Class<?> getColumnClass(int columnIndex);
+
+    public boolean isCellEditable(int rowIndex, int columnIndex);
+
+    public Object getValueAt(int rowIndex, int columnIndex);
+
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex);
+
+    public int getBaseIndex();
+
+    public void setBaseIndex(int baseIndex);
+
+    public void setDate(DateTime date);
     
 }

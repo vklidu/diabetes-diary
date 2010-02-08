@@ -30,11 +30,11 @@ import javax.swing.JFormattedTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.calendar.table.RecordActivityEditTableModel;
-import org.diabetesdiary.calendar.table.RecordFoodEditTableModel;
-import org.diabetesdiary.calendar.table.RecordInsulinEditTableModel;
-import org.diabetesdiary.calendar.table.RecordInsulinPumpBasal;
-import org.diabetesdiary.calendar.table.RecordInvestEditTableModel;
+import org.diabetesdiary.calendar.table.model.recordeditor.RecordActivityEditTableModel;
+import org.diabetesdiary.calendar.table.model.recordeditor.RecordFoodEditTableModel;
+import org.diabetesdiary.calendar.table.model.recordeditor.RecordInsulinEditTableModel;
+import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
+import org.diabetesdiary.calendar.table.model.recordeditor.RecordInvestEditTableModel;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.diary.api.DiaryService;
@@ -1091,8 +1091,13 @@ private void jCheckBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIR
 
 private void foodSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodSaveActionPerformed
     if (recordFoodValidation()) {
-        MyLookup.getCurrentPatient().addRecordFood(getFoodDate(), getFood(),
+        RecordFood rec = MyLookup.getCurrentPatient().getRecordFood(getFoodDate(), getFood());
+        if (rec == null) {
+            MyLookup.getCurrentPatient().addRecordFood(getFoodDate(), getFood(),
                 getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
+        } else {
+            rec.update(getFoodDate(), getFood(), getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
+        }
         CalendarTopComponent.getDefault().getModel().fillData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getFoodModel().setDate(getFoodDate().toDate());

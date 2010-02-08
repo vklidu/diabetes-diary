@@ -17,6 +17,7 @@
  */
 package org.diabetesdiary.calendar.ui;
 
+import org.diabetesdiary.calendar.utils.FormatUtils;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
@@ -808,7 +809,7 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
 
     private void setDatesByDiarySelect() {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(CalendarTopComponent.getDefault().getModel().getMonth().getTime());
+        cal.setTime(CalendarTopComponent.getDefault().getModel().getMonth().toDate());
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
