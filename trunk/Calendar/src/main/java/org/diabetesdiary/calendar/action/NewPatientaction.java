@@ -71,7 +71,7 @@ public final class NewPatientaction extends CallableSystemAction {
                 MyLookup.setCurrentPatient(MyLookup.getDiaryRepo().getPatient(patient.getId()));
             }
             
-            CalendarTopComponent.getDefault().getModel().fillData();
+            CalendarTopComponent.getDefault().getModel().reloadData();
             CalendarTopComponent.getDefault().getModel().fireTableDataChanged();            
         }
     }

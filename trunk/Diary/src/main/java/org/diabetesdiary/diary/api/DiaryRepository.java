@@ -79,4 +79,6 @@ public interface DiaryRepository {
     public InvestigationGroup getInvestigationGroup(Long idGroup);
 
     public RecordFood getRecordFood(Long id);
+
+    public Activity getRandomActivity();
 }

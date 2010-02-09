@@ -53,7 +53,7 @@
         </folder>
     </folder>
     <folder name="OptionsDialog">
-        <file name="org-diabetesdiary-calendar-CalendarOptionsCategory.instance"/>
+        <file name="org-diabetesdiary-calendar-option-CalendarOptionsCategory.instance"/>
     </folder>
     <folder name="Shortcuts">
         <file name="D-N.shadow">

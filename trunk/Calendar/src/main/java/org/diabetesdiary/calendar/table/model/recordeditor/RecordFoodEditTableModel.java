@@ -237,7 +237,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
                 for (RecordFood rec : recordFoods) {
                     rec.update(rec.getAmount() * koef);
                     rec = diary.getRecordFood(rec.getId());//todo tohle asi nebude fungovat
-                    CalendarTopComponent.getDefault().getModel().fillData();
+                    CalendarTopComponent.getDefault().getModel().reloadData();
                     CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
                 }
             } catch (ParseException ex) {
@@ -251,7 +251,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
                 double grams = rec.getAmount() * koef;
                 rec.update(format.parse(value.toString()).doubleValue());
                 rec = diary.getRecordFood(rec.getId());//todo tohle asi nebude fungovat
-                CalendarTopComponent.getDefault().getModel().fillData();
+                CalendarTopComponent.getDefault().getModel().reloadData();
                 CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
             } catch (ParseException e) {
             }

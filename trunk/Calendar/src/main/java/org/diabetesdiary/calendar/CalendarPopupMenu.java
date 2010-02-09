@@ -58,7 +58,7 @@ public class CalendarPopupMenu {
                 } else {
                     throw new IllegalStateException();
                 }
-                CalendarTopComponent.getDefault().getModel().fillData();
+                CalendarTopComponent.getDefault().getModel().reloadData();
                 CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
             }
         });

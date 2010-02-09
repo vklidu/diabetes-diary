@@ -59,6 +59,11 @@ public class DiaryRepositoryImpl extends AbstractRepository implements DiaryRepo
     }
 
     @Override
+    public Activity getRandomActivity() {
+        return new Activity((ActivityDO) getSession().createCriteria(ActivityDO.class).setMaxResults(1).uniqueResult());
+    }
+
+    @Override
     public List<ActivityGroup> getActivityGroups() {
         return Lists.newArrayList(Lists.transform(getSession().createCriteria(ActivityGroupDO.class).list(), ActivityGroup.CREATE_FUNCTION));
     }

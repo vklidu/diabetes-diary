@@ -18,12 +18,8 @@
 package org.diabetesdiary.calendar.table.renderer;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.domain.WKInvest;
@@ -32,7 +28,7 @@ import org.diabetesdiary.diary.domain.WKInvest;
  *
  * @author Jiri Majer
  */
-public class GlykemieCellRenderer extends JLabel implements TableCellRenderer {
+public class GlykemieCellRenderer extends AbstractDiaryCellRenderer<Object> {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private static Color lowGlyColor = new Color(55, 110, 200);
@@ -41,81 +37,53 @@ public class GlykemieCellRenderer extends JLabel implements TableCellRenderer {
     private static Color lowGlySelColor = new Color(30, 60, 110);
     private static Color normalGlySelColor = new Color(4, 80, 40);
     private static Color highGlySelColor = new Color(150, 20, 20);
-    private static final Color forColor = Color.BLACK;
-    private static final Color backColor = Color.WHITE;
-    private static final Color forSelColor = Color.WHITE;
-    private static final Color backSelColor = new Color(30, 30, 100);
     private static final String VALUES_SEPARATOR = ";";
 
-    /** Creates a new instance of CalendarCellRenderer */
-    public GlykemieCellRenderer() {
-        super();
-        setOpaque(true);
-    }
-
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        return createCell(table, value, isSelected);
-    }
-
-    public static Component createCell(JTable table, Object value, boolean isSelected) {
-        GlykemieCellRenderer result = new GlykemieCellRenderer();
-        result.setHorizontalAlignment(CENTER);
-        if (isSelected) {
-            result.setBackground(backSelColor);
-        } else {
-            result.setBackground(backColor);
-        }
-
+    protected String getText(Object value) {
         if (value instanceof RecordInvest) {
             RecordInvest rec = (RecordInvest) value;
+            String res;
             if (rec.getValue() != null && rec.getInvest() != null) {
                 if (rec.getInvest().anyType(WKInvest.ACETON, WKInvest.URINE_SUGAR)) {
-                    result.setText(getCharForValue(rec.getValue()));
+                    res = getCharForValue(rec.getValue());
                 } else if (rec.getInvest().anyType(WKInvest.MENSES)) {
-                    result.setText(getCharForMenzesValue(rec.getValue()));
+                    res = getCharForMenzesValue(rec.getValue());
                 } else {
-                    result.setText(format.format(rec.getValue()));
+                    res = format.format(rec.getValue());
                 }
-
-                if (rec.getInvest().anyType(WKInvest.GLYCEMIE)) {
-                    setGlycemieCellColors(result, rec.getValue(), isSelected);
-                }
-                if (rec.getNotice() != null && rec.getNotice().length() > 0) {
-                    result.setText(result.getText() + "!");
-                }
-                result.setToolTipText(createToolTip(rec));
+                return rec.getNotice() != null && rec.getNotice().length() > 0 ? res + "!" : res;
             }
         } else if (value instanceof RecordInvest[]) {
             RecordInvest[] values = (RecordInvest[]) value;
+            StringBuilder res = new StringBuilder();
             if (values.length > 0 && values[0] != null && values[0].getInvest() != null) {
-
                 for (RecordInvest val : values) {
                     if (val.getInvest().anyType(WKInvest.ACETON, WKInvest.URINE_SUGAR)) {
-                        result.setText(result.getText() + " " + getCharForValue(val.getValue()));
+                        res.append(" " + getCharForValue(val.getValue()));
                     } else if (val.getInvest().anyType(WKInvest.MENSES)) {
-                        result.setText(result.getText() + " " + getCharForMenzesValue(val.getValue()));
+                        res.append(" " + getCharForMenzesValue(val.getValue()));
                     } else {
-                        result.setText(result.getText() + VALUES_SEPARATOR + format.format(val.getValue()));
+                        res.append(VALUES_SEPARATOR + format.format(val.getValue()));
                     }
                     if (val.getNotice() != null && val.getNotice().length() > 0) {
-                        result.setText(result.getText() + "!");
+                        res.append("!");
                     }
                 }
-                result.setText(result.getText().substring(1));
-
-                if (values[0].getInvest().anyType(WKInvest.GLYCEMIE)) {
-                    //average glycemie is count and the background color is set
-                    double sum = 0;
-                    for (RecordInvest val : values) {
-                        sum += val.getValue();
-                    }
-                    setGlycemieCellColors(result, sum / values.length, isSelected);
-                }
-                result.setToolTipText(createToolTip(values));
+                return res.substring(1);
             }
         }
-        return result;
+        return null;
+    }
+
+    @Override
+    protected String getToolTip(Object value) {
+        if (value instanceof RecordInvest) {
+            return createToolTip((RecordInvest) value);
+        } else if (value instanceof RecordInvest[]) {
+            return createToolTip((RecordInvest[]) value);
+        }
+        return null;
     }
 
     private static String getCharForValue(Double val) {
@@ -144,25 +112,34 @@ public class GlykemieCellRenderer extends JLabel implements TableCellRenderer {
         }
     }
 
-    private static void setGlycemieCellColors(GlykemieCellRenderer result, Double value, boolean isSelected) {
+    @Override
+    protected Color getBackgroundColor(Object value, boolean selected) {
+        if (value instanceof RecordInvest) {
+            RecordInvest rec = (RecordInvest) value;
+            if (rec.getInvest().getWKInvest() == WKInvest.GLYCEMIE) {
+                return getGlycemieBackColor(rec.getValue(), selected);
+            }
+        } else if (value instanceof RecordInvest[]) {
+            RecordInvest[] values = (RecordInvest[]) value;
+            if (values[0].getInvest().anyType(WKInvest.GLYCEMIE)) {
+                //average glycemie is count and the background color is set
+                double sum = 0;
+                for (RecordInvest val : values) {
+                    sum += val.getValue();
+                }
+                return getGlycemieBackColor(sum / values.length, selected);
+            }
+        }
+        return super.getBackgroundColor(value, selected);
+    }
+
+    private Color getGlycemieBackColor(Double value, boolean isSelected) {
         if (value < Double.valueOf(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_GLYKEMIE_LOW_NORMAL))) {
-            if (isSelected) {
-                result.setBackground(lowGlySelColor);
-            } else {
-                result.setBackground(lowGlyColor);
-            }
+            return isSelected ? lowGlySelColor : lowGlyColor;
         } else if (value <= Double.valueOf(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_GLYKEMIE_HIGH_NORMAL))) {
-            if (isSelected) {
-                result.setBackground(normalGlySelColor);
-            } else {
-                result.setBackground(normalGlyColor);
-            }
+            return isSelected ? normalGlySelColor : normalGlyColor;
         } else {
-            if (isSelected) {
-                result.setBackground(highGlySelColor);
-            } else {
-                result.setBackground(highGlyColor);
-            }
+            return isSelected ? highGlySelColor : highGlyColor;
         }
     }
 

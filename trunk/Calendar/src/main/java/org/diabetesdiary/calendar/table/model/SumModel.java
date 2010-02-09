@@ -17,12 +17,11 @@
  */
 package org.diabetesdiary.calendar.table.model;
 
-import java.util.Collection;
+import java.util.List;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.utils.FormatUtils;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
 import org.diabetesdiary.diary.domain.FoodUnit;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInsulin;
@@ -36,21 +35,15 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class SumModel extends AbstractRecordSubModel<String> {
+public class SumModel extends AbstractRecordSubModel {
 
-    private TableSubModel foodModel;
-    private TableSubModel insulinModel;
-    private TableSubModel otherInvestModel;
-    private final FoodUnit sachUnit;
+    private FoodUnit sachUnit;
+    private List<RecordInsulin> insulines;
+    private List<RecordInvest> weights;
+    private List<RecordFood> foods;
 
-
-    /** Creates a new instance of SumTableModel */
-    public SumModel(int baseIndex, DateTime dateTime, TableSubModel foodModel, TableSubModel insulinModel, TableSubModel otherInvestModel) {
-        super(baseIndex, dateTime);
-        this.foodModel = foodModel;
-        this.insulinModel = insulinModel;
-        this.otherInvestModel = otherInvestModel;
-        sachUnit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+    public SumModel(DateTime dateTime) {
+        super(dateTime);
     }
 
     @Override
@@ -59,7 +52,7 @@ public class SumModel extends AbstractRecordSubModel<String> {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel columnModel) {
+    public ColumnGroup getColumnHeader(TableColumnModel columnModel, int baseIndex) {
         ColumnGroup gSum = new ColumnGroup(NbBundle.getMessage(SumModel.class, "Column.suma"));
         gSum.add(columnModel.getColumn(baseIndex));
         gSum.add(columnModel.getColumn(baseIndex + 1));
@@ -69,148 +62,73 @@ public class SumModel extends AbstractRecordSubModel<String> {
         return gSum;
     }
 
-    private static Double countSachUnits(RecordFood rec, FoodUnit sachUnit) {
-        if (rec.getAmount() == null) {
-            return null;
-        }
-        double sachUnits = rec.getUnit().getKoef() * rec.getAmount() * rec.getFood().getSugar() / (100 * sachUnit.getKoef());
-        return sachUnits;
-    }
-
     @Override
     public String getValueAt(int row, int col) {
-        double suma = 0;
-        //suma insulin
-        if (col == 0 && insulinModel != null) {
-            for (int i = 0; i < insulinModel.getColumnCount(); i++) {
-                Object obj = insulinModel.getValueAt(row, i);
-                if (obj instanceof RecordInsulin) {
-                    RecordInsulin rec = (RecordInsulin) obj;
-                    suma += rec.getAmount();
-                } else if (obj instanceof RecordInsulin[]) {
-                    RecordInsulin[] recs = (RecordInsulin[]) obj;
-                    for (RecordInsulin rec : recs) {
-                        suma += rec.getAmount();
-                    }
-                } else if (obj instanceof RecordInsulinPumpBasal) {
-                    RecordInsulinPumpBasal basal = (RecordInsulinPumpBasal) obj;
-                    for (RecordInsulin rec : basal.getData()) {
-                        if (rec != null) {
-                            suma += rec.getAmount();
-                        }
+        checkData();
+        DateTime rowDateFrom = dateTime.withDayOfMonth(row + 1).toDateMidnight().toDateTime();
+        DateTime rowDateTo = rowDateFrom.plusDays(1);
+        switch (col) {
+            //suma insulin
+            case 0:
+                double sumaInsulines = 0;
+                for (RecordInsulin rec : insulines) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                        sumaInsulines += rec.getAmount();
                     }
                 }
-            }
-        //suma food units
-        } else if (col == 1 && foodModel != null) {
-            for (int i = 0; i < foodModel.getColumnCount(); i++) {
-                Object obj = foodModel.getValueAt(row, i);
-                if (obj instanceof RecordFood) {
-                    RecordFood rec = (RecordFood) obj;
-                    if (rec != null) {
-                        suma += countSachUnits(rec, sachUnit);
-                    }
-                } else if (obj instanceof RecordFood[]) {
-                    RecordFood[] recs = (RecordFood[]) obj;
-                    for (RecordFood rec : recs) {
-                        if (rec != null) {
-                            suma += countSachUnits(rec, sachUnit);
-                        }
+                return FormatUtils.getDoubleFormat().format(sumaInsulines);
+            //suma food units
+            case 1:
+                double sumaFoodUnits = 0;
+                for (RecordFood rec : foods) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                        sumaFoodUnits += rec.getSachUnits(sachUnit);
                     }
                 }
-            }
-        //bolus/food
-        } else if (col == 2 && foodModel != null && insulinModel != null) {
-            double sumFood = 0;
-            for (int i = 0; i < foodModel.getColumnCount(); i++) {
-                Object obj = foodModel.getValueAt(row, i);
-                if (obj instanceof RecordFood) {
-                    RecordFood rec = (RecordFood) obj;
-                    if (rec != null) {
-                        sumFood += countSachUnits(rec, sachUnit);
-                    }
-                } else if (obj instanceof RecordFood[]) {
-                    RecordFood[] recs = (RecordFood[]) obj;
-                    for (RecordFood rec : recs) {
-                        if (rec != null) {
-                            sumFood += countSachUnits(rec, sachUnit);
-                        }
+                return FormatUtils.getDoubleFormat().format(sumaFoodUnits);
+            //bolus/food
+            case 2:
+                double sumFoodUnits = 0;
+                for (RecordFood rec : foods) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                        sumFoodUnits += rec.getSachUnits(sachUnit);
                     }
                 }
-            }
-            double sumBolus = 0;
-            for (int i = 0; i < insulinModel.getColumnCount(); i++) {
-                Object obj = insulinModel.getValueAt(row, i);
-                if (obj instanceof RecordInsulin) {
-                    RecordInsulin rec = (RecordInsulin) obj;
-                    if (!rec.isBasal()) {
+                double sumBolus = 0;
+                for (RecordInsulin rec : insulines) {
+                    if (!rec.isBasal() && !rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
                         sumBolus += rec.getAmount();
                     }
-                } else if (obj instanceof RecordInsulin[]) {
-                    RecordInsulin[] recs = (RecordInsulin[]) obj;
-                    for (RecordInsulin rec : recs) {
-                        if (!rec.isBasal()) {
-                            sumBolus += rec.getAmount();
-                        }
+                }
+                
+                return sumFoodUnits > 0 && sumBolus > 0 ? FormatUtils.getDoubleFormat().format(sumBolus / sumFoodUnits) : null;
+            //ins./kg
+            case 3:
+                double sumaInsulin = 0;
+                for (RecordInsulin rec : insulines) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                        sumaInsulin += rec.getAmount();
                     }
                 }
-            }
-            if (sumBolus != 0 && sumFood != 0) {
-                suma = sumBolus / sumFood;
-            } else {
-                suma = 0;
-            }
-        //ins./kg
-        } else if (col == 3 && otherInvestModel != null && insulinModel != null) {
-            double sumIns = 0;
-            for (int i = 0; i < insulinModel.getColumnCount(); i++) {
-                Object obj = insulinModel.getValueAt(row, i);
-                if (obj instanceof RecordInsulin) {
-                    RecordInsulin rec = (RecordInsulin) obj;
-                    sumIns += rec.getAmount();
-                } else if (obj instanceof RecordInsulin[]) {
-                    RecordInsulin[] recs = (RecordInsulin[]) obj;
-                    for (RecordInsulin rec : recs) {
-                        sumIns += rec.getAmount();
-                    }
-                } else if (obj instanceof RecordInsulinPumpBasal) {
-                    RecordInsulinPumpBasal rec = (RecordInsulinPumpBasal) obj;
-                    for (RecordInsulin ins : rec.getData()) {
-                        if (ins != null) {
-                            sumIns += ins.getAmount();
-                        }
-                    }
+                Double weight = getWeight(row);
+                if (weight == null) {
+                    return NbBundle.getMessage(SumModel.class, "unknown.weight");
                 }
-            }
-            double weight = -1d;
-            for (int actrow = row; actrow > -1; actrow--) {
-                Object obj = otherInvestModel.getValueAt(actrow, 0);
-                if (obj instanceof RecordInvest) {
-                    RecordInvest inv = (RecordInvest) obj;
-                    if (inv.getInvest().anyType(WKInvest.WEIGHT)) {
-                        weight = inv.getValue();
-                        break;
-                    }
-                } else if (obj instanceof RecordInvest[]) {
-                    RecordInvest[] invs = (RecordInvest[]) obj;
-                    for (RecordInvest inv : invs) {
-                        if (inv.getInvest().anyType(WKInvest.WEIGHT)) {
-                            weight = inv.getValue();
-                            break;
-                        }
-                    }
-                }
-            }
-            if (weight == -1d) {
-                return NbBundle.getMessage(SumModel.class, "unknown.weight");
-            }
-            if (sumIns != 0 && weight != 0) {
-                suma = sumIns / weight;
-            } else {
-                suma = 0;
-            }
+                return weight > 0 && sumaInsulin > 0 ? FormatUtils.getDoubleFormat().format(sumaInsulin / weight) : null;
+            default:
+                throw new IllegalStateException();
         }
-        return suma == 0 ? null : FormatUtils.getDoubleFormat().format(suma);
+    }
+
+     private Double getWeight(int rowIndex) {
+        Double result = null;
+        for (RecordInvest weight : weights) {
+            if (dateTime.withDayOfMonth(rowIndex + 1).isBefore(weight.getDatetime())) {
+                break;
+            }
+            result = weight.getValue();
+        }
+        return result == null && !weights.isEmpty() ? weights.get(0).getValue() : result;
     }
 
     @Override
@@ -245,23 +163,25 @@ public class SumModel extends AbstractRecordSubModel<String> {
     }
 
     @Override
-    public void setData(Collection<String> data) {
-        //nothing to do
+    public void invalidateData() {
+        insulines = null;
+        weights = null;
+        foods = null;
+        sachUnit = null;
     }
 
-    @Override
-    public int getBaseIndex() {
-        return baseIndex;
+    private void checkData() {
+        if (insulines == null) {
+            insulines = MyLookup.getCurrentPatient().getRecordInsulins(getFrom(), getTo());
+        }
+        if (weights == null) {
+            weights = MyLookup.getCurrentPatient().getRecordInvests(getFrom(), getTo(), WKInvest.WEIGHT);
+        }
+        if (foods == null) {
+            foods = MyLookup.getCurrentPatient().getRecordFoods(getFrom(), getTo());
+        }
+        if (sachUnit == null) {
+            sachUnit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+        }
     }
-
-    @Override
-    public void setBaseIndex(int baseIndex) {
-        this.baseIndex = baseIndex;
-    }
-
-    @Override
-    public int compareTo(TableSubModel o) {
-        return Integer.valueOf(getBaseIndex()).compareTo(o.getBaseIndex());
-    }
-
 }

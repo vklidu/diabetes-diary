@@ -32,18 +32,18 @@ import org.openide.util.NbBundle;
  *
  * @author Jirka Majer
  */
-public class OtherInvestModel extends AbstractRecordSubModel<RecordInvest> {
+public class OtherInvestModel extends AbstractRecordSubModel {
 
     private boolean male;
     private RecordInvest[][][] dataOtherInvest;
 
-    public OtherInvestModel(int baseIndex, boolean male, DateTime month) {
-        super(baseIndex, month);
+    public OtherInvestModel(boolean male, DateTime month) {
+        super(month);
         this.male = male;
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel columnModel) {
+    public ColumnGroup getColumnHeader(TableColumnModel columnModel, int baseIndex) {
         ColumnGroup gSum = new ColumnGroup(NbBundle.getMessage(OtherInvestModel.class, "Column.otherInvest"));
         gSum.add(columnModel.getColumn(baseIndex));
         gSum.add(columnModel.getColumn(baseIndex + 1));
@@ -55,26 +55,8 @@ public class OtherInvestModel extends AbstractRecordSubModel<RecordInvest> {
         return gSum;
     }
 
-    public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        return null;
-        /*
-        RecordInvest gl = new RecordInvest();
-        RecordInvestPK pk = new RecordInvestPK();
-        pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
-        pk.setIdInvest(getClickCellInvestId(rowIndex, columnIndex));
-        pk.setDate(getClickCellDate(rowIndex, columnIndex));
-        InvestigationAdministrator invAdmin = MyLookup.getInvesAdmin();
-        gl.setInvest(invAdmin.getInvestigation(getClickCellInvestId(rowIndex, columnIndex)));
-        gl.setValue(null);
-        gl.setId(pk);
-        gl.setSeason(null);
-        return gl;
-         * 
-         */
-    }
-
-    @Override
-    public void setData(Collection<RecordInvest> data) {
+    private void setData() {
+        Collection<RecordInvest> data = MyLookup.getCurrentPatient().getRecordInvests(getFrom(), getTo());
         dataOtherInvest = new RecordInvest[31][4][1];
         Calendar cal = Calendar.getInstance();
         for (RecordInvest rec : data) {
@@ -141,6 +123,9 @@ public class OtherInvestModel extends AbstractRecordSubModel<RecordInvest> {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if (dataOtherInvest == null) {
+            setData();
+        }
         if (dataOtherInvest != null && rowIndex > -1) {
             if (dataOtherInvest[rowIndex][columnIndex] != null && dataOtherInvest[rowIndex][columnIndex].length == 1) {
                 return dataOtherInvest[rowIndex][columnIndex][0];
@@ -211,6 +196,11 @@ public class OtherInvestModel extends AbstractRecordSubModel<RecordInvest> {
 
     public void setMale(boolean male) {
         this.male = male;
+    }
+
+    @Override
+    public void invalidateData() {
+        dataOtherInvest = null;
     }
 
 }
