@@ -31,13 +31,13 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class RecordInsulinModel extends AbstractRecordSubModel<RecordInsulin> {
+public class RecordInsulinModel extends AbstractRecordSubModel {
 
     private RecordInsulin dataIns[][][];
 
     /** Creates a new instance of RecordInsulinModel */
-    public RecordInsulinModel(int baseIndex, DateTime month) {
-        super(baseIndex, month);
+    public RecordInsulinModel(DateTime month) {
+        super(month);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class RecordInsulinModel extends AbstractRecordSubModel<RecordInsulin> {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel cm) {
+    public ColumnGroup getColumnHeader(TableColumnModel cm, int baseIndex) {
         ColumnGroup gInsulin = new ColumnGroup(NbBundle.getMessage(RecordInsulinModel.class, "Column.insulin"));
         ColumnGroup gInsBr = new ColumnGroup(NbBundle.getMessage(RecordInsulinModel.class, "Column.breakfest"));
         ColumnGroup gInsDin = new ColumnGroup(NbBundle.getMessage(RecordInsulinModel.class, "Column.dinner"));
@@ -70,6 +70,9 @@ public class RecordInsulinModel extends AbstractRecordSubModel<RecordInsulin> {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if (dataIns == null) {
+            setData();
+        }
         if (dataIns != null && rowIndex > -1) {
             if (dataIns[rowIndex][columnIndex] != null && dataIns[rowIndex][columnIndex].length == 1) {
                 return dataIns[rowIndex][columnIndex][0];
@@ -213,8 +216,8 @@ public class RecordInsulinModel extends AbstractRecordSubModel<RecordInsulin> {
         return true;
     }
 
-    @Override
-    public void setData(Collection<RecordInsulin> data) {
+    private void setData() {
+        Collection<RecordInsulin> data = MyLookup.getCurrentPatient().getRecordInsulins(getFrom(), getTo());
         dataIns = new RecordInsulin[dateTime.dayOfMonth().withMaximumValue().getDayOfMonth()][6][1];
         Calendar cal = Calendar.getInstance();
         for (Object record : data) {
@@ -278,6 +281,11 @@ public class RecordInsulinModel extends AbstractRecordSubModel<RecordInsulin> {
                 break;
         }
         return dateTime.withDayOfMonth(rowIndex + 1).withTime(hourOfDay, 0, 0, 0);
+    }
+
+    @Override
+    public void invalidateData() {
+        dataIns = null;
     }
 
 }

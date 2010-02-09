@@ -30,7 +30,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.CalendarPopupMenu;
-import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.model.DiaryTableModel;
 import org.diabetesdiary.calendar.table.renderer.GlykemieCellRenderer;
 import org.diabetesdiary.calendar.table.header.GroupableTableHeader;
@@ -49,7 +48,7 @@ import org.diabetesdiary.calendar.table.editor.InsulinPumpBasalEditor;
 import org.diabetesdiary.calendar.table.renderer.InsulinPumpBasalRenderer;
 import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
 import org.diabetesdiary.calendar.table.model.SumModel;
-import org.diabetesdiary.calendar.table.model.TableSubModel;
+import org.diabetesdiary.calendar.table.renderer.DefaultRenderer;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInsulin;
@@ -59,8 +58,8 @@ import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
 import org.joda.time.format.DateTimeFormat;
 import org.openide.ErrorManager;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -82,7 +81,7 @@ public final class CalendarTopComponent extends TopComponent
 
         @Override
         public String valueToString(Object value) throws ParseException {
-            return DateTimeFormat.forPattern(NbBundle.getMessage(CalendarTopComponent.class, "Calendar_selectedMonthPattern")).print((ReadableInstant)value);
+            return DateTimeFormat.forPattern(NbBundle.getMessage(CalendarTopComponent.class, "Calendar_selectedMonthPattern")).print((ReadableInstant) value);
         }
     };
     private static CalendarTopComponent instance;
@@ -95,7 +94,7 @@ public final class CalendarTopComponent extends TopComponent
         initComponents();
         setName(NbBundle.getMessage(CalendarTopComponent.class, "CTL_CalendarTopComponent"));
         setToolTipText(NbBundle.getMessage(CalendarTopComponent.class, "HINT_CalendarTopComponent"));
-        setIcon(Utilities.loadImage(ICON_PATH_SMALL, true));
+        setIcon(ImageUtilities.loadImage(ICON_PATH_SMALL, true));
         recreateTableHeader();
 
         jTable1.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -113,8 +112,10 @@ public final class CalendarTopComponent extends TopComponent
                         popupMenu.show(jTable1, e.getX(), e.getY());
                     }
                 } else if (MyLookup.getCurrentPatient() != null) {
-                    Object record = getModel().getEverRecordValueAt(row, column);
-                    RecordEditorTopComponent.getDefault().setRecord(record);
+                    Object record = getModel().getValueAt(row, column);
+                    if (record != null) {
+                        RecordEditorTopComponent.getDefault().setRecord(record);
+                    }
                 }
             }
 
@@ -167,6 +168,7 @@ public final class CalendarTopComponent extends TopComponent
         jTable1.setDefaultEditor(RecordInsulin.class,new InsulinCellEditor());
         jTable1.setDefaultEditor(RecordInsulinPumpBasal.class,new InsulinPumpBasalEditor());
 
+        jTable1.setDefaultRenderer(Object.class,new DefaultRenderer());
         jTable1.setDefaultRenderer(CalendarDay.class,new DayRenderer());
         jTable1.setDefaultRenderer(RecordInvest.class,new GlykemieCellRenderer());
         jTable1.setDefaultRenderer(RecordFood.class,new FoodCellRenderer());
@@ -243,7 +245,7 @@ public final class CalendarTopComponent extends TopComponent
         foodVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         foodVisible.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                foodVisibleActionPerformed(evt);
+                foodViewActionPerformed(evt);
             }
         });
 
@@ -325,18 +327,18 @@ public final class CalendarTopComponent extends TopComponent
     }// </editor-fold>//GEN-END:initComponents
 
     private void sumVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sumVisibleActionPerformed
-        foodVisibleActionPerformed(evt);
+        subModelsViewActionPerformed();
     }//GEN-LAST:event_sumVisibleActionPerformed
 
     private void insulinVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insulinVisibleActionPerformed
-        foodVisibleActionPerformed(evt);
+        subModelsViewActionPerformed();
     }//GEN-LAST:event_insulinVisibleActionPerformed
 
     private void investVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_investVisibleActionPerformed
-        foodVisibleActionPerformed(evt);
+        subModelsViewActionPerformed();
     }//GEN-LAST:event_investVisibleActionPerformed
 
-    private void foodVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodVisibleActionPerformed
+    private void subModelsViewActionPerformed() {
         getModel().setFoodVisible(foodVisible.isSelected());
         getModel().setGlykemieVisible(investVisible.isSelected());
         getModel().setOtherVisible(otherVisible.isSelected());
@@ -345,18 +347,12 @@ public final class CalendarTopComponent extends TopComponent
         getModel().setSumVisible(sumVisible.isSelected());
         getModel().refresh();
         recreateTableHeader();
-    }//GEN-LAST:event_foodVisibleActionPerformed
+    }
 
     public void recreateTableHeader() {
         TableColumnModel cm = jTable1.getColumnModel();
         GroupableTableHeader header = (GroupableTableHeader) jTable1.getTableHeader();
-        header.removeAll();
-        for (TableSubModel subModel : getModel().getActiveSubModels()) {
-            ColumnGroup group = subModel.getColumnHeader(cm);
-            if (group != null) {
-                header.addColumnGroup(group);
-            }
-        }
+        getModel().createTableHeader(header, cm);
     }
 
     private void yearBackwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yearBackwardActionPerformed
@@ -380,12 +376,16 @@ public final class CalendarTopComponent extends TopComponent
     }//GEN-LAST:event_backwardActionPerformed
 
 private void otherVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherVisibleActionPerformed
-    foodVisibleActionPerformed(evt);
+    subModelsViewActionPerformed();
 }//GEN-LAST:event_otherVisibleActionPerformed
 
 private void activityVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_activityVisibleActionPerformed
-    foodVisibleActionPerformed(evt);
+    subModelsViewActionPerformed();
 }//GEN-LAST:event_activityVisibleActionPerformed
+
+private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodViewActionPerformed
+    subModelsViewActionPerformed();
+}//GEN-LAST:event_foodViewActionPerformed
     private javax.swing.JPopupMenu popupMenu;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox activityVisible;

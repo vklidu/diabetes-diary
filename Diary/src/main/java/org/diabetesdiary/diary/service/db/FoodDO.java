@@ -43,7 +43,7 @@ public class FoodDO extends AbstractDO implements Comparable<FoodDO> {
     private String name;
 
     @Column(nullable = false)
-    private Double energy;
+    private Double energy;//kJ
 
     @Column(nullable = false)
     private Double protein;

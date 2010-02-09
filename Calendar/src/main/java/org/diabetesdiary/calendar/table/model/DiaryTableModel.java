@@ -19,132 +19,81 @@ package org.diabetesdiary.calendar.table.model;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.LinkedList;
-import java.util.List;
-import javax.swing.table.AbstractTableModel;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.RecordEditorTopComponent;
 import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.domain.RecordActivity;
-import org.diabetesdiary.diary.domain.RecordFood;
-import org.diabetesdiary.diary.domain.RecordInsulin;
-import org.diabetesdiary.diary.domain.RecordInvest;
 import org.joda.time.DateTime;
 
 /**
  *
  * @author Jiri Majer
  */
-public class DiaryTableModel extends AbstractTableModel implements PropertyChangeListener {
+public class DiaryTableModel extends AbstractTableModelWithSubmodels implements PropertyChangeListener {
 
-    private boolean glykemieVisible = true;
-    private boolean otherVisible = true;
-    private boolean foodVisible = true;
-    private boolean insulinVisible = true;
-    private boolean sumVisible = true;
-    private boolean activityVisible = true;
-    private TableSubModel foodModel;
-    private TableSubModel investModel;
+    private DateTime dateTime = new DateTime();
+    private RecordFoodModel foodModel;
+    private RecordInvestModel investModel;
     private TableSubModel insulinModel;
-    private TableSubModel otherModel;
-    private TableSubModel activityModel;
+    private OtherInvestModel otherModel;
+    private ActivityModel activityModel;
     private DayModel dayModel;
-    private SumModel sumModel;
-    private List<TableSubModel> activeModels;
-    private DateTime dateTime;
+    private SumModel sumModel;    
 
-    /** Creates a new instance of CalendarTableModel */
     public DiaryTableModel() {
         CalendarSettings.getSettings().addPropertyChangeListener(this);
-        dateTime = new DateTime();
-
-        dayModel = new DayModel(0, dateTime);
+        addModel(dayModel = new DayModel(dateTime));
 
         if (MyLookup.getCurrentPatient() != null && MyLookup.getCurrentPatient().isPumpUsage()) {
-            insulinModel = new RecordInsulinPumpModel(dayModel.getBaseIndex() + dayModel.getColumnCount(), dateTime);
+            addModel(insulinModel = new RecordInsulinPumpModel(dateTime));
         } else {
-            insulinModel = new RecordInsulinModel(dayModel.getBaseIndex() + dayModel.getColumnCount(), dateTime);
+            addModel(insulinModel = new RecordInsulinModel(dateTime));
         }
-        investModel = new RecordInvestModel(insulinModel.getBaseIndex() + insulinModel.getColumnCount(), dateTime);
-        otherModel = new OtherInvestModel(investModel.getBaseIndex() + investModel.getColumnCount(), MyLookup.getCurrentPatient() != null ? MyLookup.getCurrentPatient().isMale() : true, dateTime);
-        foodModel = new RecordFoodModel(otherModel.getBaseIndex() + otherModel.getColumnCount(), dateTime);
-        activityModel = new ActivityModel(foodModel.getBaseIndex() + foodModel.getColumnCount(), dateTime, foodModel, otherModel);
-        sumModel = new SumModel(activityModel.getBaseIndex() + activityModel.getColumnCount(), dateTime, foodModel, insulinModel, otherModel);
+        addModel(investModel = new RecordInvestModel(dateTime));
+        addModel(otherModel = new OtherInvestModel(MyLookup.getCurrentPatient() != null ? MyLookup.getCurrentPatient().isMale() : true, dateTime));
+        addModel(foodModel = new RecordFoodModel(dateTime));
+        addModel(activityModel = new ActivityModel(dateTime));
+        addModel(sumModel = new SumModel(dateTime));
 
-        activeModels = new LinkedList<TableSubModel>();
-        activeModels.add(dayModel);
-        activeModels.add(insulinModel);
-        activeModels.add(investModel);
-        activeModels.add(otherModel);
-        activeModels.add(foodModel);
-        activeModels.add(activityModel);
-        activeModels.add(sumModel);
-
-        fillData();
+        reloadData();
     }
 
-    public TableSubModel getSubModel(int column) {
-        for (TableSubModel model : activeModels) {
-            if (column >= model.getBaseIndex() && column <= model.getColumnCount() + model.getBaseIndex() - 1) {
-                return model;
-            }
-        }
-        return null;
+    @Override
+    public int getRowCount() {
+        return dateTime.dayOfMonth().withMaximumValue().getDayOfMonth();
     }
 
-    public void fillData() {
+    public void refresh() {
+        fireTableDataChanged();
+        fireTableStructureChanged();
+    }
+
+    public void reloadData() {
         //no data => end
         if (MyLookup.getCurrentPatient() == null) {
             return;
         }
 
         if (MyLookup.getCurrentPatient().isPumpUsage() != insulinModel instanceof RecordInsulinPumpModel) {
-            activeModels.remove(insulinModel);
-            activeModels.remove(sumModel);
+            TableSubModel newInsulinModel;
             if (MyLookup.getCurrentPatient().isPumpUsage()) {
-                insulinModel = new RecordInsulinPumpModel(insulinModel.getBaseIndex(), dateTime);
-                sumModel = new SumModel(sumModel.getBaseIndex(), dateTime, foodModel, insulinModel, otherModel);
+                newInsulinModel = new RecordInsulinPumpModel(dateTime);
             } else {
-                insulinModel = new RecordInsulinModel(insulinModel.getBaseIndex(), dateTime);
-                sumModel = new SumModel(sumModel.getBaseIndex(), dateTime, foodModel, insulinModel, otherModel);
+                newInsulinModel = new RecordInsulinModel(dateTime);
             }
-            activeModels.add(insulinModel);
-            activeModels.add(sumModel);
+            replaceModel(insulinModel, newInsulinModel);
+            insulinModel = newInsulinModel;
             refresh();
             CalendarTopComponent.getDefault().recreateTableHeader();
         }
 
-        if (MyLookup.getCurrentPatient().isMale() != ((OtherInvestModel) otherModel).isMale()) {
-            activeModels.remove(otherModel);
-            activeModels.remove(sumModel);
-            activeModels.remove(activityModel);
-            otherModel = new OtherInvestModel(investModel.getBaseIndex() + investModel.getColumnCount(), MyLookup.getCurrentPatient().isMale(), dateTime);
-            activityModel = new ActivityModel(foodModel.getBaseIndex() + foodModel.getColumnCount(), dateTime, foodModel, otherModel);
-            sumModel = new SumModel(sumModel.getBaseIndex(), dateTime, foodModel, insulinModel, otherModel);
-            activeModels.add(otherModel);
-            activeModels.add(sumModel);
-            activeModels.add(activityModel);
+        if (MyLookup.getCurrentPatient().isMale() != otherModel.isMale()) {
+            otherModel.setMale(MyLookup.getCurrentPatient().isMale());
             refresh();
             CalendarTopComponent.getDefault().recreateTableHeader();
         }
 
-        DateTime from = dateTime.withDayOfMonth(1).toDateMidnight().toDateTime();
-        DateTime to = dateTime.dayOfMonth().withMaximumValue().plusDays(1).toDateMidnight().toDateTime();
-
-        List<RecordInvest> records = MyLookup.getCurrentPatient().getRecordInvests(from, to);
-        investModel.setData(records);
-        otherModel.setData(records);
-
-        List<RecordActivity> recordActs = MyLookup.getCurrentPatient().getRecordActivities(from, to);
-        activityModel.setData(recordActs);
-
-        List<RecordFood> recordFoods = MyLookup.getCurrentPatient().getRecordFoods(from, to);
-        foodModel.setData(recordFoods);
-
-
-        List<RecordInsulin> recordIns = MyLookup.getCurrentPatient().getRecordInsulins(from, to);
-        insulinModel.setData(recordIns);
+        invalidateData();
 
         RecordEditorTopComponent.getDefault().getFoodModel().fillData();
         RecordEditorTopComponent.getDefault().getFoodModel().fireTableDataChanged();
@@ -166,71 +115,6 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         setDate(dateTime.minusYears(1));
     }
 
-    @Override
-    public int getRowCount() {
-        return dateTime.dayOfMonth().withMaximumValue().getDayOfMonth();
-    }
-
-    @Override
-    public int getColumnCount() {
-        int sum = 0;
-        for (TableSubModel model : getActiveSubModels()) {
-            sum += model.getColumnCount();
-        }
-        return sum;
-    }
-
-    public Object getEverRecordValueAt(int rowIndex, int columnIndex) {
-        TableSubModel sub = getSubModel(columnIndex);
-        Object result = null;
-        if (sub != null) {
-            result = sub.getValueAt(rowIndex, columnIndex - sub.getBaseIndex());
-            if (result == null) {
-                //result = sub.getNewRecordValueAt(rowIndex, columnIndex - sub.getBaseIndex());
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        TableSubModel sub = getSubModel(columnIndex);
-        if (sub != null) {
-            return sub.getValueAt(rowIndex, columnIndex - sub.getBaseIndex());
-        }
-        return null;
-    }
-
-    @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        TableSubModel sub = getSubModel(columnIndex);
-        if (sub != null) {
-            return sub.isCellEditable(rowIndex, columnIndex - sub.getBaseIndex());
-        }
-        return false;
-    }
-
-    @Override
-    public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        if (MyLookup.getCurrentPatient() == null) {
-            return;
-        }
-        TableSubModel sub = getSubModel(columnIndex);
-        if (sub != null) {
-            sub.setValueAt(value, rowIndex, columnIndex - sub.getBaseIndex());
-        }
-    }
-
-    @Override
-    public String getColumnName(int columnIndex) {
-        TableSubModel sub = getSubModel(columnIndex);
-        if (sub != null) {
-            return sub.getColumnName(columnIndex - sub.getBaseIndex());
-        }
-        return "";
-    }
-
     public DateTime getMonth() {
         return dateTime;
     }
@@ -247,159 +131,66 @@ public class DiaryTableModel extends AbstractTableModel implements PropertyChang
         activityModel.setDate(dateTime);
         sumModel.setDate(dateTime);
 
-        fillData();
+        reloadData();
         fireTableDataChanged();
-    }
-
-    @Override
-    public Class<?> getColumnClass(int columnIndex) {
-        TableSubModel sub = getSubModel(columnIndex);
-        if (sub != null) {
-            return sub.getColumnClass(columnIndex - sub.getBaseIndex());
-        }
-        return Object.class;
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         //change in sacharid unit size 10g or 12g per unit
         if (evt.getPropertyName().equals(CalendarSettings.KEY_CARBOHYDRATE_UNIT)) {
-            fillData();
+            reloadData();
             fireTableDataChanged();
         } else {
             fireTableDataChanged();
         }
-    }
-
-    public List<TableSubModel> getActiveSubModels() {
-        return activeModels;
     }
 
     public boolean isGlykemieVisible() {
-        return glykemieVisible;
+        return investModel.isVisible();
     }
 
     public void setGlykemieVisible(boolean glykemieVisible) {
-        this.glykemieVisible = glykemieVisible;
-        if (glykemieVisible) {
-            if (!activeModels.contains(investModel)) {
-                activeModels.add(investModel);
-            }
-        } else {
-            activeModels.remove(investModel);
-        }
+        investModel.setVisible(glykemieVisible);
     }
 
     public boolean isFoodVisible() {
-        return foodVisible;
+        return foodModel.isVisible();
     }
 
     public void setFoodVisible(boolean foodVisible) {
-        this.foodVisible = foodVisible;
-        if (foodVisible) {
-            if (!activeModels.contains(foodModel)) {
-                activeModels.add(foodModel);
-            }
-        } else {
-            activeModels.remove(foodModel);
-        }
+        foodModel.setVisible(foodVisible);
     }
 
     public boolean isInsulinVisible() {
-        return insulinVisible;
+        return insulinModel.isVisible();
     }
 
     public void setInsulinVisible(boolean insulinVisible) {
-        this.insulinVisible = insulinVisible;
-        if (insulinVisible) {
-            if (!activeModels.contains(insulinModel)) {
-                activeModels.add(insulinModel);
-            }
-        } else {
-            activeModels.remove(insulinModel);
-        }
+        insulinModel.setVisible(insulinVisible);
     }
 
     public boolean isSumVisible() {
-        return sumVisible;
+        return sumModel.isVisible();
     }
 
     public void setSumVisible(boolean sumVisible) {
-        this.sumVisible = sumVisible;
-        if (sumVisible) {
-            if (!activeModels.contains(sumModel)) {
-                activeModels.add(sumModel);
-            }
-        } else {
-            activeModels.remove(sumModel);
-        }
-    }
-
-    public void refresh() {
-        int aktual = 1;
-
-        if (insulinVisible) {
-            insulinModel.setBaseIndex(aktual);
-            aktual = insulinModel.getBaseIndex() + insulinModel.getColumnCount();
-        }
-
-        if (glykemieVisible) {
-            investModel.setBaseIndex(aktual);
-            aktual = investModel.getBaseIndex() + investModel.getColumnCount();
-        }
-
-        if (otherVisible) {
-            otherModel.setBaseIndex(aktual);
-            aktual = otherModel.getBaseIndex() + otherModel.getColumnCount();
-        }
-
-        if (foodVisible) {
-            foodModel.setBaseIndex(aktual);
-            aktual = foodModel.getBaseIndex() + foodModel.getColumnCount();
-        }
-
-        if (activityVisible) {
-            activityModel.setBaseIndex(aktual);
-            aktual = activityModel.getBaseIndex() + activityModel.getColumnCount();
-        }
-
-        if (sumVisible) {
-            sumModel.setBaseIndex(aktual);
-        }
-
-
-        fireTableDataChanged();
-        fireTableStructureChanged();
+        sumModel.setVisible(sumVisible);
     }
 
     public boolean isOtherVisible() {
-        return otherVisible;
+        return otherModel.isVisible();
     }
 
     public void setOtherVisible(boolean otherVisible) {
-        this.otherVisible = otherVisible;
-        if (otherVisible) {
-            if (!activeModels.contains(otherModel)) {
-                activeModels.add(otherModel);
-            }
-        } else {
-            activeModels.remove(otherModel);
-        }
-
+        otherModel.setVisible(otherVisible);
     }
 
     public boolean isActivityVisible() {
-        return activityVisible;
+        return activityModel.isVisible();
     }
 
     public void setActivityVisible(boolean activityVisible) {
-        this.activityVisible = activityVisible;
-        if (activityVisible) {
-            if (!activeModels.contains(activityModel)) {
-                activeModels.add(activityModel);
-            }
-        } else {
-            activeModels.remove(activityModel);
-        }
+        activityModel.setVisible(activityVisible);
     }
 }

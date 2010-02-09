@@ -19,7 +19,6 @@
 
 package org.diabetesdiary.calendar.table.model;
 
-import java.util.Collection;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.joda.time.DateTime;
@@ -28,12 +27,10 @@ import org.joda.time.DateTime;
  *
  * @author Jiri Majer
  */
-public interface TableSubModel<T> {
+public interface TableSubModel {
      
-    public ColumnGroup getColumnHeader(TableColumnModel columnModel);
+    public ColumnGroup getColumnHeader(TableColumnModel columnModel, int baseIndex);
      
-    public void setData(Collection<T> data);
-    
     public int getColumnCount();
 
     public String getColumnName(int columnIndex);
@@ -46,10 +43,12 @@ public interface TableSubModel<T> {
 
     public void setValueAt(Object aValue, int rowIndex, int columnIndex);
 
-    public int getBaseIndex();
-
-    public void setBaseIndex(int baseIndex);
-
     public void setDate(DateTime date);
+
+    public void setVisible(boolean visible);
+
+    public boolean isVisible();
+
+    public void invalidateData();
     
 }

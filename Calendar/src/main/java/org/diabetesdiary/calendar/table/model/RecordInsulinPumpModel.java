@@ -33,14 +33,14 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class RecordInsulinPumpModel extends AbstractRecordSubModel<RecordInsulin> {
+public class RecordInsulinPumpModel extends AbstractRecordSubModel {
 
     private RecordInsulin dataIns[][][];
     private RecordInsulinPumpBasal dataBasal[][];
 
     /** Creates a new instance of RecordInsulinModel */
-    public RecordInsulinPumpModel(int baseIndex, DateTime month) {
-        super(baseIndex, month);
+    public RecordInsulinPumpModel(DateTime month) {
+        super(month);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel<RecordInsulin
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel cm) {
+    public ColumnGroup getColumnHeader(TableColumnModel cm, int baseIndex) {
         ColumnGroup gInsulin = new ColumnGroup(NbBundle.getMessage(RecordInsulinPumpModel.class, "Column.insulin"));
         ColumnGroup gBazal = new ColumnGroup(NbBundle.getMessage(RecordInsulinPumpModel.class, "Bazal_(v_desetinach_U)"));
         ColumnGroup gBolus = new ColumnGroup(NbBundle.getMessage(RecordInsulinPumpModel.class, "Bolus_(U)"));
@@ -72,6 +72,9 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel<RecordInsulin
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if (dataBasal == null || dataIns == null) {
+            setData();
+        }
         if (columnIndex < 4) {
             if (dataIns != null && rowIndex > -1) {
                 if (dataIns[rowIndex][columnIndex] != null && dataIns[rowIndex][columnIndex].length == 1) {
@@ -218,8 +221,8 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel<RecordInsulin
         return true;
     }
 
-    @Override
-    public void setData(Collection<RecordInsulin> data) {
+    private void setData() {
+        Collection<RecordInsulin> data = MyLookup.getCurrentPatient().getRecordInsulins(getFrom(), getTo());
         dataIns = new RecordInsulin[31][6][1];
         dataBasal = new RecordInsulinPumpBasal[31][2];
         for (RecordInsulin rec : data) {
@@ -279,5 +282,11 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel<RecordInsulin
                 break;
         }
         return dateTime.withDayOfMonth(rowIndex + 1).withTime(hourOfDay, 0, 0, 0);
+    }
+
+    @Override
+    public void invalidateData() {
+        dataBasal = null;
+        dataIns = null;
     }
 }

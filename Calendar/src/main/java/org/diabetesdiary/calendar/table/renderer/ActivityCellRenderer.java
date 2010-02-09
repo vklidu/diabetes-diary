@@ -19,13 +19,8 @@ package org.diabetesdiary.calendar.table.renderer;
 
 import org.diabetesdiary.calendar.table.Energy;
 import org.diabetesdiary.calendar.table.model.SumModel;
-import java.awt.Color;
-import java.awt.Component;
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.diary.api.UnknownWeightException;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.openide.util.NbBundle;
@@ -34,52 +29,23 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
+public class ActivityCellRenderer extends AbstractDiaryCellRenderer<Object> {
 
     private static NumberFormat format = NumberFormat.getIntegerInstance();
-    private static final Color backColor = Color.WHITE;
-    private static final Color backSelColor = new Color(30, 30, 100);
-    private static final String VALUES_SEPARATOR = ";";
-
-    /** Creates a new instance of CalendarCellRenderer */
-    public ActivityCellRenderer() {
-        super();
-        setOpaque(true);
-    }
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        return createCell(table, value, isSelected);
-    }
-
-    public static Component createCell(JTable table, Object value, boolean isSelected) {
-        ActivityCellRenderer result = new ActivityCellRenderer();
-        result.setHorizontalAlignment(CENTER);
-        if (isSelected) {
-            result.setBackground(backSelColor);
-        } else {
-            result.setBackground(backColor);
-        }
+    protected String getText(Object value) {
         if (value instanceof Energy) {
             Energy rec = (Energy) value;
-            if (rec.getValue() != null) {
-                result.setText(format.format(rec.getValue()));
-            } else {
-                result.setText(NbBundle.getMessage(ActivityCellRenderer.class, "unknown.weight.tall"));
-                result.setToolTipText(result.getText());
-            }
+            return format.format(rec.getValue());
         } else if (value instanceof RecordActivity) {
             RecordActivity rec = (RecordActivity) value;
             if (rec.getDuration() != null && rec.getActivity() != null) {
                 try {
-                    result.setText(format.format(rec.getEnergy()));
+                    return format.format(rec.getEnergy()) + (rec.getNotice() != null && rec.getNotice().length() > 0 ? "!" : "");
                 } catch (UnknownWeightException e) {
-                    result.setText(NbBundle.getMessage(SumModel.class, "unknown.weight"));
+                    return NbBundle.getMessage(SumModel.class, "unknown.weight");
                 }
-                if (rec.getNotice() != null && rec.getNotice().length() > 0) {
-                    result.setText(result.getText() + "!");
-                }
-                result.setToolTipText(createToolTip(rec));
             }
         } else if (value instanceof RecordActivity[]) {
             RecordActivity[] values = (RecordActivity[]) value;
@@ -93,17 +59,23 @@ public class ActivityCellRenderer extends JLabel implements TableCellRenderer {
                             note = true;
                         }
                     }
-                    result.setText(format.format(sum));
-                    if (note) {
-                        result.setText(result.getText() + "!");
-                    }
+                    return format.format(sum) + (note ? "!" : "");
                 } catch (UnknownWeightException ex) {
-                    result.setText(NbBundle.getMessage(SumModel.class, "unknown.weight"));
+                    return NbBundle.getMessage(SumModel.class, "unknown.weight");
                 }
-                result.setToolTipText(createToolTip(values));
             }
         }
-        return result;
+        return null;
+    }
+
+    @Override
+    protected String getToolTip(Object rec) {
+        if (rec instanceof RecordActivity) {
+            return createToolTip((RecordActivity) rec);
+        } else if (rec instanceof RecordActivity[]) {
+            return createToolTip((RecordActivity[]) rec);
+        }
+        return null;
     }
 
     private static String createToolTip(RecordActivity rec) {

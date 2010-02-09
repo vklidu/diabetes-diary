@@ -17,14 +17,9 @@
  */
 package org.diabetesdiary.calendar.table.renderer;
 
-import java.awt.Color;
-import java.awt.Component;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.Date;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.diary.domain.FoodUnit;
 import org.diabetesdiary.diary.domain.RecordFood;
@@ -34,70 +29,41 @@ import org.diabetesdiary.diary.utils.MyLookup;
  *
  * @author Jiri Majer
  */
-public class FoodCellRenderer extends JLabel implements TableCellRenderer {
+public class FoodCellRenderer extends AbstractDiaryCellRenderer<Object> {
 
-    private static NumberFormat format = NumberFormat.getInstance();
-    private static DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
-    private static final Color forColor = Color.BLACK;
-    private static final Color backColor = Color.WHITE;
-    private static final Color forSelColor = Color.WHITE;
-    private static final Color backSelColor = new Color(30, 30, 100);
-
-    /** Creates a new instance of CalendarCellRenderer */
-    public FoodCellRenderer() {
-        super();
-        setOpaque(true);
-    }
+    private NumberFormat format = NumberFormat.getInstance();
+    private DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        return createCell(table, value, isSelected);
-    }
-
-    public static Component createCell(JTable table, Object value, boolean isSelected) {
-        FoodCellRenderer result = new FoodCellRenderer();
-        result.setHorizontalAlignment(CENTER);
+    protected String getText(Object value) {
         if (value instanceof RecordFood) {
             FoodUnit sachUnit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
-            RecordFood rec = (RecordFood) value;
-            //Double unit = rec.getAmount()
-            if (rec.getAmount() != null) {
-                result.setText(format.format(countSachUnits(rec, sachUnit)));
-                result.setToolTipText(createToolTip(rec));
-            }
+            return format.format(((RecordFood) value).getSachUnits(sachUnit));
         } else if (value instanceof RecordFood[]) {
             FoodUnit sachUnit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
             RecordFood[] recs = (RecordFood[]) value;
             double sum = 0;
             for (RecordFood rec : recs) {
                 if (rec != null && rec.getAmount() != null) {
-                    sum += countSachUnits(rec, sachUnit);
+                    sum += rec.getSachUnits(sachUnit);
                 }
             }
-            result.setText(format.format(sum));
-            result.setToolTipText(createToolTip(recs));
+            return format.format(sum);
         }
-
-        if (isSelected) {
-            result.setBackground(backSelColor);
-            result.setForeground(forSelColor);
-        } else {
-            result.setBackground(backColor);
-            result.setForeground(forColor);
-        }
-
-        return result;
+        return null;
     }
 
-    private static Double countSachUnits(RecordFood rec, FoodUnit sachUnit) {
-        if (rec.getAmount() == null) {
-            return null;
+    @Override
+    protected String getToolTip(Object rec) {
+        if (rec instanceof RecordFood) {
+            return createToolTip((RecordFood)rec);
+        } else if (rec instanceof RecordFood[]) {
+            return createToolTip((RecordFood[])rec);
         }
-        double sachUnits = rec.getUnit().getKoef() * rec.getAmount() * rec.getFood().getSugar() / (100 * sachUnit.getKoef());
-        return sachUnits;
+        return null;
     }
 
-    private static String createToolTip(RecordFood rec) {
+    private String createToolTip(RecordFood rec) {
         if (rec == null || rec.getAmount() == null || rec.getFood() == null) {
             return null;
         }
@@ -109,7 +75,7 @@ public class FoodCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordFood[] recs) {
+    private String createToolTip(RecordFood[] recs) {
         if (recs == null || recs.length < 1 || recs[0] == null || recs[0].getAmount() == null || recs[0].getFood() == null) {
             return null;
         }

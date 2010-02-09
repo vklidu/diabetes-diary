@@ -23,34 +23,52 @@ package org.diabetesdiary.calendar.table;
  */
 public class Energy {
 
-    private Double value;
-    private String unit;
+    private double value;
+    private final Unit unit;
 
-    public Double getValue() {
-        return value;
-    }
-
-    public void setValue(Double value) {
-        this.value = value;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
+    public Energy(Unit unit) {
         this.unit = unit;
     }
 
+    public Energy(Unit unit, double value) {
+        this.unit = unit;
+        this.value = value;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
+    }
+
     public void minus(Energy energy) {
-        if (energy != null && energy.getValue() != null) {
-            value = value - energy.getValue();
-        }
+        value = value - energy.getValue(unit);
     }
 
     public void plus(Energy energy) {
-        if (energy != null && energy.getValue() != null) {
-            value = value + energy.getValue();
+        value = value + energy.getValue(unit);
+    }
+
+    public double getValue(Unit newUnit) {
+        return this.unit.toUnit(newUnit, value);
+    }
+
+    public static enum Unit {
+        kJ, kcal;
+
+        public double toUnit(Unit newUnit, double value) {
+            if (newUnit == this) {
+                return value;
+            }
+            if (this == kJ && newUnit == kcal) {
+                return value / 4.1868;
+            }
+            if (this == kcal && newUnit == kJ) {
+                return value * 4.1868;
+            }
+            throw new IllegalArgumentException();
         }
     }
 }

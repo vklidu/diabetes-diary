@@ -18,7 +18,7 @@
 package org.diabetesdiary.calendar.table.model;
 
 import java.util.Calendar;
-import java.util.Collection;
+import java.util.List;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.diary.domain.RecordInvest;
@@ -33,12 +33,12 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class RecordInvestModel extends AbstractRecordSubModel<RecordInvest> {
+public class RecordInvestModel extends AbstractRecordSubModel {
 
     private RecordInvest dataInvest[][][];
 
-    public RecordInvestModel(int baseIndex, DateTime dateTime) {
-        super(baseIndex, dateTime);
+    public RecordInvestModel(DateTime dateTime) {
+        super(dateTime);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RecordInvestModel extends AbstractRecordSubModel<RecordInvest> {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel cm) {
+    public ColumnGroup getColumnHeader(TableColumnModel cm, int baseIndex) {
         ColumnGroup gGlyk = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.glykemie"));
         ColumnGroup gBreak = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.breakfest"));
         ColumnGroup gDinner = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.dinner"));
@@ -74,6 +74,9 @@ public class RecordInvestModel extends AbstractRecordSubModel<RecordInvest> {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if (dataInvest == null) {
+            setData();
+        }
         if (dataInvest != null && rowIndex > -1) {
             if (dataInvest[rowIndex][columnIndex] != null && dataInvest[rowIndex][columnIndex].length == 1) {
                 return dataInvest[rowIndex][columnIndex][0];
@@ -164,8 +167,8 @@ public class RecordInvestModel extends AbstractRecordSubModel<RecordInvest> {
         return true;
     }
 
-    @Override
-    public void setData(Collection<RecordInvest> data) {
+    private void setData() {
+        List<RecordInvest> data = MyLookup.getCurrentPatient().getRecordInvests(getFrom(), getTo());
         dataInvest = new RecordInvest[31][getColumnCount()][1];
         Calendar cal = Calendar.getInstance();
         for (RecordInvest rec : data) {
@@ -228,5 +231,10 @@ public class RecordInvestModel extends AbstractRecordSubModel<RecordInvest> {
         }
 
         return dateTime.withDayOfMonth(row + 1).withTime(hourOfDay, 0, 0, 0);
+    }
+
+    @Override
+    public void invalidateData() {
+        dataInvest = null;
     }
 }

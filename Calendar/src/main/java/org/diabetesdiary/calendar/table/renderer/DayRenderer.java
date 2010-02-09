@@ -19,63 +19,24 @@ package org.diabetesdiary.calendar.table.renderer;
 
 import org.diabetesdiary.calendar.table.CalendarDay;
 import java.awt.Color;
-import java.awt.Component;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import org.joda.time.DateTimeConstants;
 
 /**
  *
  * @author Jiri Majer
  */
-public class DayRenderer extends JLabel implements TableCellRenderer {
+public class DayRenderer extends AbstractDiaryCellRenderer<CalendarDay> {
 
-    private static final Color forColor = Color.BLACK;
-    private static final Color backColor = Color.WHITE;
-    private static final Color forSelColor = Color.WHITE;
-    private static final Color backSelColor = new Color(30, 30, 100);
-
-    /** Creates a new instance of CalendarCellRenderer */
-    public DayRenderer() {
-        super();
-        setOpaque(true);
+    @Override
+    protected Color getBackgroundColor(CalendarDay rec, boolean selected) {
+        if (rec.getDate().getDayOfWeek() == DateTimeConstants.SUNDAY) {
+            return selected ? Color.DARK_GRAY : Color.LIGHT_GRAY;
+        }
+        return super.getBackgroundColor(rec, selected);
     }
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        return createCell(table, value, isSelected);
-    }
-
-    public static Component createCell(JTable table, Object value, boolean isSelected) {
-        DayRenderer result = new DayRenderer();
-        if (isSelected) {
-            result.setBackground(backSelColor);
-            result.setForeground(forSelColor);
-        } else {
-            result.setBackground(backColor);
-            result.setForeground(forColor);
-        }
-        result.setHorizontalAlignment(CENTER);
-        if (value instanceof CalendarDay) {
-            CalendarDay rec = (CalendarDay) value;
-            if (rec.getDate() != null) {
-                if (rec.getDate().getDayOfWeek() == DateTimeConstants.SUNDAY) {
-                    if (isSelected) {
-                        result.setBackground(Color.DARK_GRAY);
-                    } else {
-                        result.setBackground(Color.LIGHT_GRAY);
-                    }
-                }
-                result.setText(String.valueOf(rec.getDate().getDayOfMonth()));
-                result.setToolTipText(createToolTip(rec));
-            }
-        }
-
-        return result;
-    }
-
-    private static String createToolTip(CalendarDay rec) {
-        return null;
+    protected String getText(CalendarDay rec) {
+        return String.valueOf(rec.getDate().getDayOfMonth());
     }
 }

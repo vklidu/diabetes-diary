@@ -19,7 +19,6 @@
 
 package org.diabetesdiary.calendar.table.model;
 
-import java.util.Collection;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.CalendarDay;
@@ -30,10 +29,10 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class DayModel extends AbstractRecordSubModel<CalendarDay> {
+public class DayModel extends AbstractRecordSubModel {
 
-    public DayModel(int baseIndex, DateTime month) {
-        super(baseIndex, month);
+    public DayModel(DateTime month) {
+        super(month);
     }
     
     @Override
@@ -42,7 +41,7 @@ public class DayModel extends AbstractRecordSubModel<CalendarDay> {
     }
     
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel cm) {
+    public ColumnGroup getColumnHeader(TableColumnModel cm, int baseIndex) {
         cm.getColumn(baseIndex).setPreferredWidth(20);        
         return null;
     }
@@ -63,13 +62,12 @@ public class DayModel extends AbstractRecordSubModel<CalendarDay> {
     }
     
     @Override
-    public void setData(Collection<CalendarDay> data) {
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void invalidateData() {
     }
 
 }

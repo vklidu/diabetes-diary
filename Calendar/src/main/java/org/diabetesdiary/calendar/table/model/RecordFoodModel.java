@@ -35,12 +35,12 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class RecordFoodModel extends AbstractRecordSubModel<RecordFood> {
+public class RecordFoodModel extends AbstractRecordSubModel {
 
     private RecordFood dataFood[][][];
 
-    public RecordFoodModel(int baseIndex, DateTime month) {
-        super(baseIndex, month);
+    public RecordFoodModel(DateTime month) {
+        super(month);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class RecordFoodModel extends AbstractRecordSubModel<RecordFood> {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel columnModel) {
+    public ColumnGroup getColumnHeader(TableColumnModel columnModel, int baseIndex) {
         ColumnGroup gFood = new ColumnGroup(NbBundle.getMessage(RecordFoodModel.class, "Column.food"));
         for (int i = baseIndex; i < baseIndex + getColumnCount(); i++) {
             gFood.add(columnModel.getColumn(i));
@@ -59,6 +59,9 @@ public class RecordFoodModel extends AbstractRecordSubModel<RecordFood> {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if (dataFood == null) {
+            setData();
+        }
         if (dataFood != null && rowIndex > -1) {
             if (dataFood[rowIndex][columnIndex] != null && dataFood[rowIndex][columnIndex].length == 1) {
                 return dataFood[rowIndex][columnIndex][0];
@@ -66,26 +69,6 @@ public class RecordFoodModel extends AbstractRecordSubModel<RecordFood> {
                 return dataFood[rowIndex][columnIndex];
             }
         }
-        return null;
-    }
-
-    public RecordFood getNewRecordValueAt(int rowIndex, int columnIndex) {
-        /*
-        RecordFood food = new RecordFood();
-        RecordFoodPK pk = new RecordFoodPK();
-        pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
-        pk.setIdFood(1);
-        pk.setDate(getClickCellDate(rowIndex, columnIndex));
-        food.setId(pk);
-
-        food.setSeason(FoodSeason.values()[columnIndex].name());
-        FoodAdministrator foodAdmin = MyLookup.getFoodAdmin();
-        food.setFood(foodAdmin.getFood(pk.getIdFood()));
-        food.setUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
-        food.setAmount(0d);
-        return food;
-         * 
-         */
         return null;
     }
 
@@ -168,8 +151,8 @@ public class RecordFoodModel extends AbstractRecordSubModel<RecordFood> {
         return dateTime.withDayOfMonth(row + 1).withTime(hourOfDay, 0, 0, 0);
     }
 
-    @Override
-    public void setData(Collection<RecordFood> data) {
+    private void setData() {
+        Collection<RecordFood> data = MyLookup.getCurrentPatient().getRecordFoods(getFrom(), getTo());
         //max number of days
         dataFood = new RecordFood[31][6][1];
         Calendar cal = Calendar.getInstance();
@@ -188,5 +171,10 @@ public class RecordFoodModel extends AbstractRecordSubModel<RecordFood> {
                 dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][pom.length] = rec;
             }
         }
+    }
+
+    @Override
+    public void invalidateData() {
+        dataFood = null;
     }
 }

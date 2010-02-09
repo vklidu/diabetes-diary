@@ -18,89 +18,67 @@
 package org.diabetesdiary.calendar.table.renderer;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.diary.domain.RecordInsulin;
 
 /**
  *
  * @author Jiri Majer
  */
-public class InsulinCellRenderer extends JLabel implements TableCellRenderer {
+public class InsulinCellRenderer extends AbstractDiaryCellRenderer<Object> {
 
-    private static NumberFormat format = NumberFormat.getInstance();
-    private static final Color forColor = Color.BLACK;
-    private static final Color backColor = Color.WHITE;
-    private static final Color forSelColor = Color.WHITE;
-    private static final Color backSelColor = new Color(30, 30, 100);
+    private NumberFormat format = NumberFormat.getInstance();
     private static final String VALUES_SEPARATOR = ";";
 
-    /** Creates a new instance of CalendarCellRenderer */
-    public InsulinCellRenderer() {
-        super();
-        setOpaque(true);
+    @Override
+    protected String getText(Object value) {
+        if (value instanceof RecordInsulin) {
+            RecordInsulin rec = (RecordInsulin) value;
+            return format.format(rec.getAmount()) + (rec.getNotice() != null && rec.getNotice().length() > 0 ? "!" : "");
+        } else if (value instanceof RecordInsulin[]) {
+            RecordInsulin[] recs = (RecordInsulin[]) value;
+            StringBuilder res = new StringBuilder();
+            for (RecordInsulin rec : recs) {
+                res.append(VALUES_SEPARATOR).append(format.format(rec.getAmount()));
+                if (rec.getNotice() != null && rec.getNotice().length() > 0) {
+                    res.append("!");
+                }
+            }
+            return res.substring(VALUES_SEPARATOR.length());
+        }
+        return null;
     }
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        return createCell(table, value, isSelected);
+    protected String getToolTip(Object value) {
+        if (value instanceof RecordInsulin) {
+            return createToolTip((RecordInsulin) value);
+        } else if (value instanceof RecordInsulin[]) {
+            return createToolTip((RecordInsulin[]) value);
+        }
+        return null;
     }
 
-    public static Component createCell(JTable table, Object value, boolean isSelected) {
-        InsulinCellRenderer result = new InsulinCellRenderer();
-        if (isSelected) {
-            result.setBackground(backSelColor);
-            result.setForeground(forSelColor);
-        } else {
-            result.setBackground(backColor);
-            result.setForeground(forColor);
-        }
-        result.setHorizontalAlignment(CENTER);
+    @Override
+    protected Color getBackgroundColor(Object value, boolean isSelected) {
         if (value instanceof RecordInsulin) {
             RecordInsulin rec = (RecordInsulin) value;
-            if (rec.getAmount() != null) {
-                if (rec.isBasal()) {
-                    if (isSelected) {
-                        result.setBackground(Color.DARK_GRAY);
-                    } else {
-                        result.setBackground(Color.LIGHT_GRAY);
-                    }
-                }
-                result.setText(format.format(rec.getAmount()));
-                if (rec.getNotice() != null && rec.getNotice().length() > 0) {
-                    result.setText(result.getText() + "!");
-                }
-                result.setToolTipText(createToolTip(rec));
+            if (rec.isBasal()) {
+                return isSelected ? Color.DARK_GRAY : Color.LIGHT_GRAY;
             }
         } else if (value instanceof RecordInsulin[]) {
             RecordInsulin[] recs = (RecordInsulin[]) value;
             for (RecordInsulin rec : recs) {
-                if (rec.getAmount() != null) {
-                    if (rec.isBasal()) {
-                        if (isSelected) {
-                            result.setBackground(Color.DARK_GRAY);
-                        } else {
-                            result.setBackground(Color.LIGHT_GRAY);
-                        }
-                    }
-                    result.setText(result.getText() + VALUES_SEPARATOR + format.format(rec.getAmount()));
-                    if (rec.getNotice() != null && rec.getNotice().length() > 0) {
-                        result.setText(result.getText() + "!");
-                    }
+                if (rec.isBasal()) {
+                    return isSelected ? Color.DARK_GRAY : Color.LIGHT_GRAY;
                 }
             }
-            result.setText(result.getText().substring(1));
-            result.setToolTipText(createToolTip(recs));
         }
-
-        return result;
+        return super.getBackgroundColor(value, isSelected);
     }
 
-    private static String createToolTip(RecordInsulin rec) {
+    private String createToolTip(RecordInsulin rec) {
         if (rec == null || rec.getAmount() == null) {
             return null;
         }
@@ -114,7 +92,7 @@ public class InsulinCellRenderer extends JLabel implements TableCellRenderer {
         return result;
     }
 
-    private static String createToolTip(RecordInsulin[] recs) {
+    private String createToolTip(RecordInsulin[] recs) {
         if (recs == null || recs.length < 1 || recs[0] == null || recs[0].getAmount() == null) {
             return null;
         }

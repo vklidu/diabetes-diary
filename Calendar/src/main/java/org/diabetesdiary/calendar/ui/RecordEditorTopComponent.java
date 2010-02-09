@@ -1057,7 +1057,7 @@ private void insulinSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             selectedInsulinRecord.update(getInsulinDate(), un.isBasal(), getInsulin(), getInsulinValue(), getInsulinSeason(), getInsulinNote());
         }
 
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
     }
 }//GEN-LAST:event_insulinSaveActionPerformed
@@ -1098,7 +1098,7 @@ private void foodSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         } else {
             rec.update(getFoodDate(), getFood(), getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
         }
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getFoodModel().setDate(getFoodDate().toDate());
     }
@@ -1129,7 +1129,7 @@ private void foodTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:e
         } else {
             getFoodModel().getRecordAt(row).delete();
         }
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getFoodModel().fillData();
         getFoodModel().fireTableDataChanged();
@@ -1141,7 +1141,7 @@ private void investDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         selectedInvestRecord.delete();
         selectedInvestRecord = null;
         investDel.setEnabled(false);
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getInvestModel().fillData();
         getInvestModel().fireTableDataChanged();
@@ -1156,7 +1156,7 @@ private void investSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
         } else {
             selectedInvestRecord.update(getInvestDate(), getInvestValue(), getInvest(), getInvestSeason(), getInvestNote());
         }
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getInvestModel().fillData();
         getInvestModel().fireTableDataChanged();
@@ -1173,7 +1173,7 @@ private void insulinDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
         selectedInsulinRecord.delete();
         selectedInsulinRecord = null;
         insulinDel.setEnabled(false);
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
     }
 }//GEN-LAST:event_insulinDelActionPerformed
@@ -1195,7 +1195,7 @@ private void investTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST
     if (column == getInvestModel().getColumnCount() - 1 && rec != null && rec.getValue() != null) {
         rec.delete();
         investDel.setEnabled(false);
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getInvestModel().fillData();
         getInvestModel().fireTableDataChanged();
@@ -1210,7 +1210,7 @@ private void insulinTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRS
     if (column == getInsulinModel().getColumnCount() - 1 && rec != null && rec.getAmount() != null) {
         rec.delete();
         insulinDel.setEnabled(false);
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getInsulinModel().fillData();
         getInsulinModel().fireTableDataChanged();
@@ -1227,7 +1227,7 @@ private void actSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
         } else {
             selectedActivityRecord.update(getActDate(), getActivity(), getActValue(), getActNote());
         }
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getActivityModel().fillData();
         getActivityModel().fireTableDataChanged();
@@ -1247,7 +1247,7 @@ private void actDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
         selectedActivityRecord.delete();
         selectedActivityRecord = null;
         actDel.setEnabled(false);
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getActivityModel().fillData();
         getActivityModel().fireTableDataChanged();
@@ -1262,7 +1262,7 @@ private void actTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:ev
     if (column == getActivityModel().getColumnCount() - 1 && rec != null && rec.getDuration() != null) {
         rec.delete();
         actDel.setEnabled(false);
-        CalendarTopComponent.getDefault().getModel().fillData();
+        CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
         getActivityModel().fillData();
         getActivityModel().fireTableDataChanged();
