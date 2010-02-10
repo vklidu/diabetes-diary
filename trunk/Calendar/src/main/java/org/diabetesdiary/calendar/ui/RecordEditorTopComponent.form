@@ -27,6 +27,9 @@
   </Layout>
   <SubComponents>
     <Container class="javax.swing.JTabbedPane" name="activityPanel">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="activityPanel.addTab(&quot;test&quot;, new RecordFoodEditorPanel());"/>
+      </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
@@ -61,11 +64,6 @@
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="insulinType" alignment="0" pref="303" max="32767" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="insulinDatum" min="-2" pref="106" max="-2" attributes="1"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="insulinTime" pref="191" max="32767" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="0" attributes="0">
                                       <Component id="insulinValue" min="-2" pref="72" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="insulinSave" pref="172" max="32767" attributes="0"/>
@@ -75,6 +73,7 @@
                                   <Component id="insulinSeason" alignment="0" pref="303" max="32767" attributes="1"/>
                                   <Component id="insulinUnit" alignment="1" pref="303" max="32767" attributes="0"/>
                                   <Component id="insulin" alignment="1" pref="303" max="32767" attributes="1"/>
+                                  <Component id="dateTimePanel1" alignment="0" min="-2" pref="164" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Component id="jLabel23" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -106,10 +105,9 @@
                           <Component id="insulinUnit" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="insulinDatum" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="insulinTime" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel18" min="-2" max="-2" attributes="1"/>
+                          <Component id="dateTimePanel1" min="-2" pref="22" max="-2" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -130,7 +128,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel24" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane6" pref="167" max="32767" attributes="0"/>
+                      <Component id="jScrollPane6" pref="165" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -166,13 +164,6 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="insulinUnitActionPerformed"/>
               </Events>
-            </Component>
-            <Component class="javax.swing.JTextField" name="insulinDatum">
-              <Properties>
-                <Property name="columns" type="int" value="10"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JTextField" name="insulinTime">
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel18">
               <Properties>
@@ -313,6 +304,8 @@
                   <ResourceString bundle="org/diabetesdiary/calendar/ui/Bundle.properties" key="label.edit.insulintable.allrecords" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                 </Property>
               </Properties>
+            </Component>
+            <Component class="org.diabetesdiary.commons.swing.calendar.DateTimePanel" name="dateTimePanel1">
             </Component>
           </SubComponents>
         </Container>
@@ -628,7 +621,9 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="foodValue" min="-2" pref="72" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="foodSave" pref="225" max="32767" attributes="0"/>
+                                      <Component id="foodSave" pref="131" max="32767" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="cancelFoodEdit" min="-2" pref="88" max="-2" attributes="0"/>
                                   </Group>
                                   <Component id="foodSeason" alignment="0" pref="303" max="32767" attributes="1"/>
                                   <Component id="foodUnit" alignment="1" pref="303" max="32767" attributes="0"/>
@@ -637,8 +632,8 @@
                                   <Component id="foodGroup" alignment="0" pref="303" max="32767" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="foodError" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel12" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="foodError" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -690,6 +685,7 @@
                                   <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="foodSave" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="foodValue" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="cancelFoodEdit" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -891,6 +887,16 @@
                   <ResourceString bundle="org/diabetesdiary/calendar/ui/Bundle.properties" key="hintrecfood" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
                 </Property>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="cancelFoodEdit">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/diabetesdiary/calendar/ui/Bundle.properties" key="foodcancel" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cancelFoodEditActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

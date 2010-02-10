@@ -19,9 +19,14 @@ package org.diabetesdiary.calendar.table.model;
 
 import java.util.Calendar;
 import java.util.Collection;
-import javax.swing.table.TableColumnModel;
+import java.util.List;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.calendar.table.editor.NumberEditor;
+import org.diabetesdiary.calendar.table.renderer.FoodCellRenderer;
 import org.diabetesdiary.diary.domain.Food;
 import org.diabetesdiary.diary.domain.FoodSeason;
 import org.diabetesdiary.diary.domain.FoodUnit;
@@ -49,10 +54,10 @@ public class RecordFoodModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel columnModel, int baseIndex) {
+    public ColumnGroup getColumnHeader(List<TableColumn> cols) {
         ColumnGroup gFood = new ColumnGroup(NbBundle.getMessage(RecordFoodModel.class, "Column.food"));
-        for (int i = baseIndex; i < baseIndex + getColumnCount(); i++) {
-            gFood.add(columnModel.getColumn(i));
+        for (int i = 0; i < getColumnCount(); i++) {
+            gFood.add(cols.get(i));
         }
         return gFood;
     }
@@ -72,30 +77,26 @@ public class RecordFoodModel extends AbstractRecordSubModel {
         return null;
     }
 
+    public FoodSeason getSeason(int columnIndex) {
+        return FoodSeason.values()[columnIndex];
+    }
+
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
             Food food = MyLookup.getDiaryRepo().getWellKnownFood(WKFood.SACCHARIDE);
             FoodUnit unit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
-            RecordFood rec = MyLookup.getCurrentPatient().addRecordFood(getClickCellDate(rowIndex, columnIndex),
-                    food, (Double) value, (Double) value, unit, FoodSeason.values()[columnIndex], null);
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(rec.getDatetime().getMillis());
-            int col = rec.getSeason().ordinal();
-            if (dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] == null) {
-                dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
+            DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
+            int col = FoodSeason.values()[columnIndex].ordinal();
+            RecordFood edited = dataFood[recDateTime.getDayOfMonth() - 1][col][0];
+            if (edited != null) {
+                edited = edited.update((Double) value);
             } else {
-                if (rec.getFood().equals(dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0].getFood())) {
-                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
-                } else {
-                    RecordFood[] pom = dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col];
-                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col] = new RecordFood[pom.length + 1];
-                    dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][0] = rec;
-                    for (int i = 0; i < pom.length; i++) {
-                        dataFood[cal.get(Calendar.DAY_OF_MONTH) - 1][col][i + 1] = pom[i];
-                    }
-                }
+                edited = MyLookup.getCurrentPatient().addRecordFood(getClickCellDate(rowIndex, columnIndex),
+                        food, (Double) value, (Double) value, unit, getSeason(columnIndex), null);
             }
+
+            dataFood[recDateTime.getDayOfMonth() - 1][col][0] = edited;
         }
     }
 
@@ -176,5 +177,26 @@ public class RecordFoodModel extends AbstractRecordSubModel {
     @Override
     public void invalidateData() {
         dataFood = null;
+    }
+
+    @Override
+    public TableCellRenderer getCellRenderer(int columnIndex) {
+        return new FoodCellRenderer();
+    }
+
+    @Override
+    public TableCellEditor getCellEditor(int columnIndex) {
+        return new NumberEditor<Double, Object>(0d, 50d) {
+
+            @Override
+            public Double getValue(Object object) {
+                if (object instanceof RecordFood) {
+                    return ((RecordFood) object).getAmount();
+                } else if (object instanceof RecordFood[]) {
+                    return ((RecordFood[]) object)[0].getAmount();
+                }
+                return null;
+            }
+        };
     }
 }

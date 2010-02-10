@@ -31,28 +31,19 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.CalendarPopupMenu;
 import org.diabetesdiary.calendar.table.model.DiaryTableModel;
-import org.diabetesdiary.calendar.table.renderer.GlykemieCellRenderer;
 import org.diabetesdiary.calendar.table.header.GroupableTableHeader;
 import org.diabetesdiary.calendar.MultiLineToolTip;
 import org.diabetesdiary.calendar.action.SelectPatientAction;
-import org.diabetesdiary.calendar.table.editor.ActivityCellEditor;
-import org.diabetesdiary.calendar.table.renderer.ActivityCellRenderer;
-import org.diabetesdiary.calendar.table.CalendarDay;
-import org.diabetesdiary.calendar.table.renderer.DayRenderer;
-import org.diabetesdiary.calendar.table.editor.FoodCellEditor;
-import org.diabetesdiary.calendar.table.renderer.FoodCellRenderer;
-import org.diabetesdiary.calendar.table.editor.GlykemieCellEditor;
-import org.diabetesdiary.calendar.table.editor.InsulinCellEditor;
-import org.diabetesdiary.calendar.table.renderer.InsulinCellRenderer;
-import org.diabetesdiary.calendar.table.editor.InsulinPumpBasalEditor;
-import org.diabetesdiary.calendar.table.renderer.InsulinPumpBasalRenderer;
-import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
+import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.calendar.table.model.RecordFoodModel;
 import org.diabetesdiary.calendar.table.model.SumModel;
-import org.diabetesdiary.calendar.table.renderer.DefaultRenderer;
+import org.diabetesdiary.calendar.table.model.TableSubModel;
+import org.diabetesdiary.diary.domain.FoodSeason;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.diabetesdiary.diary.domain.RecordInvest;
+import org.diabetesdiary.diary.domain.WKFood;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
@@ -107,14 +98,26 @@ public final class CalendarTopComponent extends TopComponent
                 int column = jTable1.columnAtPoint(e.getPoint());
                 if (e.isPopupTrigger()) {
                     jTable1.changeSelection(row, column, false, false);
-                    if (!(getModel().getSubModel(column) instanceof SumModel)) {
+                    Object value = getModel().getValueAt(row, column);
+                    if (value instanceof RecordFood || value instanceof RecordFood[]
+                            || value instanceof RecordActivity || value instanceof RecordInsulin
+                            || value instanceof RecordInvest) {
                         popupMenu = CalendarPopupMenu.createPopupMenu(getModel().getValueAt(row, column));
                         popupMenu.show(jTable1, e.getX(), e.getY());
                     }
                 } else if (MyLookup.getCurrentPatient() != null) {
                     Object record = getModel().getValueAt(row, column);
+                    TableSubModel subModel = getModel().getSubModel(column);
+                    RecordEditorTopComponent comp = RecordEditorTopComponent.getDefault();
+                    int subCol = getModel().getIndexInSubModel(column);
                     if (record != null) {
-                        RecordEditorTopComponent.getDefault().setRecord(record);
+                        comp.setRecord(record);
+                    } else if (subModel instanceof RecordFoodModel) {
+                        RecordFoodModel model = (RecordFoodModel) subModel;                        
+                        comp.setFoodComponents(model.getClickCellDate(row, subCol), 0d, null,
+                                MyLookup.getDiaryRepo().getWellKnownFood(WKFood.SACCHARIDE),
+                                MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT)),
+                                model.getSeason(subCol));
                     }
                 }
             }
@@ -162,19 +165,6 @@ public final class CalendarTopComponent extends TopComponent
             }
 
         };
-        jTable1.setDefaultEditor(RecordInvest.class,new GlykemieCellEditor());
-        jTable1.setDefaultEditor(RecordActivity.class,new ActivityCellEditor());
-        jTable1.setDefaultEditor(RecordFood.class,new FoodCellEditor());
-        jTable1.setDefaultEditor(RecordInsulin.class,new InsulinCellEditor());
-        jTable1.setDefaultEditor(RecordInsulinPumpBasal.class,new InsulinPumpBasalEditor());
-
-        jTable1.setDefaultRenderer(Object.class,new DefaultRenderer());
-        jTable1.setDefaultRenderer(CalendarDay.class,new DayRenderer());
-        jTable1.setDefaultRenderer(RecordInvest.class,new GlykemieCellRenderer());
-        jTable1.setDefaultRenderer(RecordFood.class,new FoodCellRenderer());
-        jTable1.setDefaultRenderer(RecordActivity.class,new ActivityCellRenderer());
-        jTable1.setDefaultRenderer(RecordInsulin.class,new InsulinCellRenderer());
-        jTable1.setDefaultRenderer(RecordInsulinPumpBasal.class,new InsulinPumpBasalRenderer());
         backward = new javax.swing.JButton();
         forward = new javax.swing.JButton();
         yearForward = new javax.swing.JButton();

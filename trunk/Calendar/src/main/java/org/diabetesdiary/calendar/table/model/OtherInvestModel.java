@@ -19,8 +19,13 @@ package org.diabetesdiary.calendar.table.model;
 
 import java.util.Calendar;
 import java.util.Collection;
-import javax.swing.table.TableColumnModel;
+import java.util.List;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
+import org.diabetesdiary.calendar.table.renderer.GlykemieCellRenderer;
 import org.diabetesdiary.diary.domain.InvSeason;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.domain.WKInvest;
@@ -43,13 +48,13 @@ public class OtherInvestModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel columnModel, int baseIndex) {
+    public ColumnGroup getColumnHeader(List<TableColumn> cols) {
         ColumnGroup gSum = new ColumnGroup(NbBundle.getMessage(OtherInvestModel.class, "Column.otherInvest"));
-        gSum.add(columnModel.getColumn(baseIndex));
-        gSum.add(columnModel.getColumn(baseIndex + 1));
-        gSum.add(columnModel.getColumn(baseIndex + 2));
+        gSum.add(cols.get(0));
+        gSum.add(cols.get(1));
+        gSum.add(cols.get(2));
         if (!male) {
-            gSum.add(columnModel.getColumn(baseIndex + 3));
+            gSum.add(cols.get(3));
         }
 
         return gSum;
@@ -137,7 +142,7 @@ public class OtherInvestModel extends AbstractRecordSubModel {
     }
 
     private DateTime getClickCellDate(int row, int column) {
-        return dateTime.withDayOfMonth(row+1).withTime(12, 0, 0, 0);
+        return dateTime.withDayOfMonth(row + 1).withTime(12, 0, 0, 0);
     }
 
     private Integer getColumnIndexForInvest(WKInvest inst) {
@@ -178,15 +183,22 @@ public class OtherInvestModel extends AbstractRecordSubModel {
 
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
+        if (value instanceof Integer) {
+            value = ((Integer) value).doubleValue();
+        }
         if (value instanceof Double) {
-            RecordInvest rec = MyLookup.getCurrentPatient().addRecordInvest(getClickCellDate(rowIndex, columnIndex),
-                    (Double)value,
-                    MyLookup.getDiaryRepo().getWellKnownInvestigation(getClickCellInvestId(rowIndex, columnIndex)),
-                    InvSeason.BB,
-                    null);
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(rec.getDatetime().getMillis());
-            dataOtherInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = rec;
+            DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
+            RecordInvest edited = dataOtherInvest[recDateTime.getDayOfMonth() - 1][columnIndex][0];
+            if (edited != null) {
+                edited = edited.update((Double) value);
+            } else {
+                edited = MyLookup.getCurrentPatient().addRecordInvest(getClickCellDate(rowIndex, columnIndex),
+                        (Double) value,
+                        MyLookup.getDiaryRepo().getWellKnownInvestigation(getClickCellInvestId(rowIndex, columnIndex)),
+                        InvSeason.BB,
+                        null);
+            }
+            dataOtherInvest[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
         }
     }
 
@@ -203,4 +215,52 @@ public class OtherInvestModel extends AbstractRecordSubModel {
         dataOtherInvest = null;
     }
 
+    @Override
+    public TableCellRenderer getCellRenderer(int columnIndex) {
+        return new GlykemieCellRenderer();
+    }
+
+    @Override
+    public TableCellEditor getCellEditor(int columnIndex) {
+        if (columnIndex == 0) {
+            return new NumberEditor<Integer, Object>(0, 400) {
+
+                @Override
+                public Integer getValue(Object object) {
+                    if (object instanceof RecordInvest) {
+                        return ((RecordInvest) object).getValue().intValue();
+                    } else if (object instanceof RecordInvest[]) {
+                        return ((RecordInvest[]) object)[0].getValue().intValue();
+                    }
+                    return null;
+                }
+            };
+        }
+        if (columnIndex == 3) {
+            return new NumberEditor<Integer, Object>(0, 3) {
+
+                @Override
+                public Integer getValue(Object object) {
+                    if (object instanceof RecordInvest) {
+                        return ((RecordInvest) object).getValue().intValue();
+                    } else if (object instanceof RecordInvest[]) {
+                        return ((RecordInvest[]) object)[0].getValue().intValue();
+                    }
+                    return null;
+                }
+            };
+        }
+        return new NumberEditor<Integer, Object>(0, 4) {
+
+            @Override
+            public Integer getValue(Object object) {
+                if (object instanceof RecordInvest) {
+                    return ((RecordInvest) object).getValue().intValue();
+                } else if (object instanceof RecordInvest[]) {
+                    return ((RecordInvest[]) object)[0].getValue().intValue();
+                }
+                return null;
+            }
+        };
+    }
 }

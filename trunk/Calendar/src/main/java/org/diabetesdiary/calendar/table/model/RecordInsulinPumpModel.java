@@ -19,9 +19,16 @@ package org.diabetesdiary.calendar.table.model;
 
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.List;
 import java.util.StringTokenizer;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import org.diabetesdiary.calendar.table.editor.InsulinPumpBasalEditor;
+import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
+import org.diabetesdiary.calendar.table.renderer.InsulinCellRenderer;
+import org.diabetesdiary.calendar.table.renderer.InsulinPumpBasalRenderer;
 import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
 import org.diabetesdiary.diary.domain.InsulinSeason;
 import org.diabetesdiary.diary.domain.RecordInsulin;
@@ -49,7 +56,7 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel cm, int baseIndex) {
+    public ColumnGroup getColumnHeader(List<TableColumn> cols) {
         ColumnGroup gInsulin = new ColumnGroup(NbBundle.getMessage(RecordInsulinPumpModel.class, "Column.insulin"));
         ColumnGroup gBazal = new ColumnGroup(NbBundle.getMessage(RecordInsulinPumpModel.class, "Bazal_(v_desetinach_U)"));
         ColumnGroup gBolus = new ColumnGroup(NbBundle.getMessage(RecordInsulinPumpModel.class, "Bolus_(U)"));
@@ -57,15 +64,15 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
         gInsulin.add(gBolus);
         gInsulin.add(gBazal);
 
-        gBolus.add(cm.getColumn(baseIndex));
-        gBolus.add(cm.getColumn(baseIndex + 1));
-        gBolus.add(cm.getColumn(baseIndex + 2));
-        gBolus.add(cm.getColumn(baseIndex + 3));
+        gBolus.add(cols.get(0));
+        gBolus.add(cols.get(1));
+        gBolus.add(cols.get(2));
+        gBolus.add(cols.get(3));
 
-        cm.getColumn(baseIndex + 4).setPreferredWidth(200);
-        cm.getColumn(baseIndex + 5).setPreferredWidth(200);
-        gBazal.add(cm.getColumn(baseIndex + 4));
-        gBazal.add(cm.getColumn(baseIndex + 5));
+        cols.get(4).setPreferredWidth(200);
+        cols.get(5).setPreferredWidth(200);
+        gBazal.add(cols.get(4));
+        gBazal.add(cols.get(5));
 
         return gInsulin;
     }
@@ -148,39 +155,44 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
                     seas = InsulinSeason.ADD;
                     break;
             }
-            RecordInsulin rec = MyLookup.getCurrentPatient().addRecordInsulin(
-                    getClickCellDate(rowIndex, columnIndex),
-                    false,
-                    (Double) value,
-                    seas,
-                    null);
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(rec.getDatetime().getMillis());
-            dataIns[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = rec;
+            DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
+            RecordInsulin edited = dataIns[recDateTime.getDayOfMonth() - 1][columnIndex][0];
+            if (edited != null) {
+                edited = edited.update((Double) value);
+            } else {
+                edited = MyLookup.getCurrentPatient().addRecordInsulin(
+                        getClickCellDate(rowIndex, columnIndex),
+                        false,
+                        (Double) value,
+                        seas,
+                        null);
+            }
+            dataIns[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
         } else if (value instanceof String && columnIndex > 3) {
             StringTokenizer tok = new StringTokenizer(value.toString(), "-");
             int i = 0;
+            DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
+            RecordInsulinPumpBasal edited = dataBasal[recDateTime.getDayOfMonth() - 1][columnIndex - 4];
+            if (edited == null) {
+                edited = new RecordInsulinPumpBasal();
+                dataBasal[recDateTime.getDayOfMonth() - 1][columnIndex - 4] = edited;
+            }
             while (tok.hasMoreTokens()) {
                 String val = tok.nextToken().trim();
                 double amount;
                 if (val != null && val.length() > 0 && Character.isDigit(val.charAt(0))) {
                     amount = Double.valueOf(val) / 10;
                     if (amount > 0) {
-                        RecordInsulin rec = MyLookup.getCurrentPatient().addRecordInsulin(
-                                dateTime.withHourOfDay((columnIndex - 4) * 12 + i),
-                                true,
-                                amount,
-                                InsulinSeason.BASAL,
-                                null);
-                        Calendar cal = Calendar.getInstance();
-                        cal.setTimeInMillis(getClickCellDate(rowIndex, columnIndex).getMillis());
-                        RecordInsulinPumpBasal basal = dataBasal[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex - 4];
-                        if (basal == null) {
-                            basal = new RecordInsulinPumpBasal();
-                            dataBasal[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex - 4] = basal;
+                        if (edited.getData()[i] != null) {
+                            edited.getData()[i] = edited.getData()[i].update(amount);
+                        } else {
+                            edited.getData()[i] = MyLookup.getCurrentPatient().addRecordInsulin(
+                                    recDateTime.withHourOfDay((columnIndex - 4) * 12 + i),
+                                    true,
+                                    amount,
+                                    InsulinSeason.BASAL,
+                                    null);
                         }
-                        basal.getData()[i] = rec;
-
                     }
                 }
                 i++;
@@ -288,5 +300,32 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
     public void invalidateData() {
         dataBasal = null;
         dataIns = null;
+    }
+
+    @Override
+    public TableCellRenderer getCellRenderer(int columnIndex) {
+        if (columnIndex < 4) {
+            return new InsulinCellRenderer();
+        }
+        return new InsulinPumpBasalRenderer();
+    }
+
+    @Override
+    public TableCellEditor getCellEditor(int columnIndex) {
+        if (columnIndex < 4) {
+            return new NumberEditor<Double, Object>(0d, 50d) {
+
+                @Override
+                public Double getValue(Object object) {
+                    if (object instanceof RecordInsulin) {
+                        return ((RecordInsulin) object).getAmount();
+                    } else if (object instanceof RecordInsulin[]) {
+                        return ((RecordInsulin[]) object)[0].getAmount();
+                    }
+                    return null;
+                }
+            };
+        }
+        return new InsulinPumpBasalEditor();
     }
 }
