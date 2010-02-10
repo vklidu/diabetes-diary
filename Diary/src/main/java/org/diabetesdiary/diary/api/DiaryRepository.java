@@ -81,4 +81,5 @@ public interface DiaryRepository {
     public RecordFood getRecordFood(Long id);
 
     public Activity getRandomActivity();
+
 }

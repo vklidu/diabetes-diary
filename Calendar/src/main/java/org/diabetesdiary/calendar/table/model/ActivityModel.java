@@ -20,9 +20,13 @@ package org.diabetesdiary.calendar.table.model;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.Energy;
+import org.diabetesdiary.calendar.table.editor.NumberEditor;
+import org.diabetesdiary.calendar.table.renderer.ActivityCellRenderer;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInvest;
@@ -48,15 +52,15 @@ public class ActivityModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel columnModel, int baseIndex) {
+    public ColumnGroup getColumnHeader(List<TableColumn> cols) {
         ColumnGroup gSum = new ColumnGroup(NbBundle.getMessage(ActivityModel.class, "Column.energy"));
         ColumnGroup gOut = new ColumnGroup(NbBundle.getMessage(ActivityModel.class, "Column.energy.out"));
 
         gSum.add(gOut);
-        gOut.add(columnModel.getColumn(baseIndex));
-        gOut.add(columnModel.getColumn(baseIndex + 1));
-        gSum.add(columnModel.getColumn(baseIndex + 2));
-        gSum.add(columnModel.getColumn(baseIndex + 3));
+        gOut.add(cols.get(0));
+        gOut.add(cols.get(1));
+        gSum.add(cols.get(2));
+        gSum.add(cols.get(3));
         return gSum;
     }
 
@@ -258,13 +262,17 @@ public class ActivityModel extends AbstractRecordSubModel {
             return;
         }
         if (value instanceof Integer) {
-            RecordActivity rec = MyLookup.getCurrentPatient().addRecordActivity(getClickCellDate(rowIndex, columnIndex),
+            DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
+            RecordActivity edited = dataActivity[recDateTime.getDayOfMonth() - 1][recDateTime.getHourOfDay() < 12 ? 0 : 1][0];
+            if (edited != null) {
+                edited = edited.update((Integer) value);
+            } else {
+                edited = MyLookup.getCurrentPatient().addRecordActivity(getClickCellDate(rowIndex, columnIndex),
                     MyLookup.getDiaryRepo().getRandomActivity(),
                     (Integer) value,
                     null);
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(rec.getDatetime().getMillis());
-            dataActivity[cal.get(Calendar.DAY_OF_MONTH) - 1][cal.get(Calendar.HOUR_OF_DAY) < 12 ? 0 : 1][0] = rec;
+            }
+            dataActivity[recDateTime.getDayOfMonth() - 1][recDateTime.getHourOfDay() < 12 ? 0 : 1][0] = edited;
         }
     }
 
@@ -274,5 +282,25 @@ public class ActivityModel extends AbstractRecordSubModel {
         weights = null;
         heighes = null;
         foods = null;
+    }
+
+    @Override
+    public TableCellRenderer getCellRenderer(int columnIndex) {
+        return new ActivityCellRenderer();
+    }
+
+    @Override
+    public TableCellEditor getCellEditor(int columnIndex) {
+        return new NumberEditor<Integer, Object>(0, 1000) {
+            @Override
+            public Integer getValue(Object object) {
+                if (object instanceof RecordActivity) {
+                    return ((RecordActivity) object).getDuration();
+                } else if (object instanceof RecordActivity[]) {
+                    return ((RecordActivity[]) object)[0].getDuration();
+                }
+                return null;
+            }
+        };
     }
 }

@@ -19,9 +19,13 @@
 
 package org.diabetesdiary.calendar.table.model;
 
-import javax.swing.table.TableColumnModel;
+import java.util.List;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.CalendarDay;
+import org.diabetesdiary.calendar.table.renderer.DayRenderer;
 import org.joda.time.DateTime;
 import org.openide.util.NbBundle;
 
@@ -41,8 +45,8 @@ public class DayModel extends AbstractRecordSubModel {
     }
     
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel cm, int baseIndex) {
-        cm.getColumn(baseIndex).setPreferredWidth(20);        
+    public ColumnGroup getColumnHeader(List<TableColumn> cols) {
+        cols.get(0).setPreferredWidth(20);
         return null;
     }
     
@@ -68,6 +72,11 @@ public class DayModel extends AbstractRecordSubModel {
 
     @Override
     public void invalidateData() {
+    }
+
+    @Override
+    public TableCellRenderer getCellRenderer(int columnIndex) {
+        return new DayRenderer();
     }
 
 }

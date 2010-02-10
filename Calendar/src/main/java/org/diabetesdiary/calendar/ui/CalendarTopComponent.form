@@ -91,7 +91,6 @@
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new JTable() {&#xa;      protected JTableHeader createDefaultTableHeader() {&#xa;          return new GroupableTableHeader(columnModel);&#xa;      }&#xa;    &#xa;      public JToolTip createToolTip() {&#xa;        return new MultiLineToolTip();&#xa;    }&#xa;    &#xa;};"/>
-            <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="jTable1.setDefaultEditor(RecordInvest.class,new GlykemieCellEditor());&#xa;jTable1.setDefaultEditor(RecordActivity.class,new ActivityCellEditor());&#xa;jTable1.setDefaultEditor(RecordFood.class,new FoodCellEditor());&#xa;jTable1.setDefaultEditor(RecordInsulin.class,new InsulinCellEditor());&#xa;jTable1.setDefaultEditor(RecordInsulinPumpBasal.class,new InsulinPumpBasalEditor());&#xa;&#xa;jTable1.setDefaultRenderer(Object.class,new DefaultRenderer());&#xa;jTable1.setDefaultRenderer(CalendarDay.class,new DayRenderer());&#xa;jTable1.setDefaultRenderer(RecordInvest.class,new GlykemieCellRenderer());&#xa;jTable1.setDefaultRenderer(RecordFood.class,new FoodCellRenderer());&#xa;jTable1.setDefaultRenderer(RecordActivity.class,new ActivityCellRenderer());&#xa;jTable1.setDefaultRenderer(RecordInsulin.class,new InsulinCellRenderer());&#xa;jTable1.setDefaultRenderer(RecordInsulinPumpBasal.class,new InsulinPumpBasalRenderer());"/>
           </AuxValues>
         </Component>
       </SubComponents>

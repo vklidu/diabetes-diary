@@ -35,6 +35,7 @@ import org.diabetesdiary.calendar.table.model.recordeditor.RecordFoodEditTableMo
 import org.diabetesdiary.calendar.table.model.recordeditor.RecordInsulinEditTableModel;
 import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
 import org.diabetesdiary.calendar.table.model.recordeditor.RecordInvestEditTableModel;
+import org.diabetesdiary.calendar.ui.recordpanel.RecordFoodEditorPanel;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.diary.api.DiaryService;
@@ -55,8 +56,8 @@ import org.diabetesdiary.diary.domain.InvSeason;
 import org.diabetesdiary.diary.domain.InsulinSeason;
 import org.joda.time.DateTime;
 import org.openide.ErrorManager;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -81,14 +82,17 @@ public final class RecordEditorTopComponent extends TopComponent {
     private RecordActivityEditTableModel actModel;
 
     class MyInsulinDocumentListener implements DocumentListener {
+
         @Override
         public void insertUpdate(DocumentEvent e) {
             recordInsulinValidation();
         }
+
         @Override
         public void removeUpdate(DocumentEvent e) {
             recordInsulinValidation();
         }
+
         @Override
         public void changedUpdate(DocumentEvent e) {
             //Plain text components don't fire these events
@@ -96,14 +100,17 @@ public final class RecordEditorTopComponent extends TopComponent {
     }
 
     class MyActivityDocumentListener implements DocumentListener {
+
         @Override
         public void insertUpdate(DocumentEvent e) {
             recordActivityValidation();
         }
+
         @Override
         public void removeUpdate(DocumentEvent e) {
             recordActivityValidation();
         }
+
         @Override
         public void changedUpdate(DocumentEvent e) {
             //Plain text components don't fire these events
@@ -111,14 +118,17 @@ public final class RecordEditorTopComponent extends TopComponent {
     }
 
     class MyDocumentListener implements DocumentListener {
+
         @Override
         public void insertUpdate(DocumentEvent e) {
             recordInvestValidation();
         }
+
         @Override
         public void removeUpdate(DocumentEvent e) {
             recordInvestValidation();
         }
+
         @Override
         public void changedUpdate(DocumentEvent e) {
             //Plain text components don't fire these events
@@ -126,14 +136,17 @@ public final class RecordEditorTopComponent extends TopComponent {
     }
 
     class MyFoodDocumentListener implements DocumentListener {
+
         @Override
         public void insertUpdate(DocumentEvent e) {
             recordFoodValidation();
         }
+
         @Override
         public void removeUpdate(DocumentEvent e) {
             recordFoodValidation();
         }
+
         @Override
         public void changedUpdate(DocumentEvent e) {
             //Plain text components don't fire these events
@@ -148,11 +161,9 @@ public final class RecordEditorTopComponent extends TopComponent {
         initComponents();
         setName(NbBundle.getMessage(RecordEditorTopComponent.class, "CTL_RecordEditorTopComponent"));
         setToolTipText(NbBundle.getMessage(RecordEditorTopComponent.class, "HINT_RecordEditorTopComponent"));
-        setIcon(Utilities.loadImage(ICON_PATH, true));
+        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
 
-        insulinDatum.getDocument().addDocumentListener(new MyInsulinDocumentListener());
         insulinValue.getDocument().addDocumentListener(new MyInsulinDocumentListener());
-        insulinTime.getDocument().addDocumentListener(new MyInsulinDocumentListener());
 
         investDatum.getDocument().addDocumentListener(new MyDocumentListener());
         investValue.getDocument().addDocumentListener(new MyDocumentListener());
@@ -206,7 +217,7 @@ public final class RecordEditorTopComponent extends TopComponent {
 
     public RecordFoodEditTableModel getFoodModel() {
         if (foodModel == null) {
-            foodModel = new RecordFoodEditTableModel(new Date());
+            foodModel = new RecordFoodEditTableModel(new DateTime());
         }
         return foodModel;
     }
@@ -322,13 +333,12 @@ public final class RecordEditorTopComponent extends TopComponent {
     private void initComponents() {
 
         activityPanel = new javax.swing.JTabbedPane();
+        activityPanel.addTab("test", new RecordFoodEditorPanel());
         jPanel6 = new javax.swing.JPanel();
         jLabel16 = new javax.swing.JLabel();
         insulin = new javax.swing.JComboBox();
         jLabel17 = new javax.swing.JLabel();
         insulinUnit = new javax.swing.JComboBox();
-        insulinDatum = new javax.swing.JTextField();
-        insulinTime = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
         insulinSeason = new javax.swing.JComboBox();
         jLabel19 = new javax.swing.JLabel();
@@ -345,6 +355,7 @@ public final class RecordEditorTopComponent extends TopComponent {
         jScrollPane6 = new javax.swing.JScrollPane();
         insulinTable = new javax.swing.JTable();
         jLabel24 = new javax.swing.JLabel();
+        dateTimePanel1 = new org.diabetesdiary.commons.swing.calendar.DateTimePanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         invest = new javax.swing.JComboBox();
@@ -391,6 +402,7 @@ public final class RecordEditorTopComponent extends TopComponent {
         jLabel14 = new javax.swing.JLabel();
         foodValue = new JFormattedTextField(numberFormat);
         jLabel15 = new javax.swing.JLabel();
+        cancelFoodEdit = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jLabel25 = new javax.swing.JLabel();
         activity = new javax.swing.JComboBox();
@@ -427,8 +439,6 @@ public final class RecordEditorTopComponent extends TopComponent {
                 insulinUnitActionPerformed(evt);
             }
         });
-
-        insulinDatum.setColumns(10);
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel18, NbBundle.getMessage(RecordEditorTopComponent.class, "NewGlykemieWizard.datum")); // NOI18N
 
@@ -507,23 +517,20 @@ public final class RecordEditorTopComponent extends TopComponent {
                             .add(jLabel22))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(insulinType, 0, 274, Short.MAX_VALUE)
-                            .add(jPanel6Layout.createSequentialGroup()
-                                .add(insulinDatum, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 106, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(insulinTime, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE))
+                            .add(insulinType, 0, 303, Short.MAX_VALUE)
                             .add(jPanel6Layout.createSequentialGroup()
                                 .add(insulinValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(insulinSave, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
+                                .add(insulinSave, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(insulinDel))
-                            .add(insulinSeason, 0, 274, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, insulinUnit, 0, 274, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, insulin, 0, 274, Short.MAX_VALUE)))
+                            .add(insulinSeason, 0, 303, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, insulinUnit, 0, 303, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, insulin, 0, 303, Short.MAX_VALUE)
+                            .add(dateTimePanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 164, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(jLabel23)
-                    .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                    .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
                     .add(jLabel24))
                 .addContainerGap())
         );
@@ -544,10 +551,9 @@ public final class RecordEditorTopComponent extends TopComponent {
                     .add(jLabel17)
                     .add(insulinUnit, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel18)
-                    .add(insulinDatum, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(insulinTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(dateTimePanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel19)
@@ -565,7 +571,7 @@ public final class RecordEditorTopComponent extends TopComponent {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jLabel24)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
+                .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -662,18 +668,18 @@ public final class RecordEditorTopComponent extends TopComponent {
                             .add(jPanel1Layout.createSequentialGroup()
                                 .add(investDatum, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 106, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(investTime, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE))
+                                .add(investTime, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE))
                             .add(jPanel1Layout.createSequentialGroup()
                                 .add(investValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(investSave, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 62, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(investDel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE))
-                            .add(investUnit, 0, 262, Short.MAX_VALUE)
-                            .add(invest, 0, 262, Short.MAX_VALUE)
-                            .add(glykSeason, 0, 262, Short.MAX_VALUE)))
-                    .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                                .add(investDel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE))
+                            .add(investUnit, 0, 277, Short.MAX_VALUE)
+                            .add(invest, 0, 277, Short.MAX_VALUE)
+                            .add(glykSeason, 0, 277, Short.MAX_VALUE)))
+                    .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
                     .add(jLabel21))
                 .addContainerGap())
         );
@@ -714,7 +720,7 @@ public final class RecordEditorTopComponent extends TopComponent {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jLabel21)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+                .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -801,6 +807,13 @@ public final class RecordEditorTopComponent extends TopComponent {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel15, NbBundle.getMessage(RecordEditorTopComponent.class,"hintrecfood")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(cancelFoodEdit, org.openide.util.NbBundle.getMessage(RecordEditorTopComponent.class, "foodcancel")); // NOI18N
+        cancelFoodEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelFoodEditActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout jPanel5Layout = new org.jdesktop.layout.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -808,11 +821,11 @@ public final class RecordEditorTopComponent extends TopComponent {
             .add(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
-                    .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+                    .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
                     .add(jPanel5Layout.createSequentialGroup()
                         .add(jCheckBox1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 106, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 173, Short.MAX_VALUE)
                         .add(jLabel15))
                     .add(jLabel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jPanel5Layout.createSequentialGroup()
@@ -828,18 +841,20 @@ public final class RecordEditorTopComponent extends TopComponent {
                             .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel5Layout.createSequentialGroup()
                                 .add(foodDatum, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 106, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(foodTime, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE))
+                                .add(foodTime, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE))
                             .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel5Layout.createSequentialGroup()
                                 .add(foodValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(foodSave, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, foodSeason, 0, 274, Short.MAX_VALUE)
-                            .add(foodUnit, 0, 274, Short.MAX_VALUE)
-                            .add(baseGroup, 0, 274, Short.MAX_VALUE)
-                            .add(food, 0, 274, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, foodGroup, 0, 274, Short.MAX_VALUE)))
-                    .add(foodError)
-                    .add(jLabel12))
+                                .add(foodSave, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(cancelFoodEdit, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 88, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, foodSeason, 0, 303, Short.MAX_VALUE)
+                            .add(foodUnit, 0, 303, Short.MAX_VALUE)
+                            .add(baseGroup, 0, 303, Short.MAX_VALUE)
+                            .add(food, 0, 303, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, foodGroup, 0, 303, Short.MAX_VALUE)))
+                    .add(jLabel12)
+                    .add(foodError))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -880,7 +895,8 @@ public final class RecordEditorTopComponent extends TopComponent {
                         .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel11)
                             .add(foodSave)
-                            .add(foodValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                            .add(foodValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(cancelFoodEdit))))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 97, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -888,7 +904,7 @@ public final class RecordEditorTopComponent extends TopComponent {
                     .add(jCheckBox1)
                     .add(jLabel15))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
+                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -974,12 +990,12 @@ public final class RecordEditorTopComponent extends TopComponent {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(actValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(actSave, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
+                        .add(actSave, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(actDel))
                     .add(jLabel31)
-                    .add(jScrollPane8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                    .add(jScrollPane8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane7, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
                     .add(jLabel32)
                     .add(jPanel7Layout.createSequentialGroup()
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -990,9 +1006,9 @@ public final class RecordEditorTopComponent extends TopComponent {
                             .add(jPanel7Layout.createSequentialGroup()
                                 .add(actDate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 88, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(actTime, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE))
-                            .add(actType, 0, 283, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, activity, 0, 283, Short.MAX_VALUE))))
+                                .add(actTime, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE))
+                            .add(actType, 0, 300, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, activity, 0, 300, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
@@ -1025,7 +1041,7 @@ public final class RecordEditorTopComponent extends TopComponent {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jLabel32)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                .add(jScrollPane8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)
                 .add(59, 59, 59))
         );
 
@@ -1091,16 +1107,15 @@ private void jCheckBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIR
 
 private void foodSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodSaveActionPerformed
     if (recordFoodValidation()) {
-        RecordFood rec = MyLookup.getCurrentPatient().getRecordFood(getFoodDate(), getFood());
-        if (rec == null) {
+        if (selectedFoodRecord == null) {
             MyLookup.getCurrentPatient().addRecordFood(getFoodDate(), getFood(),
-                getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
+                    getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
         } else {
-            rec.update(getFoodDate(), getFood(), getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
+            selectedFoodRecord.update(getFoodDate(), getFood(), getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
         }
         CalendarTopComponent.getDefault().getModel().reloadData();
         CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
-        getFoodModel().setDate(getFoodDate().toDate());
+        getFoodModel().setDate(getFoodDate());
     }
 }//GEN-LAST:event_foodSaveActionPerformed
 
@@ -1123,9 +1138,9 @@ private void foodTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:e
 
     if (column == getFoodModel().getColumnCount() - 1 && getFoodModel().getRowCount() > 1) {
         if (row == getFoodModel().getRowCount() - 1) {
-            for(RecordFood rec : getFoodModel().getRecordFoods()){
+            for (RecordFood rec : getFoodModel().getRecordFoods()) {
                 rec.delete();
-            }            
+            }
         } else {
             getFoodModel().getRecordAt(row).delete();
         }
@@ -1152,7 +1167,7 @@ private void investSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     if (recordInvestValidation()) {
         if (selectedInvestRecord == null) {
             selectedInvestRecord = MyLookup.getCurrentPatient().addRecordInvest(
-                getInvestDate(), getInvestValue(), getInvest(), getInvestSeason(), getInvestNote());
+                    getInvestDate(), getInvestValue(), getInvest(), getInvestSeason(), getInvestNote());
         } else {
             selectedInvestRecord.update(getInvestDate(), getInvestValue(), getInvest(), getInvestSeason(), getInvestNote());
         }
@@ -1272,6 +1287,12 @@ private void actTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:ev
 private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insulinUnitActionPerformed
     recordFoodValidation();
 }//GEN-LAST:event_insulinUnitActionPerformed
+
+private void cancelFoodEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelFoodEditActionPerformed
+    selectedFoodRecord = null;
+    cancelFoodEdit.setVisible(false);
+}//GEN-LAST:event_cancelFoodEditActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField actDate;
     private javax.swing.JButton actDel;
@@ -1285,6 +1306,8 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JComboBox activity;
     private javax.swing.JTabbedPane activityPanel;
     private javax.swing.JComboBox baseGroup;
+    private javax.swing.JButton cancelFoodEdit;
+    private org.diabetesdiary.commons.swing.calendar.DateTimePanel dateTimePanel1;
     private javax.swing.JComboBox food;
     private javax.swing.JTextField foodDatum;
     private javax.swing.JLabel foodError;
@@ -1298,14 +1321,12 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JFormattedTextField foodValue;
     private javax.swing.JComboBox glykSeason;
     private javax.swing.JComboBox insulin;
-    private javax.swing.JTextField insulinDatum;
     private javax.swing.JButton insulinDel;
     private javax.swing.JLabel insulinError;
     private javax.swing.JTextArea insulinNote;
     private javax.swing.JButton insulinSave;
     private javax.swing.JComboBox insulinSeason;
     private javax.swing.JTable insulinTable;
-    private javax.swing.JTextField insulinTime;
     private javax.swing.JComboBox insulinType;
     private javax.swing.JComboBox insulinUnit;
     private javax.swing.JFormattedTextField insulinValue;
@@ -1363,6 +1384,7 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;
     // End of variables declaration//GEN-END:variables
+
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
      * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
@@ -1540,16 +1562,11 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     public DateTime getInsulinDate() {
-        try {
-            return new DateTime(dateTimeFormat.parse(insulinDatum.getText() + " " + insulinTime.getText()));
-        } catch (ParseException ex) {
-            return null;
-        }
+        return dateTimePanel1.getDateTime();
     }
 
-    public void setInsulinDate(Date insDate) {
-        insulinDatum.setText(dateFormat.format(insDate));
-        insulinTime.setText(timeFormat.format(insDate));
+    public void setInsulinDate(DateTime insDate) {
+        dateTimePanel1.setDateTime(insDate);
     }
 
     public InsulinSeason getInsulinSeason() {
@@ -1765,6 +1782,7 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private RecordInvest selectedInvestRecord;
     private RecordInsulin selectedInsulinRecord;
     private RecordActivity selectedActivityRecord;
+    private RecordFood selectedFoodRecord;
 
     public void setRecordInvests(RecordInvest[] recs) {
         selectedInvestRecord = null;
@@ -1790,29 +1808,36 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         getInvestModel().fireTableDataChanged();
     }
 
-    public void setRecordFoods(RecordFood[] recs) {
-        if (recs.length > 0 && recs[0] != null) {
-            RecordFood rec = recs[0];
-            activityPanel.setSelectedComponent(jPanel5);
-            setFoodValue(rec.getAmount());
-            foodModel.setDate(rec.getDatetime().toDate());
-            setFoodDate(rec.getDatetime().toDate());
-            setFoodNote(rec.getNotice());
-            FoodGroup foodGrp = rec.getFood().getFoodGroup();
-            if (foodGrp.getParent() != null && foodGrp.getParent().getId() != null) {
-                baseGroup.setSelectedItem(foodGrp.getParent());
-                foodGroup.setSelectedItem(foodGrp);
-            } else {
-                baseGroup.setSelectedItem(foodGrp);
-            }
-            setFood(rec.getFood());
-            setFoodUnit(rec.getUnit());
-            if (rec.getSeason() != null) {
-                setFoodSeason(rec.getSeason());
-            }
+    public void setFoodComponents(DateTime date, Double amount, String notice, Food food, FoodUnit unit, FoodSeason season) {
+        activityPanel.setSelectedComponent(jPanel5);
+        foodModel.setDate(date);
+        cancelFoodEdit.setVisible(selectedFoodRecord != null);
+        FoodGroup group = food.getFoodGroup();
+        if (group.getParent() != null) {
+            baseGroup.setSelectedItem(group.getParent());
+            foodGroup.setSelectedItem(group);
+        } else {
+            baseGroup.setSelectedItem(group);
         }
+        setFoodValue(amount);
+        setFoodDate(date.toDate());
+        setFoodNote(notice);
+        setFood(food);
+        setFoodUnit(unit);
+        setFoodSeason(season);
+        
         getFoodModel().fillData();
         getFoodModel().fireTableDataChanged();
+    }
+
+    public void setRecordFoods(RecordFood[] recs) {
+        selectedFoodRecord = null;
+        if (recs.length > 0 && recs[0] != null) {
+            RecordFood rec = recs[0];
+            selectedFoodRecord = rec;
+            setFoodComponents(rec.getDatetime(), rec.getAmount(), rec.getNotice(), rec.getFood(), rec.getUnit(), rec.getSeason());
+            cancelFoodEdit.setVisible(true);
+        }
     }
 
     public void setRecordInsulins(RecordInsulin[] recs) {
@@ -1828,7 +1853,7 @@ private void insulinUnitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                 insulinDel.setEnabled(true);
             }
             activityPanel.setSelectedComponent(jPanel6);
-            setInsulinDate(rec.getDatetime().toDate());
+            setInsulinDate(rec.getDatetime());
             insulinType.setSelectedItem(rec.getInsulin().getType());
             setInsulin(rec.getInsulin());
             setInsulinValue(rec.getAmount() != null ? rec.getAmount() : 0d);

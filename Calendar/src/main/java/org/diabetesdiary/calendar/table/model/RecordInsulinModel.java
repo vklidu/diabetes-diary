@@ -19,8 +19,13 @@ package org.diabetesdiary.calendar.table.model;
 
 import java.util.Calendar;
 import java.util.Collection;
-import javax.swing.table.TableColumnModel;
+import java.util.List;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
+import org.diabetesdiary.calendar.table.renderer.InsulinCellRenderer;
 import org.diabetesdiary.diary.domain.InsulinSeason;
 import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.diabetesdiary.diary.utils.MyLookup;
@@ -46,7 +51,7 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel cm, int baseIndex) {
+    public ColumnGroup getColumnHeader(List<TableColumn> cols) {
         ColumnGroup gInsulin = new ColumnGroup(NbBundle.getMessage(RecordInsulinModel.class, "Column.insulin"));
         ColumnGroup gInsBr = new ColumnGroup(NbBundle.getMessage(RecordInsulinModel.class, "Column.breakfest"));
         ColumnGroup gInsDin = new ColumnGroup(NbBundle.getMessage(RecordInsulinModel.class, "Column.dinner"));
@@ -55,15 +60,15 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
         gInsulin.add(gInsDin);
         gInsulin.add(gInsLaun);
 
-        gInsBr.add(cm.getColumn(baseIndex));
-        gInsBr.add(cm.getColumn(baseIndex + 1));
+        gInsBr.add(cols.get(0));
+        gInsBr.add(cols.get(1));
 
-        gInsDin.add(cm.getColumn(baseIndex + 2));
+        gInsDin.add(cols.get(2));
 
-        gInsLaun.add(cm.getColumn(baseIndex + 3));
-        gInsLaun.add(cm.getColumn(baseIndex + 4));
+        gInsLaun.add(cols.get(3));
+        gInsLaun.add(cols.get(4));
 
-        gInsulin.add(cm.getColumn(baseIndex + 5));
+        gInsulin.add(cols.get(5));
 
         return gInsulin;
     }
@@ -100,36 +105,36 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
         boolean bolus = true;
         InsulinSeason seas;
         switch (columnIndex) {
-            case 0:
-                seas = InsulinSeason.B;
-                break;
-            case 1:
-                bolus = false;
-                seas = InsulinSeason.B;
-                break;
-            case 2:
-                seas = InsulinSeason.D;
-                break;
-            case 3:
-                seas = InsulinSeason.L;
-                break;
-            case 4:
-                bolus = false;
-                seas = InsulinSeason.L;
-                break;
-            case 5:
-                seas = InsulinSeason.ADD;
-                break;
-            default:
-                seas = InsulinSeason.ADD;
-                break;
+        case 0:
+        seas = InsulinSeason.B;
+        break;
+        case 1:
+        bolus = false;
+        seas = InsulinSeason.B;
+        break;
+        case 2:
+        seas = InsulinSeason.D;
+        break;
+        case 3:
+        seas = InsulinSeason.L;
+        break;
+        case 4:
+        bolus = false;
+        seas = InsulinSeason.L;
+        break;
+        case 5:
+        seas = InsulinSeason.ADD;
+        break;
+        default:
+        seas = InsulinSeason.ADD;
+        break;
         }
         if (bolus) {
-            pk.setIdInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBolusInsulin().getId());
-            rec.setInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBolusInsulin());
+        pk.setIdInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBolusInsulin().getId());
+        rec.setInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBolusInsulin());
         } else {
-            pk.setIdInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBasalInsulin().getId());
-            rec.setInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBasalInsulin());
+        pk.setIdInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBasalInsulin().getId());
+        rec.setInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBasalInsulin());
         }
         pk.setDate(getClickCellDate(rowIndex, columnIndex));
         pk.setBasal(!bolus);
@@ -174,15 +179,19 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
                     break;
             }
 
-            RecordInsulin rec = MyLookup.getCurrentPatient().addRecordInsulin(
-                    getClickCellDate(rowIndex, columnIndex),
-                    !bolus,
-                    (Double)value,
-                    seas,
-                    null);
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(rec.getDatetime().getMillis());
-            dataIns[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = rec;
+            DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
+            RecordInsulin edited = dataIns[recDateTime.getDayOfMonth() - 1][columnIndex][0];
+            if (edited != null) {
+                edited = edited.update((Double) value);
+            } else {
+                edited = MyLookup.getCurrentPatient().addRecordInsulin(
+                        getClickCellDate(rowIndex, columnIndex),
+                        !bolus,
+                        (Double) value,
+                        seas,
+                        null);
+            }
+            dataIns[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
         }
     }
 
@@ -288,4 +297,24 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
         dataIns = null;
     }
 
+    @Override
+    public TableCellRenderer getCellRenderer(int columnIndex) {
+        return new InsulinCellRenderer();
+    }
+
+    @Override
+    public TableCellEditor getCellEditor(int columnIndex) {
+        return new NumberEditor<Double, Object>(0d, 50d) {
+
+            @Override
+            public Double getValue(Object object) {
+                if (object instanceof RecordInsulin) {
+                    return ((RecordInsulin) object).getAmount();
+                } else if (object instanceof RecordInsulin[]) {
+                    return ((RecordInsulin[]) object)[0].getAmount();
+                }
+                return null;
+            }
+        };
+    }
 }

@@ -18,7 +18,7 @@
 package org.diabetesdiary.calendar.table.model;
 
 import java.util.List;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.utils.FormatUtils;
 import org.diabetesdiary.calendar.option.CalendarSettings;
@@ -52,12 +52,12 @@ public class SumModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel columnModel, int baseIndex) {
+    public ColumnGroup getColumnHeader(List<TableColumn> cols) {
         ColumnGroup gSum = new ColumnGroup(NbBundle.getMessage(SumModel.class, "Column.suma"));
-        gSum.add(columnModel.getColumn(baseIndex));
-        gSum.add(columnModel.getColumn(baseIndex + 1));
-        gSum.add(columnModel.getColumn(baseIndex + 2));
-        gSum.add(columnModel.getColumn(baseIndex + 3));
+        gSum.add(cols.get(0));
+        gSum.add(cols.get(1));
+        gSum.add(cols.get(2));
+        gSum.add(cols.get(3));
 
         return gSum;
     }

@@ -54,6 +54,10 @@ public class MyModuleInstall extends ModuleInstall {
         ctx.refresh();
     }
 
+    @Override
+    public void close() {
+        ctx.close();
+    }
     
     private static class PathMatchingResourcePatternResolverEx extends PathMatchingResourcePatternResolver {
 

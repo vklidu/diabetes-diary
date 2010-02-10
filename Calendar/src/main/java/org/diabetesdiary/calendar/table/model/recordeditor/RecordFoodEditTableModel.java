@@ -20,8 +20,6 @@ package org.diabetesdiary.calendar.table.model.recordeditor;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
@@ -42,14 +40,12 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
     private static NumberFormat format = NumberFormat.getInstance();
     private boolean detail = false;
     private DiaryRepository diary;
-    private Date date;
-    private Date dateFrom;
-    private Date dateTo;
+    private DateTime date;
     private List<RecordFood> recordFoods;
     private static final String DELETE_ICO = "org/diabetesdiary/calendar/resources/delete16.png";
 
     /** Creates a new instance of CalendarTableModel */
-    public RecordFoodEditTableModel(Date date) {
+    public RecordFoodEditTableModel(DateTime date) {
         diary = MyLookup.getDiaryRepo();
         this.date = date;
     }
@@ -58,29 +54,17 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
         return recordFoods;
     }
 
-    public void setDate(Date date) {
+    public void setDate(DateTime date) {
         this.date = date;
-        if (date != null) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(date.getTime());
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            this.dateFrom = cal.getTime();
-            cal.add(Calendar.DAY_OF_MONTH, 1);
-            this.dateTo = cal.getTime();
-        } else {
-            this.dateFrom = null;
-            this.dateTo = null;
-        }
         fillData();
     }
 
     public void fillData() {
         //no data => end
-        if (MyLookup.getCurrentPatient() == null || dateFrom == null || dateTo == null) {
+        if (MyLookup.getCurrentPatient() == null || date == null) {
             return;
         }
-        recordFoods = MyLookup.getCurrentPatient().getRecordFoods(new DateTime(dateFrom), new DateTime(dateTo));
+        recordFoods = MyLookup.getCurrentPatient().getRecordFoods(date.toDateMidnight().toDateTime(), date.toDateMidnight().plusDays(1).toDateTime());
     }
 
     @Override
@@ -302,7 +286,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
         fireTableStructureChanged();
     }
 
-    public Date getDate() {
+    public DateTime getDate() {
         return date;
     }
 

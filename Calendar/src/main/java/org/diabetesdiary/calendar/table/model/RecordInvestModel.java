@@ -19,8 +19,12 @@ package org.diabetesdiary.calendar.table.model;
 
 import java.util.Calendar;
 import java.util.List;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
+import org.diabetesdiary.calendar.table.renderer.GlykemieCellRenderer;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.domain.InvSeason;
 import org.diabetesdiary.diary.domain.Patient;
@@ -47,7 +51,7 @@ public class RecordInvestModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public ColumnGroup getColumnHeader(TableColumnModel cm, int baseIndex) {
+    public ColumnGroup getColumnHeader(List<TableColumn> cols) {
         ColumnGroup gGlyk = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.glykemie"));
         ColumnGroup gBreak = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.breakfest"));
         ColumnGroup gDinner = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.dinner"));
@@ -56,18 +60,18 @@ public class RecordInvestModel extends AbstractRecordSubModel {
         gGlyk.add(gBreak);
         gGlyk.add(gDinner);
         gGlyk.add(gLaunch);
-        gGlyk.add(cm.getColumn(baseIndex));
-        gGlyk.add(cm.getColumn(baseIndex + 7));
-        gGlyk.add(cm.getColumn(baseIndex + 8));
+        gGlyk.add(cols.get(0));
+        gGlyk.add(cols.get(7));
+        gGlyk.add(cols.get(8));
 
-        gBreak.add(cm.getColumn(baseIndex + 1));
-        gBreak.add(cm.getColumn(baseIndex + 2));
+        gBreak.add(cols.get(1));
+        gBreak.add(cols.get(2));
 
-        gDinner.add(cm.getColumn(baseIndex + 3));
-        gDinner.add(cm.getColumn(baseIndex + 4));
+        gDinner.add(cols.get(3));
+        gDinner.add(cols.get(4));
 
-        gLaunch.add(cm.getColumn(baseIndex + 5));
-        gLaunch.add(cm.getColumn(baseIndex + 6));
+        gLaunch.add(cols.get(5));
+        gLaunch.add(cols.get(6));
 
         return gGlyk;
     }
@@ -119,21 +123,20 @@ public class RecordInvestModel extends AbstractRecordSubModel {
                 seas = InvSeason.values()[columnIndex - 1];
             }
 
-            RecordInvest rec = pat.addRecordInvest(
-                    getClickCellDate(rowIndex, columnIndex),
-                    (Double) value,
-                    MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCEMIE),
-                    seas,
-                    null);
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(rec.getDatetime().getMillis());
-            dataInvest[cal.get(Calendar.DAY_OF_MONTH) - 1][columnIndex][0] = rec;
+            DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
+            RecordInvest edited = dataInvest[recDateTime.getDayOfMonth() - 1][columnIndex][0];
+            if (edited != null) {
+                edited = edited.update((Double) value);
+            } else {
+                edited = pat.addRecordInvest(
+                        getClickCellDate(rowIndex, columnIndex),
+                        (Double) value,
+                        MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCEMIE),
+                        seas,
+                        null);
+            }
+            dataInvest[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
         }
-    }
-
-    @Override
-    public Class<?> getColumnClass(int columnIndex) {
-        return RecordInvest.class;
     }
 
     @Override
@@ -236,5 +239,26 @@ public class RecordInvestModel extends AbstractRecordSubModel {
     @Override
     public void invalidateData() {
         dataInvest = null;
+    }
+
+    @Override
+    public TableCellRenderer getCellRenderer(int columnIndex) {
+        return new GlykemieCellRenderer();
+    }
+
+    @Override
+    public TableCellEditor getCellEditor(int columnIndex) {
+        return new NumberEditor<Double, Object>(0d, 40d) {
+
+            @Override
+            public Double getValue(Object object) {
+                if (object instanceof RecordInvest) {
+                    return ((RecordInvest) object).getValue();
+                } else if (object instanceof RecordInvest[]) {
+                    return ((RecordInvest[]) object)[0].getValue();
+                }
+                return null;
+            }
+        };
     }
 }
