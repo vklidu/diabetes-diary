@@ -141,7 +141,7 @@ public class OtherInvestModel extends AbstractRecordSubModel {
         return null;
     }
 
-    private DateTime getClickCellDate(int row, int column) {
+    public DateTime getClickCellDate(int row, int column) {
         return dateTime.withDayOfMonth(row + 1).withTime(12, 0, 0, 0);
     }
 
@@ -162,7 +162,7 @@ public class OtherInvestModel extends AbstractRecordSubModel {
         }
     }
 
-    private WKInvest getClickCellInvestId(int rowIndex, int columnIndex) {
+    public WKInvest getClickCellInvestId(int rowIndex, int columnIndex) {
         switch (columnIndex) {
             case 0:
                 return WKInvest.WEIGHT;//weight

@@ -18,11 +18,9 @@
 package org.diabetesdiary.diary.domain;
 
 import com.google.common.base.Function;
-import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.diary.service.db.InvestigationDO;
 import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,32 +29,17 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Jirka Majer
  */
 @Configurable
-public class RecordInvest extends AbstractDomainObject {
+public class RecordInvest extends AbstractRecord {
 
-    @Autowired
-    private transient DiaryRepository repository;
-    
-    private Patient patient;
-    private final Long idPatient;
-    private final DateTime datetime;
     private final Double value;
     private final Investigation invest;
     private final InvSeason season;
-    private final String notice;
 
     public RecordInvest(RecordInvestDO rec) {
-        super(rec.getId());
-        this.idPatient = rec.getPatient().getId();
-        this.datetime = rec.getDate();
+        super(rec.getId(), rec.getPatient(), rec.getDate(), rec.getNotice());
         this.value = rec.getValue();
         this.invest = new Investigation(rec.getInvest());
         this.season = rec.getSeason();
-        this.notice = rec.getNotice();
-    }
-
-    @Transactional
-    public void delete() {
-        getSession().delete(getSession().load(RecordInvestDO.class, id));
     }
 
     @Transactional
@@ -73,24 +56,13 @@ public class RecordInvest extends AbstractDomainObject {
     public RecordInvest update(Double value) {
         return update(datetime, value, invest, season, notice);
     }
-
     public static Function<RecordInvestDO, RecordInvest> CREATE_FUNCTION = new Function<RecordInvestDO, RecordInvest>() {
+
         @Override
         public RecordInvest apply(RecordInvestDO activityDO) {
             return new RecordInvest(activityDO);
         }
     };
-
-    public Patient getPatient() {
-        if (patient == null) {
-            patient = repository.getPatient(idPatient);
-        }
-        return patient;
-    }
-
-    public DateTime getDatetime() {
-        return datetime;
-    }
 
     public Double getValue() {
         return value;
@@ -104,8 +76,8 @@ public class RecordInvest extends AbstractDomainObject {
         return season;
     }
 
-    public String getNotice() {
-        return notice;
+    @Override
+    protected Class getPersistentClass() {
+        return RecordInvestDO.class;
     }
-
 }

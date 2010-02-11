@@ -24,6 +24,8 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
+import org.diabetesdiary.calendar.utils.DataChangedEvent;
+import org.diabetesdiary.calendar.utils.DataChangedListener;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.diary.domain.RecordFood;
@@ -35,7 +37,7 @@ import org.openide.util.Utilities;
  *
  * @author Jiri Majer
  */
-public class RecordFoodEditTableModel extends AbstractTableModel {
+public class RecordFoodEditTableModel extends AbstractTableModel implements DataChangedListener {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private boolean detail = false;
@@ -56,15 +58,16 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
 
     public void setDate(DateTime date) {
         this.date = date;
-        fillData();
+        refreshData();
     }
 
-    public void fillData() {
+    public void refreshData() {
         //no data => end
         if (MyLookup.getCurrentPatient() == null || date == null) {
             return;
         }
         recordFoods = MyLookup.getCurrentPatient().getRecordFoods(date.toDateMidnight().toDateTime(), date.toDateMidnight().plusDays(1).toDateTime());
+        fireTableDataChanged();
     }
 
     @Override
@@ -254,7 +257,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
             case 1:
                 return NbBundle.getMessage(RecordFoodEditTableModel.class, "Time");
             case 2:
-                return NbBundle.getMessage(RecordInsulinEditTableModel.class, "Season");               
+                return NbBundle.getMessage(RecordInsulinEditTableModel.class, "Season");
             case 3:
                 return NbBundle.getMessage(RecordFoodEditTableModel.class, "Celkem");
             case 4:
@@ -305,4 +308,12 @@ public class RecordFoodEditTableModel extends AbstractTableModel {
 
         return super.getColumnClass(columnIndex);
     }
+
+    @Override
+    public void onDataChanged(DataChangedEvent evt) {
+        if (evt.getDataChangedClazz() == null || evt.getDataChangedClazz().equals(RecordFood.class)) {
+            refreshData();
+        }
+    }
+
 }

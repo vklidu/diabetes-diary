@@ -230,7 +230,7 @@ public class Patient extends AbstractDomainObject {
     @Transactional(readOnly=true)
     public List<RecordFood> getRecordFoods(DateTime date) {
         List<RecordFoodDO> result = getSession().createCriteria(RecordFoodDO.class)
-                .add(Restrictions.ge("datetime", date))
+                .add(Restrictions.eq("datetime", date))
                 .add(Restrictions.eq("patient.id", id)).list();
         return Lists.newArrayList(Lists.transform(result, RecordFood.CREATE_FUNCTION));
     }
@@ -238,10 +238,37 @@ public class Patient extends AbstractDomainObject {
     @Transactional(readOnly=true)
     public RecordFood getRecordFood(DateTime date, Food food) {
         RecordFoodDO res = (RecordFoodDO) getSession().createCriteria(RecordFoodDO.class)
-                .add(Restrictions.ge("datetime", date))
-                .add(Restrictions.ge("food.id", food.getId()))
+                .add(Restrictions.eq("datetime", date))
+                .add(Restrictions.eq("food.id", food.getId()))
                 .add(Restrictions.eq("patient.id", id)).uniqueResult();
         return res == null ? null : new RecordFood(res);
+    }
+
+    @Transactional(readOnly=true)
+    public RecordInsulin getRecordInsulin(DateTime date, Insulin ins) {
+        RecordInsulinDO res = (RecordInsulinDO) getSession().createCriteria(RecordInsulinDO.class)
+                .add(Restrictions.eq("datetime", date))
+                .add(Restrictions.eq("insulin.id", ins.getId()))
+                .add(Restrictions.eq("patient.id", id)).uniqueResult();
+        return res == null ? null : new RecordInsulin(res);
+    }
+
+    @Transactional(readOnly=true)
+    public RecordInvest getRecordInvest(DateTime date, Investigation inv) {
+        RecordInvestDO res = (RecordInvestDO) getSession().createCriteria(RecordInvestDO.class)
+                .add(Restrictions.eq("datetime", date))
+                .add(Restrictions.eq("invest.id", inv.getId()))
+                .add(Restrictions.eq("patient.id", id)).uniqueResult();
+        return res == null ? null : new RecordInvest(res);
+    }
+
+    @Transactional(readOnly=true)
+    public RecordActivity getRecordActivity(DateTime date, Activity act) {
+        RecordActivityDO res = (RecordActivityDO) getSession().createCriteria(RecordActivityDO.class)
+                .add(Restrictions.eq("datetime", date))
+                .add(Restrictions.eq("activity.id", act.getId()))
+                .add(Restrictions.eq("patient.id", id)).uniqueResult();
+        return res == null ? null : new RecordActivity(res);
     }
 
     public static Function<PatientDO, Patient> CREATE_FUNCTION = new Function<PatientDO, Patient>() {

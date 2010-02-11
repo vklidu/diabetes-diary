@@ -112,16 +112,14 @@ public class RecordInvestModel extends AbstractRecordSubModel {
         return null;
     }
 
+    public InvSeason getSeason(int columnIndex) {
+        return columnIndex == 0 ? InvSeason.M : InvSeason.values()[columnIndex - 1];
+    }
+
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
             Patient pat = MyLookup.getCurrentPatient();
-            InvSeason seas;
-            if (columnIndex == 0) {
-                seas = InvSeason.M;
-            } else {
-                seas = InvSeason.values()[columnIndex - 1];
-            }
 
             DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
             RecordInvest edited = dataInvest[recDateTime.getDayOfMonth() - 1][columnIndex][0];
@@ -132,7 +130,7 @@ public class RecordInvestModel extends AbstractRecordSubModel {
                         getClickCellDate(rowIndex, columnIndex),
                         (Double) value,
                         MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCEMIE),
-                        seas,
+                        getSeason(columnIndex),
                         null);
             }
             dataInvest[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
@@ -199,7 +197,7 @@ public class RecordInvestModel extends AbstractRecordSubModel {
         }
     }
 
-    private DateTime getClickCellDate(int row, int column) {
+    public DateTime getClickCellDate(int row, int column) {
         int hourOfDay;
         switch (column) {
             case 0:

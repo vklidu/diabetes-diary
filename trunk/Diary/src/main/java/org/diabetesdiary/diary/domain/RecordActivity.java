@@ -30,28 +30,17 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Jirka Majer
  */
 @Configurable
-public class RecordActivity extends AbstractDomainObject {
+public class RecordActivity extends AbstractRecord {
 
-    private final Patient patient;
-    private final DateTime datetime;
     private final Activity activity;
     private final Integer duration;//minutes
-    private final String notice;
 
     public RecordActivity(RecordActivityDO activityDO) {
-        super(activityDO.getId());
-        this.patient = new Patient(activityDO.getPatient());
-        this.datetime = activityDO.getDate();
+        super(activityDO.getId(), activityDO.getPatient(), activityDO.getDate(), activityDO.getNotice());
         this.activity = new Activity(activityDO.getActivity());
         this.duration = activityDO.getDuration();
-        this.notice = activityDO.getNotice();
     }
     
-    @Transactional
-    public void delete() {
-        getSession().delete(getSession().load(RecordActivityDO.class, id));
-    }
-
     @Transactional
     public RecordActivity update(DateTime actDate, Activity activity, Integer duration, String actNote) {
         RecordActivityDO rec = (RecordActivityDO) getSession().load(RecordActivityDO.class, id);
@@ -86,14 +75,6 @@ public class RecordActivity extends AbstractDomainObject {
         }
     };
 
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public DateTime getDatetime() {
-        return datetime;
-    }
-
     public Activity getActivity() {
         return activity;
     }
@@ -102,8 +83,9 @@ public class RecordActivity extends AbstractDomainObject {
         return duration;
     }
 
-    public String getNotice() {
-        return notice;
+    @Override
+    protected Class getPersistentClass() {
+        return RecordActivityDO.class;
     }
 
 }

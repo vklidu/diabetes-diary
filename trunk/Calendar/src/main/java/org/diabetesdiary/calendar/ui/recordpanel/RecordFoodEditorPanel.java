@@ -21,14 +21,9 @@ import java.awt.event.ItemEvent;
 import java.util.Arrays;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JFormattedTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.calendar.table.model.recordeditor.RecordFoodEditTableModel;
-import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.RecordEditorTopComponent;
-import org.diabetesdiary.commons.swing.calendar.DateTimePicker;
 import org.diabetesdiary.diary.domain.Food;
 import org.diabetesdiary.diary.domain.FoodGroup;
 import org.diabetesdiary.diary.domain.FoodSeason;
@@ -40,44 +35,20 @@ import org.openide.util.NbBundle;
 
 /**
  *
- * @author Jirka
+ * @author Jirka Majer
  */
 public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood> {
 
-    private RecordFoodEditTableModel foodModel;
+    private final RecordFoodEditTableModel foodModel = new RecordFoodEditTableModel(new DateTime());
 
     public RecordFoodEditorPanel() {
         initComponents();
-    }
-
-    class MyFoodDocumentListener implements DocumentListener {
-
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            recordFoodValidation();
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            recordFoodValidation();
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            //Plain text components don't fire these events
-        }
+        addDataChangedListener(foodModel);
     }
 
     private ComboBoxModel createFoodSeasonModel() {
         DefaultComboBoxModel model = new DefaultComboBoxModel(FoodSeason.values());
         return model;
-    }
-
-    public RecordFoodEditTableModel getFoodModel() {
-        if (foodModel == null) {
-            foodModel = new RecordFoodEditTableModel(new DateTime());
-        }
-        return foodModel;
     }
 
     private ComboBoxModel createFoodComboModel(FoodGroup group) {
@@ -113,12 +84,9 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        foodError = new javax.swing.JLabel();
         foodUnit = new javax.swing.JComboBox();
         jCheckBox1 = new javax.swing.JCheckBox();
         jLabel8 = new javax.swing.JLabel();
-        foodSave = new javax.swing.JButton();
-        cancelFoodEdit = new javax.swing.JButton();
         jLabel13 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
@@ -132,14 +100,10 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        foodValue = new JFormattedTextField(numberFormat);
         jScrollPane2 = new javax.swing.JScrollPane();
         foodNote = new javax.swing.JTextArea();
         jLabel15 = new javax.swing.JLabel();
-        dateTimePanel1 = new org.diabetesdiary.commons.swing.calendar.DateTimePanel();
-
-        foodError.setForeground(new java.awt.Color(255, 0, 0));
-        foodError.setText("error");
+        foodValue = new javax.swing.JSpinner();
 
         jCheckBox1.setText(NbBundle.getMessage(RecordFoodEditorPanel.class,"detail")); // NOI18N
         jCheckBox1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -148,22 +112,13 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
                 jCheckBox1ItemStateChanged(evt);
             }
         });
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
 
         jLabel8.setText(NbBundle.getMessage(RecordFoodEditorPanel.class,"unit")); // NOI18N
-
-        foodSave.setText(NbBundle.getMessage(RecordFoodEditorPanel.class,"foodadd")); // NOI18N
-        foodSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                foodSaveActionPerformed(evt);
-            }
-        });
-
-        cancelFoodEdit.setText(org.openide.util.NbBundle.getMessage(RecordFoodEditorPanel.class, "foodcancel")); // NOI18N
-        cancelFoodEdit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelFoodEditActionPerformed(evt);
-            }
-        });
 
         jLabel13.setText(NbBundle.getMessage(RecordFoodEditorPanel.class,"foodgroup")); // NOI18N
 
@@ -189,7 +144,7 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
 
         foodSeason.setModel(createFoodSeasonModel());
 
-        foodTable.setModel(getFoodModel());
+        foodTable.setModel(foodModel);
         foodTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 foodTableMouseClicked(evt);
@@ -211,149 +166,131 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
 
         jLabel12.setText(NbBundle.getMessage(RecordFoodEditorPanel.class, "NewGlykemieWizard.notice")); // NOI18N
 
-        foodValue.setColumns(5);
-        foodValue.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                foodValueActionPerformed(evt);
-            }
-        });
-
         foodNote.setColumns(20);
         foodNote.setRows(5);
         jScrollPane2.setViewportView(foodNote);
 
         jLabel15.setText(NbBundle.getMessage(RecordFoodEditorPanel.class,"hintrecfood")); // NOI18N
 
+        foodValue.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.0d), Double.valueOf(0.0d), null, Double.valueOf(1.0d)));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel12))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
                         .addComponent(jCheckBox1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 205, Short.MAX_VALUE)
-                        .addComponent(jLabel15))
-                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
+                        .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(errorLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel8)
-                            .addComponent(jLabel10)
-                            .addComponent(jLabel11)
-                            .addComponent(jLabel13)
                             .addComponent(jLabel14)
-                            .addComponent(jLabel9))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabel13)
+                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel10))
+                        .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dateTimePanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(foodSeason, 0, 163, Short.MAX_VALUE)
+                            .addComponent(foodUnit, 0, 163, Short.MAX_VALUE)
+                            .addComponent(food, 0, 163, Short.MAX_VALUE)
+                            .addComponent(foodGroup, javax.swing.GroupLayout.Alignment.TRAILING, 0, 163, Short.MAX_VALUE)
+                            .addComponent(baseGroup, 0, 163, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(dateTimePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel11)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(foodValue, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(foodSave, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cancelFoodEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(foodSeason, 0, 335, Short.MAX_VALUE)
-                            .addComponent(foodUnit, javax.swing.GroupLayout.Alignment.TRAILING, 0, 335, Short.MAX_VALUE)
-                            .addComponent(baseGroup, javax.swing.GroupLayout.Alignment.TRAILING, 0, 335, Short.MAX_VALUE)
-                            .addComponent(food, javax.swing.GroupLayout.Alignment.TRAILING, 0, 335, Short.MAX_VALUE)
-                            .addComponent(foodGroup, 0, 335, Short.MAX_VALUE)))
-                    .addComponent(jLabel12)
-                    .addComponent(foodError))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(saveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(foodError)
+                .addComponent(errorLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel13)
-                    .addComponent(baseGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(baseGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13))
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel14)
-                    .addComponent(foodGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(foodGroup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14))
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(food, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(food, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(foodUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(foodUnit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8))
+                .addGap(7, 7, 7)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(foodSeason, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10))
+                .addGap(7, 7, 7)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(dateTimePanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel9))
+                    .addComponent(jLabel9)
+                    .addComponent(dateTimePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(foodSeason, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(jLabel10)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(40, 40, 40)
-                        .addComponent(jLabel12))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel11)
-                            .addComponent(foodSave)
-                            .addComponent(foodValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cancelFoodEdit))))
+                        .addGap(1, 1, 1)
+                        .addComponent(jLabel11))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(foodValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(saveButton)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(deleteButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(cancelButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCheckBox1)
                     .addComponent(jLabel15))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void jCheckBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBox1ItemStateChanged
-        getFoodModel().setDetail(evt.getStateChange() == ItemEvent.SELECTED);
+        foodModel.setDetail(evt.getStateChange() == ItemEvent.SELECTED);
 }//GEN-LAST:event_jCheckBox1ItemStateChanged
 
-    private void foodSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodSaveActionPerformed
-        DateTime date = new DateTimePicker().getDateTimeFromUser();
-        if (date != null) {
-            setError(date.toString());
-        } else {
-            setError("TEST");
-        }
-        /*
-        if (recordFoodValidation()) {
-        if (selectedFoodRecord == null) {
-        MyLookup.getCurrentPatient().addRecordFood(getFoodDate(), getFood(),
-        getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
-        } else {
-        selectedFoodRecord.update(getFoodDate(), getFood(), getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), getFoodNote());
-        }
-        CalendarTopComponent.getDefault().getModel().reloadData();
-        CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
-        getFoodModel().setDate(getFoodDate());
-        }
-         * 
-         */
-}//GEN-LAST:event_foodSaveActionPerformed
-
-    private void cancelFoodEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelFoodEditActionPerformed
-        selectedFoodRecord = null;
-        cancelFoodEdit.setVisible(false);
-}//GEN-LAST:event_cancelFoodEditActionPerformed
-
     private void foodActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodActionPerformed
-        Food foodf = (Food) food.getSelectedItem();
-        if (foodf != null) {
-            foodUnit.setModel(createFoodUnitsModel(foodf));
+        if (getFood() != null) {
+            foodUnit.setModel(createFoodUnitsModel(getFood()));
         }
 }//GEN-LAST:event_foodActionPerformed
 
@@ -368,22 +305,25 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
 
         //int column = foodTable.columnAtPoint(e.getPoint());
         if (!evt.isPopupTrigger()) {
-            RecordFood rec = getFoodModel().getRecordAt(row);
-            setRecordFoods(new RecordFood[]{rec});
+            RecordFood rec = foodModel.getRecordAt(row);
+            if (rec != null) {
+                setRecord(new RecordFood[]{rec});
+            }
         }
 
-        if (column == getFoodModel().getColumnCount() - 1 && getFoodModel().getRowCount() > 1) {
-            if (row == getFoodModel().getRowCount() - 1) {
-                for (RecordFood rec : getFoodModel().getRecordFoods()) {
+        if (column == foodModel.getColumnCount() - 1 && foodModel.getRowCount() > 1) {
+            if (row == foodModel.getRowCount() - 1) {
+                for (RecordFood rec : foodModel.getRecordFoods()) {
                     rec.delete();
                 }
+                setRecord(null);
             } else {
-                getFoodModel().getRecordAt(row).delete();
+                if (foodModel.getRecordAt(row).equals(getSelectedRecord())) {
+                    setRecord(null);
+                }
+                foodModel.getRecordAt(row).delete();
             }
-            CalendarTopComponent.getDefault().getModel().reloadData();
-            CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
-            getFoodModel().fillData();
-            getFoodModel().fireTableDataChanged();
+            foodModel.refreshData();            
         }
 }//GEN-LAST:event_foodTableMouseClicked
 
@@ -401,12 +341,36 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
         }
 }//GEN-LAST:event_baseGroupActionPerformed
 
-    private void foodValueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodValueActionPerformed
-}//GEN-LAST:event_foodValueActionPerformed
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
 
-    public void setFoodComponents(DateTime date, Double amount, String notice, Food food, FoodUnit unit, FoodSeason season) {
+    public void setNewRecordFood(DateTime date, Double amount, String notice, Food food, FoodUnit unit, FoodSeason season) {
+        setRecord(null);
+        setFoodComponents(date, amount, notice, food, unit, season);
+    }
+
+    private void setFoodComponents(DateTime date, Double amount, String notice, Food food, FoodUnit unit, FoodSeason season) {
+        setFood(food);
+        foodValue.setValue(amount);
+        dateTimePanel.setDateTime(date);
+        foodNote.setText(notice);
+        foodUnit.setSelectedItem(unit);
+        foodSeason.setSelectedItem(season);
+
         foodModel.setDate(date);
-        cancelFoodEdit.setVisible(selectedFoodRecord != null);
+    }
+
+    public void setFood(Food food) {
+        if (food == null) {
+            baseGroup.setSelectedItem(null);
+            foodGroup.setSelectedItem(null);
+            foodGroup.setVisible(false);
+            jLabel14.setVisible(false);
+            this.food.setSelectedItem(null);
+            foodUnit.setSelectedItem(null);
+            return;
+        }
         FoodGroup group = food.getFoodGroup();
         if (group.getParent() != null) {
             baseGroup.setSelectedItem(group.getParent());
@@ -414,58 +378,7 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
         } else {
             baseGroup.setSelectedItem(group);
         }
-        setFoodValue(amount);
-        setFoodDate(date);
-        setFoodNote(notice);
-        setFood(food);
-        setFoodUnit(unit);
-        setFoodSeason(season);
-
-        getFoodModel().fillData();
-        getFoodModel().fireTableDataChanged();
-    }
-
-    public void setRecordFoods(RecordFood[] recs) {
-        selectedFoodRecord = null;
-        if (recs.length > 0 && recs[0] != null) {
-            RecordFood rec = recs[0];
-            selectedFoodRecord = rec;
-            setFoodComponents(rec.getDatetime(), rec.getAmount(), rec.getNotice(), rec.getFood(), rec.getUnit(), rec.getSeason());
-            cancelFoodEdit.setVisible(true);
-        }
-    }
-    private RecordFood selectedFoodRecord;
-
-    private boolean recordFoodValidation() {
-        foodSave.setVisible(false);
-        if (MyLookup.getCurrentPatient() == null) {
-            setFoodError(NbBundle.getMessage(RecordEditorTopComponent.class, "noopendiary"));
-            return false;
-        }
-        if (getFoodUnit() == null) {
-            setFoodError(NbBundle.getMessage(RecordEditorTopComponent.class, "invalidfoodunit"));
-            return false;
-        }
-        if (getFoodDate() == null) {
-            setFoodError(NbBundle.getMessage(RecordEditorTopComponent.class, "nocorrectdate"));
-            return false;
-        }
-        if (getFoodValue() == null) {
-            setFoodError(NbBundle.getMessage(RecordEditorTopComponent.class, "invalidamountfood"));
-            return false;
-        }
-        setFoodError(null);
-        foodSave.setVisible(true);
-        return true;
-    }
-
-    private void setFoodError(String error) {
-        if (error == null) {
-            foodError.setText("");
-            foodError.setVisible(false);
-        }
-        foodError.setText(error);
-        foodError.setVisible(true);
+        this.food.setSelectedItem(food);
     }
 
     public Food getFood() {
@@ -480,10 +393,6 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
         return (FoodGroup) foodGroup.getSelectedItem();
     }
 
-    public void setFood(Food foodf) {
-        food.setSelectedItem(foodf);
-    }
-
     public FoodUnit getFoodUnit() {
         if (foodUnit.getSelectedItem() != null) {
             return (FoodUnit) foodUnit.getSelectedItem();
@@ -491,24 +400,8 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
         return null;
     }
 
-    public void setFoodUnit(FoodUnit foodUnitS) {
-        foodUnit.setSelectedItem(foodUnitS);
-    }
-
-    public DateTime getFoodDate() {
-        return dateTimePanel1.getDateTime();
-    }
-
-    public void setFoodDate(DateTime foodDate) {
-        dateTimePanel1.setDateTime(foodDate);
-    }
-
     public FoodSeason getFoodSeason() {
         return (FoodSeason) foodSeason.getSelectedItem();
-    }
-
-    public void setFoodSeason(FoodSeason foodSeas) {
-        foodSeason.setSelectedItem(foodSeas);
     }
 
     public Double getFoodValue() {
@@ -518,50 +411,20 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
         return null;
     }
 
-    public void setFoodValue(Double foodV) {
-        foodValue.setValue(foodV);
-    }
-
-    public String getFoodNote() {
-        return foodNote.getText();
-    }
-
-    public void setFoodNote(String note) {
-        foodNote.setText(note);
-    }
-
     @Override
-    public void setRecord(RecordFood[] recs) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public boolean isRecordValid() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void saveRecord() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void updateRecord(RecordFood rec) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public RecordFood saveRecord() {
+        return MyLookup.getCurrentPatient().addRecordFood(dateTimePanel.getDateTime(), getFood(),
+                getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), foodNote.getText());
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox baseGroup;
-    private javax.swing.JButton cancelFoodEdit;
-    private org.diabetesdiary.commons.swing.calendar.DateTimePanel dateTimePanel1;
     private javax.swing.JComboBox food;
-    protected javax.swing.JLabel foodError;
     private javax.swing.JComboBox foodGroup;
     private javax.swing.JTextArea foodNote;
-    private javax.swing.JButton foodSave;
     private javax.swing.JComboBox foodSeason;
     private javax.swing.JTable foodTable;
     private javax.swing.JComboBox foodUnit;
-    private javax.swing.JFormattedTextField foodValue;
+    private javax.swing.JSpinner foodValue;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -575,4 +438,37 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    protected String validateForm() {
+        if (MyLookup.getCurrentPatient() == null) {
+            return NbBundle.getMessage(RecordEditorTopComponent.class, "noopendiary");
+        }
+        if (getFoodUnit() == null) {
+            return NbBundle.getMessage(RecordEditorTopComponent.class, "invalidfoodunit");
+        }
+        if (getFoodValue() == null) {
+            return NbBundle.getMessage(RecordEditorTopComponent.class, "invalidamountfood");
+        }
+        return null;
+    }
+
+    @Override
+    protected RecordFood updateRecord(RecordFood rec) {
+        return rec.update(dateTimePanel.getDateTime(), getFood(), getFoodValue(), getFoodValue(), getFoodUnit(), getFoodSeason(), foodNote.getText());
+    }
+
+    @Override
+    protected void onSetRecord(RecordFood[] recs) {
+        if (recs != null && recs.length > 0 && recs[0] != null) {
+            RecordFood rec = recs[0];
+            setFoodComponents(rec.getDatetime(), rec.getAmount(), rec.getNotice(), rec.getFood(), rec.getUnit(), rec.getSeason());
+        }
+    }
+
+    @Override
+    protected RecordFood loadRecordByFormIfExist() {
+        return MyLookup.getCurrentPatient().getRecordFood(dateTimePanel.getDateTime(), getFood());
+    }
+
 }

@@ -17,8 +17,6 @@
  */
 package org.diabetesdiary.commons.swing.calendar;
 
-import javax.swing.JFileChooser;
-import javax.swing.plaf.FileChooserUI;
 import org.joda.time.DateTime;
 
 /**
@@ -83,7 +81,7 @@ public class DateTimePanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        DateTime newDate = dateTimePicker1.getDateTimeFromUser(dateJSpinner1.getDateTime());
+        DateTime newDate = dateTimePicker1.getDateTimeFromUser(dateJSpinner1.getDateTime(), jButton1);
         if (newDate != null) {
             dateJSpinner1.setDateTime(newDate);
         }

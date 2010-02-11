@@ -21,7 +21,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
-import org.diabetesdiary.calendar.ui.RecordEditorTopComponent;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.joda.time.DateTime;
 
@@ -94,9 +93,7 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
         }
 
         invalidateData();
-
-        RecordEditorTopComponent.getDefault().getFoodModel().fillData();
-        RecordEditorTopComponent.getDefault().getFoodModel().fireTableDataChanged();
+        fireTableDataChanged();
     }
 
     public void monthForward() {

@@ -19,13 +19,12 @@ package org.diabetesdiary.calendar.table.model.recordeditor;
 
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
+import org.diabetesdiary.calendar.utils.DataChangedEvent;
+import org.diabetesdiary.calendar.utils.DataChangedListener;
 import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.joda.time.DateTime;
 import org.openide.util.ImageUtilities;
@@ -35,19 +34,16 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class RecordInvestEditTableModel extends AbstractTableModel {
+public class RecordInvestEditTableModel extends AbstractTableModel implements DataChangedListener {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private static DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
     private List<RecordInvest> recs;
     private static final String DELETE_ICO = "org/diabetesdiary/calendar/resources/delete16.png";
-    private Date dateTo;
-    private DiaryRepository diary;
-    private Date dateFrom;
+    private DateTime date;
 
     /** Creates a new instance of CalendarTableModel */
-    public RecordInvestEditTableModel(Date date) {
-        diary = MyLookup.getDiaryRepo();
+    public RecordInvestEditTableModel(DateTime date) {
         setDate(date);
     }
 
@@ -124,28 +120,25 @@ public class RecordInvestEditTableModel extends AbstractTableModel {
         return super.getColumnClass(columnIndex);
     }
 
-    public void setDate(Date date) {
-        if(date != null){
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(date.getTime());
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            this.dateFrom = cal.getTime();
-            cal.add(Calendar.DAY_OF_MONTH, 1);
-            this.dateTo = cal.getTime();
-        }else{
-            this.dateFrom = null;
-            this.dateTo = null;
-        }
-        fillData();
+    public void setDate(DateTime date) {
+        this.date = date;
+        reloadData();
     }
 
-    public void fillData() {
+    public void reloadData() {
         //no data => end
-        if (MyLookup.getCurrentPatient() == null || dateFrom == null || dateTo == null) {
+        if (MyLookup.getCurrentPatient() == null || date == null) {
             recs = null;
             return;
         }
-        recs = MyLookup.getCurrentPatient().getRecordInvests(new DateTime(dateFrom), new DateTime(dateTo));
+        recs = MyLookup.getCurrentPatient().getRecordInvests(date.toDateMidnight().toDateTime(), date.toDateMidnight().plusDays(1).toDateTime());
+        fireTableDataChanged();
+    }
+
+    @Override
+    public void onDataChanged(DataChangedEvent evt) {
+        if (evt.getDataChangedClazz() == null || evt.getDataChangedClazz().equals(RecordInvest.class)) {
+            reloadData();
+        }
     }
 }
