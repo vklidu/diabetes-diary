@@ -37,7 +37,6 @@ public class MyLookup {
     @Autowired
     private transient DiaryService diaryService;
 
-    /** Creates a new instance of DbLookUp */
     private MyLookup() {
     }
 

@@ -35,15 +35,22 @@ import org.diabetesdiary.calendar.table.header.GroupableTableHeader;
 import org.diabetesdiary.calendar.MultiLineToolTip;
 import org.diabetesdiary.calendar.action.SelectPatientAction;
 import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.calendar.table.model.ActivityModel;
+import org.diabetesdiary.calendar.table.model.OtherInvestModel;
 import org.diabetesdiary.calendar.table.model.RecordFoodModel;
+import org.diabetesdiary.calendar.table.model.RecordInsulinModel;
+import org.diabetesdiary.calendar.table.model.RecordInsulinPumpModel;
+import org.diabetesdiary.calendar.table.model.RecordInvestModel;
 import org.diabetesdiary.calendar.table.model.SumModel;
 import org.diabetesdiary.calendar.table.model.TableSubModel;
-import org.diabetesdiary.diary.domain.FoodSeason;
+import org.diabetesdiary.diary.domain.InsulinSeason;
+import org.diabetesdiary.diary.domain.InvSeason;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.domain.WKFood;
+import org.diabetesdiary.diary.domain.WKInvest;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
@@ -114,10 +121,31 @@ public final class CalendarTopComponent extends TopComponent
                         comp.setRecord(record);
                     } else if (subModel instanceof RecordFoodModel) {
                         RecordFoodModel model = (RecordFoodModel) subModel;                        
-                        comp.setFoodComponents(model.getClickCellDate(row, subCol), 0d, null,
+                        comp.setFoodComponents(model.getClickCellDate(row, subCol), 1d, null,
                                 MyLookup.getDiaryRepo().getWellKnownFood(WKFood.SACCHARIDE),
                                 MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT)),
                                 model.getSeason(subCol));
+                    } else if (subModel instanceof RecordInsulinModel) {
+                        RecordInsulinModel model = (RecordInsulinModel) subModel;
+                        comp.setInsulinComponents(model.getClickCellDate(row, subCol), 1d, null, model.getSeason(subCol),
+                                model.isBasal(subCol) ? MyLookup.getCurrentPatient().getBasalInsulin() : MyLookup.getCurrentPatient().getBolusInsulin(),
+                                model.isBasal(subCol));
+                    } else if (subModel instanceof ActivityModel) {
+                        ActivityModel model = (ActivityModel) subModel;
+                        comp.setActivityComponents(model.getClickCellDate(row, subCol), 1, null, MyLookup.getDiaryRepo().getRandomActivity());
+                    } else if (subModel instanceof OtherInvestModel) {
+                        OtherInvestModel model = (OtherInvestModel) subModel;
+                        comp.setInvestComponents(model.getClickCellDate(row, subCol), 1d, null,
+                                MyLookup.getDiaryRepo().getWellKnownInvestigation(model.getClickCellInvestId(row, subCol)), InvSeason.BB);
+                    } else if (subModel instanceof RecordInvestModel) {
+                        RecordInvestModel model = (RecordInvestModel) subModel;
+                        comp.setInvestComponents(model.getClickCellDate(row, subCol), 1d, null,
+                                MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCEMIE), model.getSeason(subCol));
+                    } else if (subModel instanceof RecordInsulinPumpModel) {
+                        RecordInsulinPumpModel model = (RecordInsulinPumpModel) subModel;
+                        comp.setInsulinComponents(model.getClickCellDate(row, subCol), 1d, null, model.getSeason(subCol),
+                               MyLookup.getCurrentPatient().getBasalInsulin(),
+                                model.getSeason(subCol) == InsulinSeason.BASAL);
                     }
                 }
             }

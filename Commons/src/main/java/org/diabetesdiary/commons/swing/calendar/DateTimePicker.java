@@ -17,6 +17,7 @@
  */
 package org.diabetesdiary.commons.swing.calendar;
 
+import java.awt.Component;
 import org.diabetesdiary.commons.swing.calendar.datemania.CalendarPanel;
 import java.awt.Dialog;
 import java.util.Date;
@@ -51,16 +52,17 @@ public class DateTimePicker {
         calendar.requestFocus();
     }
 
-    public synchronized DateTime getDateTimeFromUser(DateTime initialDateTime) {
+    public synchronized DateTime getDateTimeFromUser(DateTime initialDateTime, Component caller) {
         result = null;
         dialog = DialogDisplayer.getDefault().createDialog(dialogDesc);
         dialog.setResizable(false);
+        dialog.setLocationRelativeTo(caller);
         calendar.setSelectedDate(initialDateTime != null ? initialDateTime.toDate() : new Date());
         dialog.setVisible(true);
         return result;
     }
 
     public DateTime getDateTimeFromUser() {
-        return getDateTimeFromUser(null);
+        return getDateTimeFromUser(null, null);
     }
 }

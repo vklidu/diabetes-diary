@@ -27,7 +27,6 @@ public class RecordInsulinPumpBasal {
 
     private RecordInsulin[] data;
 
-    /** Creates a new instance of RecordInsulinPumpBasal */
     public RecordInsulinPumpBasal() {
         data = new RecordInsulin[12];
     }

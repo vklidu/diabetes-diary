@@ -30,33 +30,21 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Jirka Majer
  */
 @Configurable
-public class RecordFood extends AbstractDomainObject {
+public class RecordFood extends AbstractRecord {
 
-    private final Patient patient;
-    private final DateTime datetime;
     private final Food food;
     private final Double totalAmount;
     private final Double amount;
     private final FoodUnit unit;
     private final FoodSeason season;
-    private final String notice;
-
 
     public RecordFood(RecordFoodDO rec) {
-        super(rec.getId());
-        this.patient = new Patient(rec.getPatient());
-        this.datetime = rec.getDate();
+        super(rec.getId(), rec.getPatient(), rec.getDate(), rec.getNotice());
         this.food = new Food(rec.getFood());
         this.totalAmount = rec.getTotalAmount();
         this.amount = rec.getAmount();
         this.unit = new FoodUnit(rec.getUnit());
         this.season = rec.getSeason();
-        this.notice = rec.getNotice();
-    }
-
-    @Transactional
-    public void delete() {
-        getSession().delete(getSession().load(RecordFoodDO.class, id));
     }
 
     @Transactional
@@ -84,21 +72,13 @@ public class RecordFood extends AbstractDomainObject {
     public double getSachUnits(FoodUnit sachUnit) {
         return unit.getKoef() * amount * food.getSugar() / (100 * sachUnit.getKoef());
     }
-
     public static Function<RecordFoodDO, RecordFood> CREATE_FUNCTION = new Function<RecordFoodDO, RecordFood>() {
+
         @Override
         public RecordFood apply(RecordFoodDO activityDO) {
             return new RecordFood(activityDO);
         }
     };
-
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public DateTime getDatetime() {
-        return datetime;
-    }
 
     public Food getFood() {
         return food;
@@ -120,8 +100,8 @@ public class RecordFood extends AbstractDomainObject {
         return season;
     }
 
-    public String getNotice() {
-        return notice;
+    @Override
+    protected Class getPersistentClass() {
+        return RecordFoodDO.class;
     }
-
 }

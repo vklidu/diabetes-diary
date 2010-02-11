@@ -88,64 +88,27 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
         return null;
     }
 
-    /**
-     * @para columnIndex
-     * 0 - breakfest bolus
-     * 1 - breakfest basal
-     * 2 - dinner bolus
-     * 3 - launch bolus
-     * 4 - launch basal
-     * 5 - bonus bolus
-     */
-    public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        /*
-        RecordInsulin rec = new RecordInsulin();
-        RecordInsulinPK pk = new RecordInsulinPK();
-        pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
-        boolean bolus = true;
-        InsulinSeason seas;
+    public InsulinSeason getSeason(int columnIndex) {
         switch (columnIndex) {
-        case 0:
-        seas = InsulinSeason.B;
-        break;
-        case 1:
-        bolus = false;
-        seas = InsulinSeason.B;
-        break;
-        case 2:
-        seas = InsulinSeason.D;
-        break;
-        case 3:
-        seas = InsulinSeason.L;
-        break;
-        case 4:
-        bolus = false;
-        seas = InsulinSeason.L;
-        break;
-        case 5:
-        seas = InsulinSeason.ADD;
-        break;
-        default:
-        seas = InsulinSeason.ADD;
-        break;
+            case 0:
+                return InsulinSeason.B;
+            case 1:
+                return InsulinSeason.B;
+            case 2:
+                return InsulinSeason.D;
+            case 3:
+                return InsulinSeason.L;
+            case 4:
+                return InsulinSeason.L;
+            case 5:
+                return InsulinSeason.ADD;
+            default:
+                return InsulinSeason.ADD;
         }
-        if (bolus) {
-        pk.setIdInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBolusInsulin().getId());
-        rec.setInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBolusInsulin());
-        } else {
-        pk.setIdInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBasalInsulin().getId());
-        rec.setInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBasalInsulin());
-        }
-        pk.setDate(getClickCellDate(rowIndex, columnIndex));
-        pk.setBasal(!bolus);
-        rec.setId(pk);
-        rec.setPump(false);
-        rec.setAmount(null);
-        rec.setSeason(seas.name());
-        return rec;
-         *
-         */
-        return null;
+    }
+
+    public boolean isBasal(int columnIndex) {
+        return columnIndex == 1 || columnIndex == 4;
     }
 
     @Override
@@ -266,7 +229,7 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
         }
     }
 
-    private DateTime getClickCellDate(int rowIndex, int columnIndex) {
+    public DateTime getClickCellDate(int rowIndex, int columnIndex) {
         int hourOfDay;
         switch (columnIndex) {
             case 0:

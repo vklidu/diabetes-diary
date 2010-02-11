@@ -98,6 +98,21 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
         return null;
     }
 
+    public InsulinSeason getSeason(int columnIndex) {
+        switch (columnIndex) {
+            case 0:
+                return InsulinSeason.B;
+            case 1:
+                return InsulinSeason.D;
+            case 2:
+                return InsulinSeason.L;
+            case 3:
+                return InsulinSeason.ADD;
+            default:
+                return InsulinSeason.BASAL;
+        }
+    }
+
     public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
         /*
         RecordInsulin rec = new RecordInsulin();
@@ -137,24 +152,6 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double && columnIndex < 4) {
-            InsulinSeason seas;
-            switch (columnIndex) {
-                case 0:
-                    seas = InsulinSeason.B;
-                    break;
-                case 1:
-                    seas = InsulinSeason.D;
-                    break;
-                case 2:
-                    seas = InsulinSeason.L;
-                    break;
-                case 3:
-                    seas = InsulinSeason.ADD;
-                    break;
-                default:
-                    seas = InsulinSeason.ADD;
-                    break;
-            }
             DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
             RecordInsulin edited = dataIns[recDateTime.getDayOfMonth() - 1][columnIndex][0];
             if (edited != null) {
@@ -164,7 +161,7 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
                         getClickCellDate(rowIndex, columnIndex),
                         false,
                         (Double) value,
-                        seas,
+                        getSeason(columnIndex),
                         null);
             }
             dataIns[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
@@ -276,7 +273,7 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
         }
     }
 
-    private DateTime getClickCellDate(int rowIndex, int columnIndex) {
+    public DateTime getClickCellDate(int rowIndex, int columnIndex) {
         int hourOfDay;
         switch (columnIndex) {
             case 0:

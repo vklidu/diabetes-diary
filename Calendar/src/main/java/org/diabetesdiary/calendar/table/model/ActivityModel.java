@@ -252,7 +252,7 @@ public class ActivityModel extends AbstractRecordSubModel {
         return null;
     }
 
-    private DateTime getClickCellDate(int row, int column) {
+    public DateTime getClickCellDate(int row, int column) {
         return dateTime.withDayOfMonth(row + 1).withTime(column == 0 ? 10 : 15, 0, 0, 0);
     }
 

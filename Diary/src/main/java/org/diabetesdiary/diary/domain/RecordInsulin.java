@@ -29,32 +29,21 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Jirka Majer
  */
 @Configurable
-public class RecordInsulin extends AbstractDomainObject {
+public class RecordInsulin extends AbstractRecord {
 
-    private final DateTime datetime;
     private final Boolean basal;
     private final Insulin insulin;
-    private final Patient patient;
     private final Double amount;
     private final InsulinSeason season;
     private final Boolean pump;
-    private final String notice;
 
     public RecordInsulin(RecordInsulinDO rec) {
-        super(rec.getId());
-        this.datetime = rec.getDate();
+        super(rec.getId(), rec.getPatient(), rec.getDate(), rec.getNotice());
         this.basal = rec.getBasal();
         this.insulin = new Insulin(rec.getInsulin());
-        this.patient = new Patient(rec.getPatient());
         this.amount = rec.getAmount();
         this.season = rec.getSeason();
         this.pump = rec.getPump();
-        this.notice = rec.getNotice();
-    }
-
-    @Transactional
-    public void delete() {
-        getSession().delete(getSession().load(RecordInsulinDO.class, id));
     }
 
     @Transactional
@@ -72,17 +61,13 @@ public class RecordInsulin extends AbstractDomainObject {
     public RecordInsulin update(Double amount) {
         return update(datetime, basal, insulin, amount, season, notice);
     }
-
     public static Function<RecordInsulinDO, RecordInsulin> CREATE_FUNCTION = new Function<RecordInsulinDO, RecordInsulin>() {
+
         @Override
         public RecordInsulin apply(RecordInsulinDO activityDO) {
             return new RecordInsulin(activityDO);
         }
     };
-
-    public DateTime getDatetime() {
-        return datetime;
-    }
 
     public boolean isBasal() {
         return basal;
@@ -90,10 +75,6 @@ public class RecordInsulin extends AbstractDomainObject {
 
     public Insulin getInsulin() {
         return insulin;
-    }
-
-    public Patient getPatient() {
-        return patient;
     }
 
     public Double getAmount() {
@@ -108,8 +89,8 @@ public class RecordInsulin extends AbstractDomainObject {
         return pump;
     }
 
-    public String getNotice() {
-        return notice;
+    @Override
+    protected Class getPersistentClass() {
+        return RecordInsulinDO.class;
     }
-
 }
