@@ -19,7 +19,7 @@ package org.diabetesdiary.calendar.action;
 
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.SelectPatientPanel;
-import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.openide.DialogDescriptor;
@@ -47,8 +47,7 @@ public final class SelectPatientAction extends CallableSystemAction {
             Patient pat = mp.getPatient();
             if (pat != null) {
                 MyLookup.setCurrentPatient(pat);
-                CalendarTopComponent.getDefault().getModel().reloadData();
-                CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
+                CalendarTopComponent.getDefault().setCurPatient(pat);                
             }
         } else {
             //cancel button was pressed

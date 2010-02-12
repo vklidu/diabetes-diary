@@ -36,7 +36,6 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.diabetesdiary.calendar.*;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryRepository;
@@ -802,14 +801,17 @@ public final class ChartTopComponent extends TopComponent implements ListSelecti
             firstDay = 1;
             lastDay = 31;
         }
-        if (diaryDateRadio.isSelected()) {
+        if (diaryDateRadio.isSelected() && isOpened()) {
             setDatesByDiarySelect();
         }
     }
 
     private void setDatesByDiarySelect() {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(CalendarTopComponent.getDefault().getModel().getMonth().toDate());
+        DateTime date = CalendarTopComponent.getDefault().getDateTime();
+        if (date != null) {
+            cal.setTime(date.toDate());
+        }
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);

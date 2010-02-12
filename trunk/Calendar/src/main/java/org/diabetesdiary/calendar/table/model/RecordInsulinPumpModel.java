@@ -17,6 +17,9 @@
  */
 package org.diabetesdiary.calendar.table.model;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -29,8 +32,10 @@ import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.renderer.InsulinCellRenderer;
 import org.diabetesdiary.calendar.table.renderer.InsulinPumpBasalRenderer;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
 import org.diabetesdiary.diary.domain.InsulinSeason;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.joda.time.DateTime;
@@ -46,8 +51,8 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
     private RecordInsulinPumpBasal dataBasal[][];
 
     /** Creates a new instance of RecordInsulinModel */
-    public RecordInsulinPumpModel(DateTime month) {
-        super(month);
+    public RecordInsulinPumpModel(DateTime month, Patient patient) {
+        super(month, patient);
     }
 
     @Override
@@ -113,42 +118,6 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
         }
     }
 
-    public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        /*
-        RecordInsulin rec = new RecordInsulin();
-        RecordInsulinPK pk = new RecordInsulinPK();
-        pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
-
-        InsulinSeason seas;
-        switch (columnIndex) {
-        case 0:
-        seas = InsulinSeason.B;
-        break;
-        case 1:
-        seas = InsulinSeason.D;
-        break;
-        case 2:
-        seas = InsulinSeason.L;
-        break;
-        case 3:
-        seas = InsulinSeason.ADD;
-        break;
-        default:
-        seas = InsulinSeason.ADD;
-        break;
-        }
-        pk.setIdInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBasalInsulin().getId());
-        rec.setInsulin(MyLookup.getDiaryRepo().getCurrentPatient().getBasalInsulin());
-        pk.setDate(getClickCellDate(rowIndex, columnIndex));
-        rec.setId(pk);
-        rec.setAmount(null);
-        rec.setSeason(seas.name());
-        return rec;
-         *
-         */
-        return null;
-    }
-
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double && columnIndex < 4) {
@@ -170,16 +139,21 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
             int i = 0;
             DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
             RecordInsulinPumpBasal edited = dataBasal[recDateTime.getDayOfMonth() - 1][columnIndex - 4];
-            if (edited == null) {
-                edited = new RecordInsulinPumpBasal();
-                dataBasal[recDateTime.getDayOfMonth() - 1][columnIndex - 4] = edited;
-            }
             while (tok.hasMoreTokens()) {
                 String val = tok.nextToken().trim();
                 double amount;
                 if (val != null && val.length() > 0 && Character.isDigit(val.charAt(0))) {
                     amount = Double.valueOf(val) / 10;
-                    if (amount > 0) {
+                    if (amount == 0) {
+                        if (edited != null && edited.getData()[i] != null) {
+                            edited.getData()[i].delete();
+                            edited.getData()[i] = null;
+                        }
+                    } else if (amount > 1) {
+                        if (edited == null) {
+                            edited = new RecordInsulinPumpBasal();
+                            dataBasal[recDateTime.getDayOfMonth() - 1][columnIndex - 4] = edited;
+                        }
                         if (edited.getData()[i] != null) {
                             edited.getData()[i] = edited.getData()[i].update(amount);
                         } else {
@@ -193,6 +167,9 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
                     }
                 }
                 i++;
+            }
+            if (edited != null && Iterables.all(Lists.newArrayList(edited.getData()), Predicates.isNull())) {
+                dataBasal[recDateTime.getDayOfMonth() - 1][columnIndex - 4] = null;
             }
         }
     }
@@ -294,9 +271,11 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public void invalidateData() {
-        dataBasal = null;
-        dataIns = null;
+    public void onDataChange(DataChangeEvent evt) {
+        if (evt.getDataChangedClazz() == null || evt.getDataChangedClazz().equals(RecordInsulin.class)) {
+            dataBasal = null;
+            dataIns = null;
+        }
     }
 
     @Override

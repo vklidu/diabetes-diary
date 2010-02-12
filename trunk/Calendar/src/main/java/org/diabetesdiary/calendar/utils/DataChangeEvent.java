@@ -24,15 +24,15 @@ import java.util.EventObject;
  *
  * @author Jirka Majer
  */
-public class DataChangedEvent extends EventObject {
+public class DataChangeEvent extends EventObject {
 
     private final Class eventClazz;
 
-    public DataChangedEvent(Object source) {
+    public DataChangeEvent(Object source) {
         this(source, null);
     }
 
-    public DataChangedEvent(Object source, Class clazz) {
+    public DataChangeEvent(Object source, Class clazz) {
         super(source);
         this.eventClazz = clazz;
     }

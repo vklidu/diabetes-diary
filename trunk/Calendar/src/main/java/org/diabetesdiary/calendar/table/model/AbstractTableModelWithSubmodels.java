@@ -29,6 +29,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.header.GroupableTableHeader;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 
 /**
  *
@@ -76,9 +77,9 @@ public abstract class AbstractTableModelWithSubmodels extends AbstractTableModel
         }));
     }
 
-    public void invalidateData() {
+    public void invalidateData(DataChangeEvent evt) {
         for (TableSubModel model : submodels) {
-            model.invalidateData();
+            model.onDataChange(evt);
         }
     }
 
@@ -165,10 +166,10 @@ public abstract class AbstractTableModelWithSubmodels extends AbstractTableModel
         header.removeAll();
         for (TableSubModel subModel : getVisibleModels()) {
             List<TableColumn> cols = Lists.newArrayList();
-            for(int i = 0; i < subModel.getColumnCount(); i++) {
-                cols.add(cm.getColumn(i+index));
-                cm.getColumn(i+index).setCellRenderer(subModel.getCellRenderer(i));
-                cm.getColumn(i+index).setCellEditor(subModel.getCellEditor(i));
+            for (int i = 0; i < subModel.getColumnCount(); i++) {
+                cols.add(cm.getColumn(i + index));
+                cm.getColumn(i + index).setCellRenderer(subModel.getCellRenderer(i));
+                cm.getColumn(i + index).setCellEditor(subModel.getCellEditor(i));
             }
             ColumnGroup group = subModel.getColumnHeader(cols);
             if (group != null) {
@@ -178,6 +179,4 @@ public abstract class AbstractTableModelWithSubmodels extends AbstractTableModel
         }
         return header;
     }
-
-
 }

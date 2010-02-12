@@ -24,13 +24,14 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
+import org.diabetesdiary.calendar.utils.DataChangeListener;
 import org.joda.time.DateTime;
 
 /**
  *
  * @author Jiri Majer
  */
-public interface TableSubModel {
+public interface TableSubModel extends DataChangeListener {
      
     public ColumnGroup getColumnHeader(List<TableColumn> cols);
      
@@ -51,8 +52,6 @@ public interface TableSubModel {
     public void setVisible(boolean visible);
 
     public boolean isVisible();
-
-    public void invalidateData();
 
     public TableCellRenderer getCellRenderer(int columnIndex);
 

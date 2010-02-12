@@ -24,8 +24,8 @@ import java.util.EventListener;
  *
  * @author Jirka Majer
  */
-public interface DataChangedListener extends EventListener {
+public interface DataChangeListener extends EventListener {
 
-    public void onDataChanged(DataChangedEvent evt);
+    public void onDataChange(DataChangeEvent evt);
 
 }

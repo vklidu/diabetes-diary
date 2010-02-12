@@ -21,48 +21,42 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import org.diabetesdiary.calendar.ui.CalendarTopComponent;
-import org.diabetesdiary.diary.domain.RecordActivity;
-import org.diabetesdiary.diary.domain.RecordFood;
-import org.diabetesdiary.diary.domain.RecordInsulin;
-import org.diabetesdiary.diary.domain.RecordInvest;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.calendar.utils.DataChangeListener;
+import org.diabetesdiary.diary.domain.AbstractRecord;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 
 /**
  *
  * @author Jiri Majer
  */
-public class CalendarPopupMenu {
+public class CalendarPopupMenu extends JPopupMenu {
 
-    public static JPopupMenu createPopupMenu(final Object value) {
-        JPopupMenu menu = new JPopupMenu();
+    private static final String ICON_PATH = "org/diabetesdiary/calendar/resources/delete16.png";
 
-        JMenuItem menuItemDelete = new JMenuItem(NbBundle.getMessage(CalendarPopupMenu.class, "Delete"));
+    public CalendarPopupMenu(final AbstractRecord[] value, final DataChangeListener listener) {
+        JMenuItem menuItemDelete = new JMenuItem(NbBundle.getMessage(CalendarPopupMenu.class, "Delete"), ImageUtilities.loadImageIcon(ICON_PATH, true));
         menuItemDelete.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (value instanceof RecordFood) {
-                    RecordFood food = (RecordFood) value;
-                    food.delete();
-                } else if (value instanceof RecordFood[]) {
-                    for (RecordFood food : (RecordFood[]) value) {
-                        food.delete();
-                    }
-                } else if (value instanceof RecordActivity) {
-                    ((RecordActivity) value).delete();
-                } else if (value instanceof RecordInsulin) {
-                    ((RecordInsulin) value).delete();
-                } else if (value instanceof RecordInvest) {
-                    ((RecordInvest) value).delete();
-                } else {
-                    throw new IllegalStateException();
+                AbstractRecord last = null;
+                for (AbstractRecord rec : (AbstractRecord[]) value) {
+                    last = rec;
+                    rec.delete();
                 }
-                CalendarTopComponent.getDefault().getModel().reloadData();
-                CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
+                if (last != null) {
+                    listener.onDataChange(new DataChangeEvent(this, last.getClass()));
+                }
             }
         });
-        menu.add(menuItemDelete);
-        return menu;
+        if (value != null && value.length > 0) {
+            add(menuItemDelete);
+        }
+    }
+
+    public CalendarPopupMenu(final AbstractRecord value, final DataChangeListener listener) {
+        this(new AbstractRecord[]{value}, listener);
     }
 }

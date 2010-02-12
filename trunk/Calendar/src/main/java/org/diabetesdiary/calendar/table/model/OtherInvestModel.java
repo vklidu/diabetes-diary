@@ -26,7 +26,9 @@ import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.renderer.GlykemieCellRenderer;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.InvSeason;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.domain.WKInvest;
 import org.diabetesdiary.diary.utils.MyLookup;
@@ -42,9 +44,9 @@ public class OtherInvestModel extends AbstractRecordSubModel {
     private boolean male;
     private RecordInvest[][][] dataOtherInvest;
 
-    public OtherInvestModel(boolean male, DateTime month) {
-        super(month);
-        this.male = male;
+    public OtherInvestModel(DateTime month, Patient patient) {
+        super(month, patient);
+        this.male = patient.isMale();
     }
 
     @Override
@@ -211,11 +213,6 @@ public class OtherInvestModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public void invalidateData() {
-        dataOtherInvest = null;
-    }
-
-    @Override
     public TableCellRenderer getCellRenderer(int columnIndex) {
         return new GlykemieCellRenderer();
     }
@@ -262,5 +259,12 @@ public class OtherInvestModel extends AbstractRecordSubModel {
                 return null;
             }
         };
+    }
+
+    @Override
+    public void onDataChange(DataChangeEvent evt) {
+        if (evt.getDataChangedClazz() == null || evt.getDataChangedClazz().equals(RecordInvest.class)) {
+            dataOtherInvest = null;
+        }
     }
 }

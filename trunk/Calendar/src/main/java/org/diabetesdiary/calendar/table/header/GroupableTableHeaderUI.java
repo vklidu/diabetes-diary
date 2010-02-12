@@ -11,6 +11,7 @@ import javax.swing.plaf.basic.*;
 
 public class GroupableTableHeaderUI extends BasicTableHeaderUI {
     
+    @Override
     public void paint(Graphics g, JComponent c) {
         Rectangle clipBounds = g.getClipBounds();
         if (header.getColumnModel() == null) return;
@@ -59,6 +60,7 @@ public class GroupableTableHeaderUI extends BasicTableHeaderUI {
         TableCellRenderer renderer = aColumn.getHeaderRenderer();
         //revised by Java2s.com
         renderer = new DefaultTableCellRenderer(){
+            @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 JLabel header = new JLabel();
                 header.setForeground(table.getTableHeader().getForeground());

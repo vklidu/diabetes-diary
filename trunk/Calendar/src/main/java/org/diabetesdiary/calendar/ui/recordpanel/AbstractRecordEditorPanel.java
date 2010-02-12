@@ -17,11 +17,13 @@
  */
 package org.diabetesdiary.calendar.ui.recordpanel;
 
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import javax.swing.event.EventListenerList;
-import org.diabetesdiary.calendar.utils.DataChangedEvent;
-import org.diabetesdiary.calendar.utils.DataChangedListener;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.calendar.utils.DataChangeListener;
 import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.diary.domain.AbstractRecord;
 import org.diabetesdiary.diary.utils.MyLookup;
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Jirka Majer
  */
-public abstract class AbstractRecordEditorPanel<T extends AbstractRecord> extends javax.swing.JPanel {
+public abstract class AbstractRecordEditorPanel<T extends AbstractRecord> extends javax.swing.JPanel implements DataChangeListener {
 
     private final EventListenerList eventList = new EventListenerList();
     protected Logger log = LoggerFactory.getLogger(getClass());
@@ -49,17 +51,17 @@ public abstract class AbstractRecordEditorPanel<T extends AbstractRecord> extend
         setRecord(null);
     }
 
-    public void addDataChangedListener(DataChangedListener listener) {
-        eventList.add(DataChangedListener.class, listener);
+    public void addDataChangeListener(DataChangeListener listener) {
+        eventList.add(DataChangeListener.class, Preconditions.checkNotNull(listener));
     }
 
-    public void removeDataChangedListener(DataChangedListener listener) {
-        eventList.remove(DataChangedListener.class, listener);
+    public void removeDataChangeListener(DataChangeListener listener) {
+        eventList.remove(DataChangeListener.class, listener);
     }
 
-    protected void fireDataChanged(DataChangedEvent evt) {
-        for (DataChangedListener listener : eventList.getListeners(DataChangedListener.class)) {
-            listener.onDataChanged(evt);
+    protected void fireDataChanged(DataChangeEvent evt) {
+        for (DataChangeListener listener : eventList.getListeners(DataChangeListener.class)) {
+            listener.onDataChange(evt);
         }
     }
 
@@ -135,7 +137,7 @@ public abstract class AbstractRecordEditorPanel<T extends AbstractRecord> extend
                 } else {
                     selectedRecord = updateRecord(selectedRecord);
                 }
-                fireDataChanged(new DataChangedEvent(this, selectedRecord.getClass()));
+                fireDataChanged(new DataChangeEvent(this, selectedRecord.getClass()));
                 selectedRecord = null;
                 onRecordSelectionChanged();
             } catch (Exception e) {
@@ -167,7 +169,7 @@ public abstract class AbstractRecordEditorPanel<T extends AbstractRecord> extend
         if (selectedRecord != null && selectedRecord.isStillPersistent()) {
             selectedRecord.delete();
         }
-        fireDataChanged(new DataChangedEvent(this, selectedRecord.getClass()));
+        fireDataChanged(new DataChangeEvent(this, selectedRecord.getClass()));
         selectedRecord = null;
         onRecordSelectionChanged();
     }//GEN-LAST:event_deleteButtonActionPerformed
@@ -182,7 +184,7 @@ public abstract class AbstractRecordEditorPanel<T extends AbstractRecord> extend
     }
 
     public final void setRecord(T[] recs) {
-        selectedRecord = recs != null && recs.length > 0 ? recs[0] : null;
+        selectedRecord = recs != null && recs.length > 0 ? Iterables.find(Lists.newArrayList(recs), Predicates.notNull()) : null;
         onRecordSelectionChanged();
         onSetRecord(recs);
     }
@@ -215,23 +217,6 @@ public abstract class AbstractRecordEditorPanel<T extends AbstractRecord> extend
 
     protected abstract T updateRecord(T rec);
 
-    protected final DocumentListener validatorListener = new DocumentListener() {
-
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            validateForm();
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            validateForm();
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            //Plain text components don't fire these events
-        }
-    };
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected final javax.swing.JButton cancelButton = new javax.swing.JButton();
     protected final org.diabetesdiary.commons.swing.calendar.DateTimePanel dateTimePanel = new org.diabetesdiary.commons.swing.calendar.DateTimePanel();

@@ -26,7 +26,9 @@ import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.renderer.InsulinCellRenderer;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.InsulinSeason;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.joda.time.DateTime;
@@ -40,9 +42,8 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
 
     private RecordInsulin dataIns[][][];
 
-    /** Creates a new instance of RecordInsulinModel */
-    public RecordInsulinModel(DateTime month) {
-        super(month);
+    public RecordInsulinModel(DateTime month, Patient patient) {
+        super(month, patient);
     }
 
     @Override
@@ -256,9 +257,12 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public void invalidateData() {
-        dataIns = null;
+    public void onDataChange(DataChangeEvent evt) {
+        if (evt.getDataChangedClazz() == null || evt.getDataChangedClazz().equals(RecordInsulin.class)) {
+            dataIns = null;
+        }
     }
+
 
     @Override
     public TableCellRenderer getCellRenderer(int columnIndex) {

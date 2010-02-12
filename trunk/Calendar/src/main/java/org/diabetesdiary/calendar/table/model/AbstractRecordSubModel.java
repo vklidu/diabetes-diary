@@ -17,11 +17,16 @@
  */
 package org.diabetesdiary.calendar.table.model;
 
+import com.google.common.base.Preconditions;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JTextField;
+import javax.swing.event.EventListenerList;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import org.diabetesdiary.calendar.table.renderer.DefaultRenderer;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.calendar.utils.DataChangeListener;
+import org.diabetesdiary.diary.domain.Patient;
 import org.joda.time.DateTime;
 
 /**
@@ -31,10 +36,27 @@ import org.joda.time.DateTime;
 public abstract class AbstractRecordSubModel implements TableSubModel {
 
     protected DateTime dateTime;
+    protected final Patient patient;
     private boolean visible = true;
+    private final EventListenerList listenerList = new EventListenerList();
 
-    public AbstractRecordSubModel(DateTime dateTime) {
+    public AbstractRecordSubModel(DateTime dateTime, Patient patient) {
         this.dateTime = dateTime;
+        this.patient = patient;
+    }
+
+    public void addDataChangeListener(DataChangeListener listener) {
+        listenerList.add(DataChangeListener.class, Preconditions.checkNotNull(listener));
+    }
+
+    public void removeDataChangeListener(DataChangeListener listener) {
+        listenerList.remove(DataChangeListener.class, listener);
+    }
+
+    protected void fireDataChange(DataChangeEvent evt) {
+        for (DataChangeListener list : listenerList.getListeners(DataChangeListener.class)) {
+            list.onDataChange(evt);
+        }
     }
 
     @Override
@@ -77,7 +99,6 @@ public abstract class AbstractRecordSubModel implements TableSubModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return null;
+        return Object.class;
     }
-
 }
