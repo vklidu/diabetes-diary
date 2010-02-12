@@ -27,9 +27,11 @@ import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.renderer.FoodCellRenderer;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.Food;
 import org.diabetesdiary.diary.domain.FoodSeason;
 import org.diabetesdiary.diary.domain.FoodUnit;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.WKFood;
 import org.diabetesdiary.diary.utils.MyLookup;
@@ -43,9 +45,10 @@ import org.openide.util.NbBundle;
 public class RecordFoodModel extends AbstractRecordSubModel {
 
     private RecordFood dataFood[][][];
+    private FoodUnit foodUnit;
 
-    public RecordFoodModel(DateTime month) {
-        super(month);
+    public RecordFoodModel(DateTime month, Patient patient) {
+        super(month, patient);
     }
 
     @Override
@@ -85,7 +88,7 @@ public class RecordFoodModel extends AbstractRecordSubModel {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
             Food food = MyLookup.getDiaryRepo().getWellKnownFood(WKFood.SACCHARIDE);
-            FoodUnit unit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+            
             DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
             int col = FoodSeason.values()[columnIndex].ordinal();
             RecordFood edited = dataFood[recDateTime.getDayOfMonth() - 1][col][0];
@@ -93,7 +96,7 @@ public class RecordFoodModel extends AbstractRecordSubModel {
                 edited = edited.update((Double) value);
             } else {
                 edited = MyLookup.getCurrentPatient().addRecordFood(getClickCellDate(rowIndex, columnIndex),
-                        food, (Double) value, (Double) value, unit, getSeason(columnIndex), null);
+                        food, (Double) value, (Double) value, getDefaultFoodUnit(), getSeason(columnIndex), null);
             }
 
             dataFood[recDateTime.getDayOfMonth() - 1][col][0] = edited;
@@ -175,8 +178,18 @@ public class RecordFoodModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public void invalidateData() {
-        dataFood = null;
+    public void onDataChange(DataChangeEvent evt) {
+        if (evt.getDataChangedClazz() == null || evt.getDataChangedClazz().equals(RecordFood.class)) {
+            dataFood = null;
+            foodUnit = null;
+        }
+    }
+
+    private FoodUnit getDefaultFoodUnit() {
+        if (foodUnit == null) {
+            foodUnit = MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+        }
+        return foodUnit;
     }
 
     @Override
@@ -199,4 +212,5 @@ public class RecordFoodModel extends AbstractRecordSubModel {
             }
         };
     }
+
 }

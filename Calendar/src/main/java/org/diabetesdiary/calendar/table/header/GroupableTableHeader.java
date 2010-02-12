@@ -1,8 +1,6 @@
 package org.diabetesdiary.calendar.table.header;
 
 import java.util.*;
-import java.awt.*;
-import javax.swing.*;
 import javax.swing.table.*;
 
 
@@ -23,10 +21,12 @@ public class GroupableTableHeader extends JTableHeader {
         setUI(new GroupableTableHeaderUI());
         setReorderingAllowed(false);
     }
+    @Override
     public void updateUI(){
         setUI(new GroupableTableHeaderUI());
     }
     
+    @Override
     public void setReorderingAllowed(boolean b) {
         reorderingAllowed = false;
     }

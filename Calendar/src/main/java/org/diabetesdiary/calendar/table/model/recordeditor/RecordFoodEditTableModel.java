@@ -19,15 +19,12 @@ package org.diabetesdiary.calendar.table.model.recordeditor;
 
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
-import org.diabetesdiary.calendar.ui.CalendarTopComponent;
-import org.diabetesdiary.calendar.utils.DataChangedEvent;
-import org.diabetesdiary.calendar.utils.DataChangedListener;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.calendar.utils.DataChangeListener;
 import org.diabetesdiary.diary.utils.MyLookup;
-import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.joda.time.DateTime;
 import org.openide.util.NbBundle;
@@ -37,18 +34,16 @@ import org.openide.util.Utilities;
  *
  * @author Jiri Majer
  */
-public class RecordFoodEditTableModel extends AbstractTableModel implements DataChangedListener {
+public class RecordFoodEditTableModel extends AbstractTableModel implements DataChangeListener {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private boolean detail = false;
-    private DiaryRepository diary;
     private DateTime date;
     private List<RecordFood> recordFoods;
     private static final String DELETE_ICO = "org/diabetesdiary/calendar/resources/delete16.png";
 
     /** Creates a new instance of CalendarTableModel */
     public RecordFoodEditTableModel(DateTime date) {
-        diary = MyLookup.getDiaryRepo();
         this.date = date;
     }
 
@@ -58,10 +53,10 @@ public class RecordFoodEditTableModel extends AbstractTableModel implements Data
 
     public void setDate(DateTime date) {
         this.date = date;
-        refreshData();
+        reloadData();
     }
 
-    public void refreshData() {
+    private void reloadData() {
         //no data => end
         if (MyLookup.getCurrentPatient() == null || date == null) {
             return;
@@ -207,42 +202,7 @@ public class RecordFoodEditTableModel extends AbstractTableModel implements Data
 
     @Override
     public boolean isCellEditable(int row, int col) {
-        return col == 4;
-    }
-
-    @Override
-    public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        if (MyLookup.getCurrentPatient() == null || columnIndex != 4 || value == null) {
-            return;
-        }
-        if (rowIndex == getRowCount() - 1) {
-            //posledni radek meni vse
-            double oldVal = getSumAmount(columnIndex);
-            try {
-                double newVal = format.parse(value.toString()).doubleValue();
-                double koef = newVal / oldVal;
-                for (RecordFood rec : recordFoods) {
-                    rec.update(rec.getAmount() * koef);
-                    rec = diary.getRecordFood(rec.getId());//todo tohle asi nebude fungovat
-                    CalendarTopComponent.getDefault().getModel().reloadData();
-                    CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
-                }
-            } catch (ParseException ex) {
-                return;
-            }
-        } else {
-            //menim konkretni jidlo
-            try {
-                RecordFood rec = recordFoods.get(rowIndex);
-                double koef = rec.getUnit().getKoef();
-                double grams = rec.getAmount() * koef;
-                rec.update(format.parse(value.toString()).doubleValue());
-                rec = diary.getRecordFood(rec.getId());//todo tohle asi nebude fungovat
-                CalendarTopComponent.getDefault().getModel().reloadData();
-                CalendarTopComponent.getDefault().getModel().fireTableDataChanged();
-            } catch (ParseException e) {
-            }
-        }
+        return false;
     }
 
     @Override
@@ -310,9 +270,9 @@ public class RecordFoodEditTableModel extends AbstractTableModel implements Data
     }
 
     @Override
-    public void onDataChanged(DataChangedEvent evt) {
+    public void onDataChange(DataChangeEvent evt) {
         if (evt.getDataChangedClazz() == null || evt.getDataChangedClazz().equals(RecordFood.class)) {
-            refreshData();
+            reloadData();
         }
     }
 

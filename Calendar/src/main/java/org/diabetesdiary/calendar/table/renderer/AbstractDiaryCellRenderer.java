@@ -33,7 +33,7 @@ public abstract class AbstractDiaryCellRenderer<T> implements TableCellRenderer 
     private static final Color backColor = Color.WHITE;
     private static final Color forSelColor = Color.WHITE;
     private static final Color backSelColor = new Color(30, 30, 100);
-    private JLabel result = new JLabel();
+    private final JLabel result = new JLabel();
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {

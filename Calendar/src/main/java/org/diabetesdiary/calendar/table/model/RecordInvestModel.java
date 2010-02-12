@@ -25,6 +25,7 @@ import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.renderer.GlykemieCellRenderer;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.domain.InvSeason;
 import org.diabetesdiary.diary.domain.Patient;
@@ -41,8 +42,8 @@ public class RecordInvestModel extends AbstractRecordSubModel {
 
     private RecordInvest dataInvest[][][];
 
-    public RecordInvestModel(DateTime dateTime) {
-        super(dateTime);
+    public RecordInvestModel(DateTime dateTime, Patient patient) {
+        super(dateTime, patient);
     }
 
     @Override
@@ -88,27 +89,6 @@ public class RecordInvestModel extends AbstractRecordSubModel {
                 return dataInvest[rowIndex][columnIndex];
             }
         }
-        return null;
-    }
-
-    public Object getNewRecordValueAt(int rowIndex, int columnIndex) {
-        /**
-        RecordInvest gl = new RecordInvest();
-        RecordInvestPK pk = new RecordInvestPK();
-        pk.setIdPatient(MyLookup.getDiaryRepo().getCurrentPatient().getIdPatient());
-        pk.setIdInvest(InvestigationDO.Instances.GLYCEMIE.getID());
-        pk.setDate(getClickCellDate(rowIndex, columnIndex));
-        InvestigationAdministrator invAdmin = MyLookup.getInvesAdmin();
-        gl.setInvest(invAdmin.getInvestigation(InvestigationDO.Instances.GLYCEMIE.getID()));
-        gl.setValue(null);
-        gl.setId(pk);
-        if (columnIndex == 0) {
-        gl.setSeason(InvSeason.M.name());
-        } else {
-        gl.setSeason(InvSeason.values()[columnIndex - 1].name());
-        }
-        return gl;
-         */
         return null;
     }
 
@@ -235,8 +215,10 @@ public class RecordInvestModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public void invalidateData() {
-        dataInvest = null;
+    public void onDataChange(DataChangeEvent evt) {
+        if (evt.getDataChangedClazz() == null || evt.getDataChangedClazz().equals(RecordInvest.class)) {
+            dataInvest = null;
+        }
     }
 
     @Override

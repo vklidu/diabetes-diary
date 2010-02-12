@@ -25,6 +25,7 @@ import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.NewPatientWizard;
 import org.diabetesdiary.calendar.ui.NewPatientWizardPanel1;
 import org.diabetesdiary.calendar.ui.NewPatientWizardPanel2;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.api.DiaryService;
 import org.diabetesdiary.diary.domain.Patient;
@@ -71,8 +72,7 @@ public final class NewPatientaction extends CallableSystemAction {
                 MyLookup.setCurrentPatient(MyLookup.getDiaryRepo().getPatient(patient.getId()));
             }
             
-            CalendarTopComponent.getDefault().getModel().reloadData();
-            CalendarTopComponent.getDefault().getModel().fireTableDataChanged();            
+            CalendarTopComponent.getDefault().setCurPatient(patient);
         }
     }
     

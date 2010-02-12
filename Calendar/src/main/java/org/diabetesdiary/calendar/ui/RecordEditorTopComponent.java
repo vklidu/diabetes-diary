@@ -17,6 +17,7 @@
  */
 package org.diabetesdiary.calendar.ui;
 
+import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import org.diabetesdiary.diary.domain.FoodUnit;
 import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
@@ -24,6 +25,8 @@ import org.diabetesdiary.calendar.ui.recordpanel.RecordActivityEditorPanel;
 import org.diabetesdiary.calendar.ui.recordpanel.RecordFoodEditorPanel;
 import org.diabetesdiary.calendar.ui.recordpanel.RecordInsulinEditorPanel;
 import org.diabetesdiary.calendar.ui.recordpanel.RecordInvestEditorPanel;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.calendar.utils.DataChangeListener;
 import org.diabetesdiary.diary.domain.Activity;
 import org.diabetesdiary.diary.domain.Food;
 import org.diabetesdiary.diary.domain.Insulin;
@@ -42,10 +45,7 @@ import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-/**
- * Top component which displays something.
- */
-public final class RecordEditorTopComponent extends TopComponent {
+public final class RecordEditorTopComponent extends TopComponent implements DataChangeListener {
 
     private static RecordEditorTopComponent instance;
     static final String ICON_PATH = "org/diabetesdiary/calendar/resources/recordedit.png";
@@ -54,6 +54,20 @@ public final class RecordEditorTopComponent extends TopComponent {
     private final RecordInvestEditorPanel investPanel = new RecordInvestEditorPanel();
     private final RecordFoodEditorPanel foodPanel = new RecordFoodEditorPanel();
     private final RecordActivityEditorPanel actPanel = new RecordActivityEditorPanel();
+
+    public void addDataChangeListener(DataChangeListener listener) {
+        listenerList.add(DataChangeListener.class, Preconditions.checkNotNull(listener));
+    }
+
+    public void removeDataChangeListener(DataChangeListener listener) {
+        listenerList.remove(DataChangeListener.class, listener);
+    }
+
+    protected void fireDataChange(DataChangeEvent evt) {
+        for (DataChangeListener list : listenerList.getListeners(DataChangeListener.class)) {
+            list.onDataChange(evt);
+        }
+    }
 
     public void setFoodComponents(DateTime clickCellDate, Double amount, String notice, Food wellKnownFood, FoodUnit sacharidUnit, FoodSeason foodSeason) {
         foodPanel.setNewRecordFood(clickCellDate, amount, notice, wellKnownFood, sacharidUnit, foodSeason);
@@ -69,10 +83,42 @@ public final class RecordEditorTopComponent extends TopComponent {
         investPanel.setNewRecordFood(date, amount, notice, invest, season);
         activityPanel.setSelectedComponent(investPanel);
     }
-    
+
     public void setActivityComponents(DateTime date, Integer amount, String notice, Activity act) {
         actPanel.setNewRecord(date, amount, notice, act);
         activityPanel.setSelectedComponent(actPanel);
+    }
+
+    public void setRecord(Object record) {
+        if (record instanceof RecordInvest[]) {
+            investPanel.setRecord((RecordInvest[]) record);
+            activityPanel.setSelectedComponent(investPanel);
+        } else if (record instanceof RecordInvest) {
+            investPanel.setRecord(new RecordInvest[]{(RecordInvest) record});
+            activityPanel.setSelectedComponent(investPanel);
+        } else if (record instanceof RecordInsulin[]) {
+            insulinPanel.setRecord((RecordInsulin[]) record);
+            activityPanel.setSelectedComponent(insulinPanel);
+        } else if (record instanceof RecordInsulin) {
+            insulinPanel.setRecord(new RecordInsulin[]{(RecordInsulin) record});
+            activityPanel.setSelectedComponent(insulinPanel);
+        } else if (record instanceof RecordActivity[]) {
+            RecordActivity[] recs = (RecordActivity[]) record;
+            actPanel.setRecord(recs);
+            activityPanel.setSelectedComponent(actPanel);
+        } else if (record instanceof RecordActivity) {
+            actPanel.setRecord(new RecordActivity[]{(RecordActivity) record});
+            activityPanel.setSelectedComponent(actPanel);
+        } else if (record instanceof RecordFood) {
+            foodPanel.setRecord(new RecordFood[]{(RecordFood) record});
+            activityPanel.setSelectedComponent(foodPanel);
+        } else if (record instanceof RecordFood[]) {
+            foodPanel.setRecord((RecordFood[]) record);
+            activityPanel.setSelectedComponent(foodPanel);
+        } else if (record instanceof RecordInsulinPumpBasal) {
+            insulinPanel.setRecord(((RecordInsulinPumpBasal) record).getData());
+            activityPanel.setSelectedComponent(insulinPanel);
+        }
     }
 
     private RecordEditorTopComponent() {
@@ -86,6 +132,17 @@ public final class RecordEditorTopComponent extends TopComponent {
         activityPanel.addTab(NbBundle.getMessage(RecordEditorTopComponent.class, "food"), foodPanel);
         activityPanel.addTab(NbBundle.getMessage(RecordEditorTopComponent.class, "activity"), actPanel);
 
+        DataChangeListener listener = new DataChangeListener() {
+
+            @Override
+            public void onDataChange(DataChangeEvent evt) {
+                fireDataChange(evt);
+            }
+        };
+        insulinPanel.addDataChangeListener(listener);
+        investPanel.addDataChangeListener(listener);
+        foodPanel.addDataChangeListener(listener);
+        actPanel.addDataChangeListener(listener);
     }
 
     /** This method is called from within the constructor to$
@@ -167,45 +224,24 @@ public final class RecordEditorTopComponent extends TopComponent {
         return PREFERRED_ID;
     }
 
+    /**
+     * This method is called if data are changed outside this Component and i have to update my edit tabs
+     * @param evt
+     */
+    @Override
+    public void onDataChange(DataChangeEvent evt) {
+        insulinPanel.onDataChange(evt);
+        investPanel.onDataChange(evt);
+        foodPanel.onDataChange(evt);
+        actPanel.onDataChange(evt);
+    }
+
     final static class ResolvableHelper implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
         public Object readResolve() {
             return RecordEditorTopComponent.getDefault();
-        }
-    }
-
-    public void setRecord(Object record) {
-        if (record instanceof RecordInvest[]) {
-            RecordInvest[] recs = (RecordInvest[]) record;
-            investPanel.setRecord((RecordInvest[]) record);
-            activityPanel.setSelectedComponent(investPanel);
-        } else if (record instanceof RecordInvest) {
-            investPanel.setRecord(new RecordInvest[]{(RecordInvest) record});
-            activityPanel.setSelectedComponent(investPanel);
-        } else if (record instanceof RecordInsulin[]) {
-            insulinPanel.setRecord((RecordInsulin[]) record);
-            activityPanel.setSelectedComponent(insulinPanel);
-        } else if (record instanceof RecordInsulin) {
-            insulinPanel.setRecord(new RecordInsulin[]{(RecordInsulin) record});
-            activityPanel.setSelectedComponent(insulinPanel);
-        } else if (record instanceof RecordActivity[]) {
-            RecordActivity[] recs = (RecordActivity[]) record;
-            actPanel.setRecord(recs);
-            activityPanel.setSelectedComponent(actPanel);
-        } else if (record instanceof RecordActivity) {
-            actPanel.setRecord(new RecordActivity[]{(RecordActivity) record});
-            activityPanel.setSelectedComponent(actPanel);
-        } else if (record instanceof RecordFood) {
-            foodPanel.setRecord(new RecordFood[]{(RecordFood) record});
-            activityPanel.setSelectedComponent(foodPanel);
-        } else if (record instanceof RecordFood[]) {
-            foodPanel.setRecord((RecordFood[]) record);
-            activityPanel.setSelectedComponent(foodPanel);
-        } else if (record instanceof RecordInsulinPumpBasal) {
-            insulinPanel.setRecord(((RecordInsulinPumpBasal) record).getData());
-            activityPanel.setSelectedComponent(insulinPanel);
         }
     }
 }

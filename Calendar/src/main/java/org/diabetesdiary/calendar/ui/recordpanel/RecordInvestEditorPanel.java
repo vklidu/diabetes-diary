@@ -20,8 +20,7 @@ package org.diabetesdiary.calendar.ui.recordpanel;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import org.diabetesdiary.calendar.table.model.recordeditor.RecordInvestEditTableModel;
-import org.diabetesdiary.calendar.ui.CalendarTopComponent;
-import org.diabetesdiary.calendar.ui.RecordEditorTopComponent;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.InvSeason;
 import org.diabetesdiary.diary.domain.Investigation;
 import org.diabetesdiary.diary.domain.RecordInvest;
@@ -39,13 +38,11 @@ public class RecordInvestEditorPanel extends AbstractRecordEditorPanel<RecordInv
 
     public RecordInvestEditorPanel() {
         initComponents();
-        addDataChangedListener(invModel);
+        addDataChangeListener(invModel);
     }
 
     private ComboBoxModel createSeasonModel() {
         DefaultComboBoxModel model = new DefaultComboBoxModel(InvSeason.values());
-        //model.insertElementAt(null,0);
-        //model.setSelectedItem(null);
         return model;
     }
 
@@ -235,7 +232,7 @@ public class RecordInvestEditorPanel extends AbstractRecordEditorPanel<RecordInv
         if (column == invModel.getColumnCount() - 1 && rec != null && rec.getValue() != null) {
             rec.delete();
             setRecord(null);
-            invModel.reloadData();
+            fireDataChanged(new DataChangeEvent(this, RecordInvest.class));
         }
 }//GEN-LAST:event_investTableMouseClicked
 
@@ -274,8 +271,11 @@ public class RecordInvestEditorPanel extends AbstractRecordEditorPanel<RecordInv
 
     @Override
     protected String validateForm() {
+        if (getInvest() == null) {
+            return NbBundle.getMessage(RecordInvestEditorPanel.class, "invalidinvest");
+        }
         if (getInvestValue() == null) {
-            return NbBundle.getMessage(RecordEditorTopComponent.class, "invalidvalue");
+            return NbBundle.getMessage(RecordInvestEditorPanel.class, "invalidvalue");
         }
         return null;
     }
@@ -301,5 +301,10 @@ public class RecordInvestEditorPanel extends AbstractRecordEditorPanel<RecordInv
     @Override
     protected RecordInvest updateRecord(RecordInvest rec) {
         return rec.update(dateTimePanel.getDateTime(), getInvestValue(), getInvest(), getInvestSeason(), investNote.getText());
+    }
+
+    @Override
+    public void onDataChange(DataChangeEvent evt) {
+        invModel.onDataChange(evt);
     }
 }

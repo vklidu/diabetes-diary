@@ -22,7 +22,9 @@ import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.utils.FormatUtils;
 import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.FoodUnit;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.diabetesdiary.diary.domain.RecordInvest;
@@ -42,8 +44,8 @@ public class SumModel extends AbstractRecordSubModel {
     private List<RecordInvest> weights;
     private List<RecordFood> foods;
 
-    public SumModel(DateTime dateTime) {
-        super(dateTime);
+    public SumModel(DateTime dateTime, Patient patient) {
+        super(dateTime, patient);
     }
 
     @Override
@@ -163,12 +165,21 @@ public class SumModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public void invalidateData() {
-        insulines = null;
-        weights = null;
-        foods = null;
-        sachUnit = null;
+    public void onDataChange(DataChangeEvent evt) {
+        if (evt.getDataChangedClazz() == null) {
+            insulines = null;
+            weights = null;
+            foods = null;
+        } else if (evt.getDataChangedClazz().equals(RecordInsulin.class)) {
+            insulines = null;
+        } else if (evt.getDataChangedClazz().equals(RecordInvest.class)) {
+            weights = null;
+        } else if (evt.getDataChangedClazz().equals(RecordFood.class)) {
+            foods = null;
+            sachUnit = null;
+        }        
     }
+
 
     private void checkData() {
         if (insulines == null) {

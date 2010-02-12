@@ -23,7 +23,7 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.calendar.table.model.recordeditor.RecordFoodEditTableModel;
-import org.diabetesdiary.calendar.ui.RecordEditorTopComponent;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.Food;
 import org.diabetesdiary.diary.domain.FoodGroup;
 import org.diabetesdiary.diary.domain.FoodSeason;
@@ -43,7 +43,7 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
 
     public RecordFoodEditorPanel() {
         initComponents();
-        addDataChangedListener(foodModel);
+        addDataChangeListener(foodModel);
     }
 
     private ComboBoxModel createFoodSeasonModel() {
@@ -102,7 +102,6 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
         jLabel12 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         foodNote = new javax.swing.JTextArea();
-        jLabel15 = new javax.swing.JLabel();
         foodValue = new javax.swing.JSpinner();
 
         jCheckBox1.setText(NbBundle.getMessage(RecordFoodEditorPanel.class,"detail")); // NOI18N
@@ -170,8 +169,6 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
         foodNote.setRows(5);
         jScrollPane2.setViewportView(foodNote);
 
-        jLabel15.setText(NbBundle.getMessage(RecordFoodEditorPanel.class,"hintrecfood")); // NOI18N
-
         foodValue.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.0d), Double.valueOf(0.0d), null, Double.valueOf(1.0d)));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -186,8 +183,7 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jCheckBox1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
-                        .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(errorLabel))
@@ -276,8 +272,7 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBox1)
-                    .addComponent(jLabel15))
+                    .addComponent(jCheckBox1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
                 .addContainerGap())
@@ -323,7 +318,7 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
                 }
                 foodModel.getRecordAt(row).delete();
             }
-            foodModel.refreshData();            
+            fireDataChanged(new DataChangeEvent(this, RecordFood.class));
         }
 }//GEN-LAST:event_foodTableMouseClicked
 
@@ -431,7 +426,6 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
@@ -441,14 +435,14 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
 
     @Override
     protected String validateForm() {
-        if (MyLookup.getCurrentPatient() == null) {
-            return NbBundle.getMessage(RecordEditorTopComponent.class, "noopendiary");
+        if (getFood() == null) {
+            return NbBundle.getMessage(RecordFoodEditorPanel.class, "invalidfood");
         }
         if (getFoodUnit() == null) {
-            return NbBundle.getMessage(RecordEditorTopComponent.class, "invalidfoodunit");
+            return NbBundle.getMessage(RecordFoodEditorPanel.class, "invalidfoodunit");
         }
         if (getFoodValue() == null) {
-            return NbBundle.getMessage(RecordEditorTopComponent.class, "invalidamountfood");
+            return NbBundle.getMessage(RecordFoodEditorPanel.class, "invalidamountfood");
         }
         return null;
     }
@@ -471,4 +465,8 @@ public class RecordFoodEditorPanel extends AbstractRecordEditorPanel<RecordFood>
         return MyLookup.getCurrentPatient().getRecordFood(dateTimePanel.getDateTime(), getFood());
     }
 
+    @Override
+    public void onDataChange(DataChangeEvent evt) {
+        foodModel.onDataChange(evt);
+    }
 }

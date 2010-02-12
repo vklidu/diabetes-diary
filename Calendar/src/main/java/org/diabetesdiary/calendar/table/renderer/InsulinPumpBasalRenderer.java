@@ -79,7 +79,7 @@ public class InsulinPumpBasalRenderer extends AbstractDiaryCellRenderer<RecordIn
             result.append(" ").append(lastVal).append("U\n");
 
         }
-        return result.substring(0, result.length() - 1);
+        return result.length() > 0 ? result.substring(0, result.length() - 1) : "";
     }
 
     @Override

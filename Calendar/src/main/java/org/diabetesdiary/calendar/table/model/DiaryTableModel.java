@@ -17,11 +17,14 @@
  */
 package org.diabetesdiary.calendar.table.model;
 
+import com.google.common.base.Preconditions;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.diabetesdiary.calendar.option.CalendarSettings;
-import org.diabetesdiary.calendar.ui.CalendarTopComponent;
-import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.calendar.utils.DataChangeListener;
+import org.diabetesdiary.diary.domain.Patient;
+import org.diabetesdiary.diary.domain.RecordFood;
 import org.joda.time.DateTime;
 
 /**
@@ -31,30 +34,50 @@ import org.joda.time.DateTime;
 public class DiaryTableModel extends AbstractTableModelWithSubmodels implements PropertyChangeListener {
 
     private DateTime dateTime = new DateTime();
-    private RecordFoodModel foodModel;
-    private RecordInvestModel investModel;
-    private TableSubModel insulinModel;
-    private OtherInvestModel otherModel;
-    private ActivityModel activityModel;
-    private DayModel dayModel;
-    private SumModel sumModel;    
+    private final RecordFoodModel foodModel;
+    private final RecordInvestModel investModel;
+    private final AbstractRecordSubModel insulinModel;
+    private final OtherInvestModel otherModel;
+    private final ActivityModel activityModel;
+    private final DayModel dayModel;
+    private final SumModel sumModel;
+    private final Patient patient;
 
-    public DiaryTableModel() {
-        CalendarSettings.getSettings().addPropertyChangeListener(this);
-        addModel(dayModel = new DayModel(dateTime));
+    public DiaryTableModel(Patient patient) {
+        this.patient = Preconditions.checkNotNull(patient);
 
-        if (MyLookup.getCurrentPatient() != null && MyLookup.getCurrentPatient().isPumpUsage()) {
-            addModel(insulinModel = new RecordInsulinPumpModel(dateTime));
+        DataChangeListener listener = new DataChangeListener() {
+            //Listen on all submodels and by some change send message to all
+            @Override
+            public void onDataChange(DataChangeEvent evt) {
+                reloadData(evt);
+            }
+        };
+        dayModel = new DayModel(dateTime, patient);
+        dayModel.addDataChangeListener(listener);
+
+        if (patient.isPumpUsage()) {
+            insulinModel = new RecordInsulinPumpModel(dateTime, patient);
         } else {
-            addModel(insulinModel = new RecordInsulinModel(dateTime));
+            insulinModel = new RecordInsulinModel(dateTime, patient);
         }
-        addModel(investModel = new RecordInvestModel(dateTime));
-        addModel(otherModel = new OtherInvestModel(MyLookup.getCurrentPatient() != null ? MyLookup.getCurrentPatient().isMale() : true, dateTime));
-        addModel(foodModel = new RecordFoodModel(dateTime));
-        addModel(activityModel = new ActivityModel(dateTime));
-        addModel(sumModel = new SumModel(dateTime));
+        insulinModel.addDataChangeListener(listener);
 
-        reloadData();
+        investModel = new RecordInvestModel(dateTime, patient);
+        otherModel = new OtherInvestModel(dateTime, patient);
+        foodModel = new RecordFoodModel(dateTime, patient);
+        activityModel = new ActivityModel(dateTime, patient);
+        sumModel = new SumModel(dateTime, patient);
+
+        addModel(dayModel);
+        addModel(insulinModel);
+        addModel(investModel);
+        addModel(otherModel);
+        addModel(foodModel);
+        addModel(activityModel);
+        addModel(sumModel);
+
+        reloadData(new DataChangeEvent(this));
     }
 
     @Override
@@ -62,38 +85,24 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
         return dateTime.dayOfMonth().withMaximumValue().getDayOfMonth();
     }
 
-    public void refresh() {
+    public void reloadData(DataChangeEvent evt) {
+        invalidateData(evt);
         fireTableDataChanged();
-        fireTableStructureChanged();
+        fireDataChange(evt);
     }
 
-    public void reloadData() {
-        //no data => end
-        if (MyLookup.getCurrentPatient() == null) {
-            return;
-        }
+    public void addDataChangeListener(DataChangeListener listener) {
+        listenerList.add(DataChangeListener.class, Preconditions.checkNotNull(listener));
+    }
 
-        if (MyLookup.getCurrentPatient().isPumpUsage() != insulinModel instanceof RecordInsulinPumpModel) {
-            TableSubModel newInsulinModel;
-            if (MyLookup.getCurrentPatient().isPumpUsage()) {
-                newInsulinModel = new RecordInsulinPumpModel(dateTime);
-            } else {
-                newInsulinModel = new RecordInsulinModel(dateTime);
-            }
-            replaceModel(insulinModel, newInsulinModel);
-            insulinModel = newInsulinModel;
-            refresh();
-            CalendarTopComponent.getDefault().recreateTableHeader();
-        }
+    public void removeDataChangeListener(DataChangeListener listener) {
+        listenerList.remove(DataChangeListener.class, listener);
+    }
 
-        if (MyLookup.getCurrentPatient().isMale() != otherModel.isMale()) {
-            otherModel.setMale(MyLookup.getCurrentPatient().isMale());
-            refresh();
-            CalendarTopComponent.getDefault().recreateTableHeader();
+    protected void fireDataChange(DataChangeEvent evt) {
+        for (DataChangeListener list : listenerList.getListeners(DataChangeListener.class)) {
+            list.onDataChange(evt);
         }
-
-        invalidateData();
-        fireTableDataChanged();
     }
 
     public void monthForward() {
@@ -128,18 +137,14 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
         activityModel.setDate(dateTime);
         sumModel.setDate(dateTime);
 
-        reloadData();
-        fireTableDataChanged();
+        reloadData(new DataChangeEvent(this));
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         //change in sacharid unit size 10g or 12g per unit
         if (evt.getPropertyName().equals(CalendarSettings.KEY_CARBOHYDRATE_UNIT)) {
-            reloadData();
-            fireTableDataChanged();
-        } else {
-            fireTableDataChanged();
+            reloadData(new DataChangeEvent(this, RecordFood.class));
         }
     }
 
@@ -190,4 +195,9 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
     public void setActivityVisible(boolean activityVisible) {
         activityModel.setVisible(activityVisible);
     }
+
+    public boolean isOutOfRange(int row, int column) {
+        return row < 0 || column < 0 || row >= getRowCount() || column >= getColumnCount();
+    }
+
 }

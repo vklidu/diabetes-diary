@@ -17,9 +17,13 @@
  */
 package org.diabetesdiary.calendar.ui.recordpanel;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import org.diabetesdiary.calendar.table.model.recordeditor.RecordInsulinEditTableModel;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.Insulin;
 import org.diabetesdiary.diary.domain.InsulinSeason;
 import org.diabetesdiary.diary.domain.InsulinType;
@@ -38,7 +42,7 @@ public class RecordInsulinEditorPanel extends AbstractRecordEditorPanel<RecordIn
 
     public RecordInsulinEditorPanel() {
         initComponents();
-        addDataChangedListener(insModel);
+        addDataChangeListener(insModel);
     }
 
     private ComboBoxModel createInsulinSeasonModel() {
@@ -61,6 +65,12 @@ public class RecordInsulinEditorPanel extends AbstractRecordEditorPanel<RecordIn
 
     @Override
     protected String validateForm() {
+        if (getInsulin() == null) {
+            return NbBundle.getMessage(RecordInsulinEditorPanel.class, "invalidinsulin");
+        }
+        if (getInsUnit() == null) {
+            return NbBundle.getMessage(RecordInsulinEditorPanel.class, "invalidinsulinunit");
+        }
         if (getAmount() == null) {
             return NbBundle.getMessage(RecordInsulinEditorPanel.class, "invalidamount");
         }
@@ -75,19 +85,19 @@ public class RecordInsulinEditorPanel extends AbstractRecordEditorPanel<RecordIn
     private void setInsComponents(DateTime date, Double amount, String notice, InsulinSeason season, Insulin insulin, boolean basal) {
         this.amount.setValue(amount);
         dateTimePanel.setDateTime(date);
+        this.insulin.setSelectedItem(insulin);
         insulinNote.setText(notice);
         insulinUnit.setSelectedItem(InsUnit.getInstance(basal));
         insulinSeason.setSelectedItem(season);
         insulinType.setSelectedItem(insulin.getType());
-        this.insulin.setSelectedItem(insulin);
         insModel.setDate(date);
     }
 
 
     @Override
     protected void onSetRecord(RecordInsulin[] recs) {
-        if (recs != null && recs.length > 0 && recs[0] != null) {
-            RecordInsulin rec = recs[0];
+        if (recs != null && recs.length > 0) {
+            RecordInsulin rec = Iterables.find(Lists.newArrayList(recs), Predicates.notNull());
             setInsComponents(rec.getDatetime(), rec.getAmount(), rec.getNotice(), rec.getSeason(), rec.getInsulin(), rec.isBasal());
         }
     }
@@ -109,6 +119,11 @@ public class RecordInsulinEditorPanel extends AbstractRecordEditorPanel<RecordIn
 
     private InsUnit getInsUnit() {
         return (InsUnit) insulinUnit.getSelectedItem();
+    }
+
+    @Override
+    public void onDataChange(DataChangeEvent evt) {
+        insModel.onDataChange(evt);
     }
 
     private enum InsUnit {
@@ -329,7 +344,7 @@ public class RecordInsulinEditorPanel extends AbstractRecordEditorPanel<RecordIn
         if (column == insModel.getColumnCount() - 1 && rec != null && rec.getAmount() != null) {
             rec.delete();
             setRecord(null);
-            insModel.reloadData();
+            fireDataChanged(new DataChangeEvent(this, RecordInsulin.class));
         }
 }//GEN-LAST:event_insulinTableMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables

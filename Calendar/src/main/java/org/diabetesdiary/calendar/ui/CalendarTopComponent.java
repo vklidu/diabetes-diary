@@ -27,6 +27,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.CalendarPopupMenu;
@@ -41,14 +42,13 @@ import org.diabetesdiary.calendar.table.model.RecordFoodModel;
 import org.diabetesdiary.calendar.table.model.RecordInsulinModel;
 import org.diabetesdiary.calendar.table.model.RecordInsulinPumpModel;
 import org.diabetesdiary.calendar.table.model.RecordInvestModel;
-import org.diabetesdiary.calendar.table.model.SumModel;
 import org.diabetesdiary.calendar.table.model.TableSubModel;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.calendar.utils.DataChangeListener;
+import org.diabetesdiary.diary.domain.AbstractRecord;
 import org.diabetesdiary.diary.domain.InsulinSeason;
 import org.diabetesdiary.diary.domain.InvSeason;
-import org.diabetesdiary.diary.domain.RecordActivity;
-import org.diabetesdiary.diary.domain.RecordFood;
-import org.diabetesdiary.diary.domain.RecordInsulin;
-import org.diabetesdiary.diary.domain.RecordInvest;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.WKFood;
 import org.diabetesdiary.diary.domain.WKInvest;
 import org.diabetesdiary.diary.utils.MyLookup;
@@ -65,8 +65,7 @@ import org.openide.windows.WindowManager;
 /**
  * Top component which displays something.
  */
-public final class CalendarTopComponent extends TopComponent
-        implements PropertyChangeListener {
+public final class CalendarTopComponent extends TopComponent implements PropertyChangeListener, DataChangeListener {
 
     private DiaryTableModel model;
     private static final long serialVersionUID = 1L;
@@ -83,7 +82,6 @@ public final class CalendarTopComponent extends TopComponent
         }
     };
     private static CalendarTopComponent instance;
-    /** path to the icon used by the component and its open action */
     public static final String ICON_PATH = "org/diabetesdiary/calendar/resources/calendar.png";
     private static final String PREFERRED_ID = "CalendarTopComponent";
     public static String ICON_PATH_SMALL = "org/diabetesdiary/calendar/resources/calendar16.png";
@@ -93,7 +91,6 @@ public final class CalendarTopComponent extends TopComponent
         setName(NbBundle.getMessage(CalendarTopComponent.class, "CTL_CalendarTopComponent"));
         setToolTipText(NbBundle.getMessage(CalendarTopComponent.class, "HINT_CalendarTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH_SMALL, true));
-        recreateTableHeader();
 
         jTable1.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         jTable1.setRowSelectionAllowed(true);
@@ -103,24 +100,27 @@ public final class CalendarTopComponent extends TopComponent
             public void mouseReleased(MouseEvent e) {
                 int row = jTable1.rowAtPoint(e.getPoint());
                 int column = jTable1.columnAtPoint(e.getPoint());
+
+                if (model == null || model.isOutOfRange(row, column)) {
+                    return;
+                }
                 if (e.isPopupTrigger()) {
                     jTable1.changeSelection(row, column, false, false);
-                    Object value = getModel().getValueAt(row, column);
-                    if (value instanceof RecordFood || value instanceof RecordFood[]
-                            || value instanceof RecordActivity || value instanceof RecordInsulin
-                            || value instanceof RecordInvest) {
-                        popupMenu = CalendarPopupMenu.createPopupMenu(getModel().getValueAt(row, column));
-                        popupMenu.show(jTable1, e.getX(), e.getY());
+                    Object value = model.getValueAt(row, column);
+                    if (value instanceof AbstractRecord) {
+                        new CalendarPopupMenu((AbstractRecord) value, CalendarTopComponent.this).show(jTable1, e.getX(), e.getY());
+                    } else if (value instanceof AbstractRecord[]) {
+                        new CalendarPopupMenu((AbstractRecord[]) value, CalendarTopComponent.this).show(jTable1, e.getX(), e.getY());
                     }
                 } else if (MyLookup.getCurrentPatient() != null) {
-                    Object record = getModel().getValueAt(row, column);
-                    TableSubModel subModel = getModel().getSubModel(column);
+                    Object record = model.getValueAt(row, column);
+                    TableSubModel subModel = model.getSubModel(column);
                     RecordEditorTopComponent comp = RecordEditorTopComponent.getDefault();
-                    int subCol = getModel().getIndexInSubModel(column);
+                    int subCol = model.getIndexInSubModel(column);
                     if (record != null) {
                         comp.setRecord(record);
                     } else if (subModel instanceof RecordFoodModel) {
-                        RecordFoodModel model = (RecordFoodModel) subModel;                        
+                        RecordFoodModel model = (RecordFoodModel) subModel;
                         comp.setFoodComponents(model.getClickCellDate(row, subCol), 1d, null,
                                 MyLookup.getDiaryRepo().getWellKnownFood(WKFood.SACCHARIDE),
                                 MyLookup.getDiaryRepo().getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT)),
@@ -144,7 +144,7 @@ public final class CalendarTopComponent extends TopComponent
                     } else if (subModel instanceof RecordInsulinPumpModel) {
                         RecordInsulinPumpModel model = (RecordInsulinPumpModel) subModel;
                         comp.setInsulinComponents(model.getClickCellDate(row, subCol), 1d, null, model.getSeason(subCol),
-                               MyLookup.getCurrentPatient().getBasalInsulin(),
+                                MyLookup.getCurrentPatient().getBasalInsulin(),
                                 model.getSeason(subCol) == InsulinSeason.BASAL);
                     }
                 }
@@ -155,11 +155,13 @@ public final class CalendarTopComponent extends TopComponent
                 int row = jTable1.rowAtPoint(e.getPoint());
                 int column = jTable1.columnAtPoint(e.getPoint());
                 //this is doubled, because platform independet popup trigger -> see java api doc
-                if (e.isPopupTrigger()) {
+                if (e.isPopupTrigger() && model != null && !model.isOutOfRange(row, column)) {
                     jTable1.changeSelection(row, column, false, false);
-                    if (!(getModel().getSubModel(column) instanceof SumModel)) {
-                        popupMenu = CalendarPopupMenu.createPopupMenu(getModel().getValueAt(row, column));
-                        popupMenu.show(jTable1, e.getX(), e.getY());
+                    Object value = model.getValueAt(row, column);
+                    if (value instanceof AbstractRecord) {
+                        new CalendarPopupMenu((AbstractRecord) value, CalendarTopComponent.this).show(jTable1, e.getX(), e.getY());
+                    } else if (value instanceof AbstractRecord[]) {
+                        new CalendarPopupMenu((AbstractRecord[]) value, CalendarTopComponent.this).show(jTable1, e.getX(), e.getY());
                     }
                 }
             }
@@ -172,6 +174,8 @@ public final class CalendarTopComponent extends TopComponent
         selMonth.addPropertyChangeListener("value", this);
         DateTime pomCal = new DateTime().withTime(0, 0, 0, 0);
         selMonth.setValue(pomCal);
+        RecordEditorTopComponent.getDefault().addDataChangeListener(this);
+        setCurPatient(null);
     }
 
     /** This method is called from within the constructor to
@@ -207,7 +211,6 @@ public final class CalendarTopComponent extends TopComponent
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(500, 400));
 
-        jTable1.setModel(getModel());
         jTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         jTable1.setMinimumSize(new java.awt.Dimension(500, 0));
         jScrollPane1.setViewportView(jTable1);
@@ -357,40 +360,40 @@ public final class CalendarTopComponent extends TopComponent
     }//GEN-LAST:event_investVisibleActionPerformed
 
     private void subModelsViewActionPerformed() {
-        getModel().setFoodVisible(foodVisible.isSelected());
-        getModel().setGlykemieVisible(investVisible.isSelected());
-        getModel().setOtherVisible(otherVisible.isSelected());
-        getModel().setInsulinVisible(insulinVisible.isSelected());
-        getModel().setActivityVisible(activityVisible.isSelected());
-        getModel().setSumVisible(sumVisible.isSelected());
-        getModel().refresh();
+        model.setFoodVisible(foodVisible.isSelected());
+        model.setGlykemieVisible(investVisible.isSelected());
+        model.setOtherVisible(otherVisible.isSelected());
+        model.setInsulinVisible(insulinVisible.isSelected());
+        model.setActivityVisible(activityVisible.isSelected());
+        model.setSumVisible(sumVisible.isSelected());
         recreateTableHeader();
     }
 
     public void recreateTableHeader() {
+        model.fireTableStructureChanged();
         TableColumnModel cm = jTable1.getColumnModel();
         GroupableTableHeader header = (GroupableTableHeader) jTable1.getTableHeader();
-        getModel().createTableHeader(header, cm);
+        model.createTableHeader(header, cm);        
     }
 
     private void yearBackwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yearBackwardActionPerformed
-        getModel().yearBackward();
-        selMonth.setValue(getModel().getMonth());
+        model.yearBackward();
+        selMonth.setValue(model.getMonth());
     }//GEN-LAST:event_yearBackwardActionPerformed
 
     private void yearForwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yearForwardActionPerformed
-        getModel().yearForward();
-        selMonth.setValue(getModel().getMonth());
+        model.yearForward();
+        selMonth.setValue(model.getMonth());
     }//GEN-LAST:event_yearForwardActionPerformed
 
     private void forwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forwardActionPerformed
-        getModel().monthForward();
-        selMonth.setValue(getModel().getMonth());
+        model.monthForward();
+        selMonth.setValue(model.getMonth());
     }//GEN-LAST:event_forwardActionPerformed
 
     private void backwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backwardActionPerformed
-        getModel().monthBackward();
-        selMonth.setValue(getModel().getMonth());
+        model.monthBackward();
+        selMonth.setValue(model.getMonth());
     }//GEN-LAST:event_backwardActionPerformed
 
 private void otherVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherVisibleActionPerformed
@@ -404,7 +407,6 @@ private void activityVisibleActionPerformed(java.awt.event.ActionEvent evt) {//G
 private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodViewActionPerformed
     subModelsViewActionPerformed();
 }//GEN-LAST:event_foodViewActionPerformed
-    private javax.swing.JPopupMenu popupMenu;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox activityVisible;
     private javax.swing.JButton backward;
@@ -480,6 +482,40 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         return PREFERRED_ID;
     }
 
+    @Override
+    public void onDataChange(DataChangeEvent evt) {
+        if (model != null) {
+            model.reloadData(evt);
+        }
+    }
+
+    public void setCurPatient(Patient pat) {
+        if (pat != null) {
+            model = new DiaryTableModel(pat);
+            CalendarSettings.getSettings().addPropertyChangeListener(model);
+            model.addDataChangeListener(RecordEditorTopComponent.getDefault());
+            jTable1.setModel(model);
+            recreateTableHeader();
+        } else {
+            model = null;
+            jTable1.setModel(new DefaultTableModel());
+        }
+
+        selMonth.setEnabled(pat != null);
+        backward.setEnabled(pat != null);
+        forward.setEnabled(pat != null);
+        yearForward.setEnabled(pat != null);
+        yearBackward.setEnabled(pat != null);
+
+        activityVisible.setEnabled(pat != null);
+        foodVisible.setEnabled(pat != null);
+        insulinVisible.setEnabled(pat != null);
+        investVisible.setEnabled(pat != null);
+        sumVisible.setEnabled(pat != null);
+        investVisible.setEnabled(pat != null);
+        otherVisible.setEnabled(pat != null);
+    }
+
     final static class ResolvableHelper implements Serializable {
 
         private static final long serialVersionUID = 1L;
@@ -489,18 +525,15 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         }
     }
 
-    public DiaryTableModel getModel() {
-        if (model == null) {
-            model = new DiaryTableModel();
-        }
-        return model;
+    public DateTime getDateTime() {
+        return model != null ? model.getMonth() : null;
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         Object source = evt.getSource();
-        if (source == selMonth) {
-            getModel().setDate((DateTime) selMonth.getValue());
+        if (source == selMonth && model != null) {
+            model.setDate((DateTime) selMonth.getValue());
         }
     }
 }

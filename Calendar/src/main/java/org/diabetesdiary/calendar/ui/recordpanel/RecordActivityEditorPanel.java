@@ -21,7 +21,7 @@ import java.util.Arrays;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import org.diabetesdiary.calendar.table.model.recordeditor.RecordActivityEditTableModel;
-import org.diabetesdiary.calendar.ui.RecordEditorTopComponent;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.Activity;
 import org.diabetesdiary.diary.domain.ActivityGroup;
 import org.diabetesdiary.diary.domain.RecordActivity;
@@ -39,7 +39,7 @@ public class RecordActivityEditorPanel extends AbstractRecordEditorPanel<RecordA
 
     public RecordActivityEditorPanel() {
         initComponents();
-        addDataChangedListener(actModel);
+        addDataChangeListener(actModel);
     }
 
     private ComboBoxModel createActGroupModel() {
@@ -213,7 +213,7 @@ public class RecordActivityEditorPanel extends AbstractRecordEditorPanel<RecordA
         if (column == actModel.getColumnCount() - 1 && rec != null && rec.getDuration() != null) {
             rec.delete();
             setRecord(null);
-            actModel.reloadData();
+            fireDataChanged(new DataChangeEvent(this, RecordActivity.class));
         }
 }//GEN-LAST:event_actTableMouseClicked
 
@@ -251,10 +251,10 @@ public class RecordActivityEditorPanel extends AbstractRecordEditorPanel<RecordA
     @Override
     protected String validateForm() {
         if (getActivity() == null) {
-            return NbBundle.getMessage(RecordEditorTopComponent.class, "activity.notdefined");
+            return NbBundle.getMessage(RecordActivityEditorPanel.class, "activity.notdefined");
         }
         if (getActValue() == null) {
-            return NbBundle.getMessage(RecordEditorTopComponent.class, "invalidamount");
+            return NbBundle.getMessage(RecordActivityEditorPanel.class, "invalidamount");
         }
         return null;
     }
@@ -281,6 +281,11 @@ public class RecordActivityEditorPanel extends AbstractRecordEditorPanel<RecordA
     @Override
     protected RecordActivity updateRecord(RecordActivity rec) {
         return rec.update(dateTimePanel.getDateTime(), getActivity(), getActValue(), actNote.getText());
+    }
+
+    @Override
+    public void onDataChange(DataChangeEvent evt) {
+        actModel.onDataChange(evt);
     }
 
 }

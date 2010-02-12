@@ -27,6 +27,8 @@ import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.Energy;
 import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.renderer.ActivityCellRenderer;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInvest;
@@ -47,8 +49,8 @@ public class ActivityModel extends AbstractRecordSubModel {
     private List<RecordInvest> heighes;
     private List<RecordFood> foods;
 
-    public ActivityModel(DateTime month) {
-        super(month);
+    public ActivityModel(DateTime month, Patient patient) {
+        super(month, patient);
     }
 
     @Override
@@ -268,20 +270,12 @@ public class ActivityModel extends AbstractRecordSubModel {
                 edited = edited.update((Integer) value);
             } else {
                 edited = MyLookup.getCurrentPatient().addRecordActivity(getClickCellDate(rowIndex, columnIndex),
-                    MyLookup.getDiaryRepo().getRandomActivity(),
-                    (Integer) value,
-                    null);
+                        MyLookup.getDiaryRepo().getRandomActivity(),
+                        (Integer) value,
+                        null);
             }
             dataActivity[recDateTime.getDayOfMonth() - 1][recDateTime.getHourOfDay() < 12 ? 0 : 1][0] = edited;
         }
-    }
-
-    @Override
-    public void invalidateData() {
-        dataActivity = null;
-        weights = null;
-        heighes = null;
-        foods = null;
     }
 
     @Override
@@ -292,6 +286,7 @@ public class ActivityModel extends AbstractRecordSubModel {
     @Override
     public TableCellEditor getCellEditor(int columnIndex) {
         return new NumberEditor<Integer, Object>(0, 1000) {
+
             @Override
             public Integer getValue(Object object) {
                 if (object instanceof RecordActivity) {
@@ -302,5 +297,22 @@ public class ActivityModel extends AbstractRecordSubModel {
                 return null;
             }
         };
+    }
+
+    @Override
+    public void onDataChange(DataChangeEvent evt) {
+        if (evt.getDataChangedClazz() == null) {
+            dataActivity = null;
+            weights = null;
+            heighes = null;
+            foods = null;
+        } else if (evt.getDataChangedClazz().equals(RecordActivity.class)) {
+            dataActivity = null;
+        } else if (evt.getDataChangedClazz().equals(RecordInvest.class)) {
+            weights = null;
+            heighes = null;
+        } else if (evt.getDataChangedClazz().equals(RecordFood.class)) {
+            foods = null;
+        }
     }
 }

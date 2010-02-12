@@ -22,8 +22,8 @@ import java.text.NumberFormat;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
-import org.diabetesdiary.calendar.utils.DataChangedEvent;
-import org.diabetesdiary.calendar.utils.DataChangedListener;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.calendar.utils.DataChangeListener;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.joda.time.DateTime;
@@ -34,7 +34,7 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class RecordInvestEditTableModel extends AbstractTableModel implements DataChangedListener {
+public class RecordInvestEditTableModel extends AbstractTableModel implements DataChangeListener {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private static DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
@@ -125,7 +125,7 @@ public class RecordInvestEditTableModel extends AbstractTableModel implements Da
         reloadData();
     }
 
-    public void reloadData() {
+    private void reloadData() {
         //no data => end
         if (MyLookup.getCurrentPatient() == null || date == null) {
             recs = null;
@@ -136,7 +136,7 @@ public class RecordInvestEditTableModel extends AbstractTableModel implements Da
     }
 
     @Override
-    public void onDataChanged(DataChangedEvent evt) {
+    public void onDataChange(DataChangeEvent evt) {
         if (evt.getDataChangedClazz() == null || evt.getDataChangedClazz().equals(RecordInvest.class)) {
             reloadData();
         }

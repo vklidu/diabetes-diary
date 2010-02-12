@@ -20,12 +20,13 @@
 package org.diabetesdiary.calendar.table.model;
 
 import java.util.List;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
 import org.diabetesdiary.calendar.table.CalendarDay;
 import org.diabetesdiary.calendar.table.renderer.DayRenderer;
+import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.diary.domain.Patient;
 import org.joda.time.DateTime;
 import org.openide.util.NbBundle;
 
@@ -35,8 +36,8 @@ import org.openide.util.NbBundle;
  */
 public class DayModel extends AbstractRecordSubModel {
 
-    public DayModel(DateTime month) {
-        super(month);
+    public DayModel(DateTime month, Patient patient) {
+        super(month, patient);
     }
     
     @Override
@@ -71,12 +72,12 @@ public class DayModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public void invalidateData() {
+    public TableCellRenderer getCellRenderer(int columnIndex) {
+        return new DayRenderer();
     }
 
     @Override
-    public TableCellRenderer getCellRenderer(int columnIndex) {
-        return new DayRenderer();
+    public void onDataChange(DataChangeEvent evt) {
     }
 
 }
