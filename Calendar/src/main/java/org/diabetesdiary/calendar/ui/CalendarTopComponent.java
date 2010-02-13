@@ -24,18 +24,17 @@ import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.text.ParseException;
 import javax.swing.JFormattedTextField;
-import javax.swing.JTable;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
 import org.diabetesdiary.calendar.CalendarPopupMenu;
 import org.diabetesdiary.calendar.table.model.DiaryTableModel;
 import org.diabetesdiary.calendar.table.header.GroupableTableHeader;
 import org.diabetesdiary.calendar.MultiLineToolTip;
 import org.diabetesdiary.calendar.action.SelectPatientAction;
 import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.calendar.table.DiaryTable;
 import org.diabetesdiary.calendar.table.model.ActivityModel;
 import org.diabetesdiary.calendar.table.model.OtherInvestModel;
 import org.diabetesdiary.calendar.table.model.RecordFoodModel;
@@ -62,9 +61,6 @@ import org.openide.util.actions.CallableSystemAction;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-/**
- * Top component which displays something.
- */
 public final class CalendarTopComponent extends TopComponent implements PropertyChangeListener, DataChangeListener {
 
     private DiaryTableModel model;
@@ -187,7 +183,7 @@ public final class CalendarTopComponent extends TopComponent implements Property
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new JTable() {
+        jTable1 = new DiaryTable() {
             protected JTableHeader createDefaultTableHeader() {
                 return new GroupableTableHeader(columnModel);
             }
@@ -348,33 +344,16 @@ public final class CalendarTopComponent extends TopComponent implements Property
     }// </editor-fold>//GEN-END:initComponents
 
     private void sumVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sumVisibleActionPerformed
-        subModelsViewActionPerformed();
+        model.setSumVisible(sumVisible.isSelected());
     }//GEN-LAST:event_sumVisibleActionPerformed
 
     private void insulinVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insulinVisibleActionPerformed
-        subModelsViewActionPerformed();
+        model.setInsulinVisible(insulinVisible.isSelected());
     }//GEN-LAST:event_insulinVisibleActionPerformed
 
     private void investVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_investVisibleActionPerformed
-        subModelsViewActionPerformed();
-    }//GEN-LAST:event_investVisibleActionPerformed
-
-    private void subModelsViewActionPerformed() {
-        model.setFoodVisible(foodVisible.isSelected());
         model.setGlykemieVisible(investVisible.isSelected());
-        model.setOtherVisible(otherVisible.isSelected());
-        model.setInsulinVisible(insulinVisible.isSelected());
-        model.setActivityVisible(activityVisible.isSelected());
-        model.setSumVisible(sumVisible.isSelected());
-        recreateTableHeader();
-    }
-
-    public void recreateTableHeader() {
-        model.fireTableStructureChanged();
-        TableColumnModel cm = jTable1.getColumnModel();
-        GroupableTableHeader header = (GroupableTableHeader) jTable1.getTableHeader();
-        model.createTableHeader(header, cm);        
-    }
+    }//GEN-LAST:event_investVisibleActionPerformed
 
     private void yearBackwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yearBackwardActionPerformed
         model.yearBackward();
@@ -397,15 +376,15 @@ public final class CalendarTopComponent extends TopComponent implements Property
     }//GEN-LAST:event_backwardActionPerformed
 
 private void otherVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherVisibleActionPerformed
-    subModelsViewActionPerformed();
+    model.setOtherVisible(otherVisible.isSelected());
 }//GEN-LAST:event_otherVisibleActionPerformed
 
 private void activityVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_activityVisibleActionPerformed
-    subModelsViewActionPerformed();
+    model.setActivityVisible(activityVisible.isSelected());
 }//GEN-LAST:event_activityVisibleActionPerformed
 
 private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodViewActionPerformed
-    subModelsViewActionPerformed();
+    model.setFoodVisible(foodVisible.isSelected());
 }//GEN-LAST:event_foodViewActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox activityVisible;
@@ -468,18 +447,49 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
     }
 
     /** replaces this in object stream */
     @Override
     public Object writeReplace() {
-        return new ResolvableHelper();
+        return new ResolvableHelper(insulinVisible.isSelected(), investVisible.isSelected(), otherVisible.isSelected(),
+                foodVisible.isSelected(), activityVisible.isSelected(), sumVisible.isSelected());
     }
 
     @Override
     protected String preferredID() {
         return PREFERRED_ID;
+    }
+
+    final static class ResolvableHelper implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+        private final boolean insVisible;
+        private final boolean glykVisible;
+        private final boolean otherVisible;
+        private final boolean foodVisible;
+        private final boolean actVisible;
+        private final boolean sumVisible;
+
+        public ResolvableHelper(boolean insVisible, boolean glykVisible, boolean otherVisible, boolean foodVisible, boolean actVisible, boolean sumVisible) {
+            this.insVisible = insVisible;
+            this.glykVisible = glykVisible;
+            this.otherVisible = otherVisible;
+            this.foodVisible = foodVisible;
+            this.actVisible = actVisible;
+            this.sumVisible = sumVisible;
+        }
+
+        public Object readResolve() {
+            CalendarTopComponent ret = CalendarTopComponent.getDefault();
+            ret.insulinVisible.setSelected(insVisible);
+            ret.investVisible.setSelected(glykVisible);
+            ret.otherVisible.setSelected(otherVisible);
+            ret.foodVisible.setSelected(foodVisible);
+            ret.activityVisible.setSelected(actVisible);
+            ret.sumVisible.setSelected(sumVisible);
+            return ret;
+        }
     }
 
     @Override
@@ -491,11 +501,12 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     public void setCurPatient(Patient pat) {
         if (pat != null) {
-            model = new DiaryTableModel(pat);
+            model = new DiaryTableModel(pat, jTable1, insulinVisible.isSelected(),
+                    investVisible.isSelected(), otherVisible.isSelected(), foodVisible.isSelected(),
+                    activityVisible.isSelected(), sumVisible.isSelected());
             CalendarSettings.getSettings().addPropertyChangeListener(model);
             model.addDataChangeListener(RecordEditorTopComponent.getDefault());
             jTable1.setModel(model);
-            recreateTableHeader();
         } else {
             model = null;
             jTable1.setModel(new DefaultTableModel());
@@ -516,15 +527,6 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         otherVisible.setEnabled(pat != null);
     }
 
-    final static class ResolvableHelper implements Serializable {
-
-        private static final long serialVersionUID = 1L;
-
-        public Object readResolve() {
-            return CalendarTopComponent.getDefault();
-        }
-    }
-
     public DateTime getDateTime() {
         return model != null ? model.getMonth() : null;
     }
@@ -536,4 +538,5 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             model.setDate((DateTime) selMonth.getValue());
         }
     }
+
 }

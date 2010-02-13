@@ -23,6 +23,9 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import javax.swing.JTable;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
@@ -38,9 +41,20 @@ import org.diabetesdiary.calendar.utils.DataChangeEvent;
 public abstract class AbstractTableModelWithSubmodels extends AbstractTableModel {
 
     private LinkedHashSet<TableSubModel> submodels;
+    private final JTable jTable;
 
-    public AbstractTableModelWithSubmodels() {
+    public AbstractTableModelWithSubmodels(JTable jTable) {
         submodels = new LinkedHashSet<TableSubModel>();
+        this.jTable = jTable;
+        
+        addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                if (e.getFirstRow() == TableModelEvent.HEADER_ROW) {
+                    recreateTableHeader();
+                }
+            }
+        });
     }
 
     public boolean addModel(TableSubModel model) {
@@ -161,7 +175,9 @@ public abstract class AbstractTableModelWithSubmodels extends AbstractTableModel
         return null;
     }
 
-    public JTableHeader createTableHeader(GroupableTableHeader header, TableColumnModel cm) {
+    protected JTableHeader recreateTableHeader() {
+        GroupableTableHeader header = (GroupableTableHeader) jTable.getTableHeader();
+        TableColumnModel cm = header.getTable().getColumnModel();
         int index = 0;
         header.removeAll();
         for (TableSubModel subModel : getVisibleModels()) {

@@ -87,7 +87,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new JTable() {&#xa;      protected JTableHeader createDefaultTableHeader() {&#xa;          return new GroupableTableHeader(columnModel);&#xa;      }&#xa;    &#xa;      public JToolTip createToolTip() {&#xa;        return new MultiLineToolTip();&#xa;    }&#xa;    &#xa;};"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new DiaryTable() {&#xa;      protected JTableHeader createDefaultTableHeader() {&#xa;          return new GroupableTableHeader(columnModel);&#xa;      }&#xa;    &#xa;      public JToolTip createToolTip() {&#xa;        return new MultiLineToolTip();&#xa;    }&#xa;    &#xa;};"/>
           </AuxValues>
         </Component>
       </SubComponents>
