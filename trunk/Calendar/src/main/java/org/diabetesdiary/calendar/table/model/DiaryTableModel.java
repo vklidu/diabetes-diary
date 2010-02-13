@@ -20,6 +20,7 @@ package org.diabetesdiary.calendar.table.model;
 import com.google.common.base.Preconditions;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.JTable;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.calendar.utils.DataChangeListener;
@@ -43,7 +44,12 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
     private final SumModel sumModel;
     private final Patient patient;
 
-    public DiaryTableModel(Patient patient) {
+    public DiaryTableModel(Patient patient, JTable jTable) {
+        this(patient, jTable, true, true, true, true, true, true);
+    }
+
+    public DiaryTableModel(Patient patient, JTable jTable, boolean insVisible, boolean investVisible, boolean otherInvestVisible, boolean foodVisible, boolean actVisible, boolean sumVisible) {
+        super(jTable);
         this.patient = Preconditions.checkNotNull(patient);
 
         DataChangeListener listener = new DataChangeListener() {
@@ -61,13 +67,28 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
         } else {
             insulinModel = new RecordInsulinModel(dateTime, patient);
         }
+        insulinModel.setVisible(insVisible);
         insulinModel.addDataChangeListener(listener);
 
         investModel = new RecordInvestModel(dateTime, patient);
+        investModel.addDataChangeListener(listener);
+        investModel.setVisible(investVisible);
+
         otherModel = new OtherInvestModel(dateTime, patient);
+        otherModel.addDataChangeListener(listener);
+        otherModel.setVisible(otherInvestVisible);
+
         foodModel = new RecordFoodModel(dateTime, patient);
+        foodModel.addDataChangeListener(listener);
+        foodModel.setVisible(foodVisible);
+
         activityModel = new ActivityModel(dateTime, patient);
+        activityModel.addDataChangeListener(listener);
+        activityModel.setVisible(actVisible);
+
         sumModel = new SumModel(dateTime, patient);
+        sumModel.addDataChangeListener(listener);
+        sumModel.setVisible(sumVisible);
 
         addModel(dayModel);
         addModel(insulinModel);
@@ -76,8 +97,6 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
         addModel(foodModel);
         addModel(activityModel);
         addModel(sumModel);
-
-        reloadData(new DataChangeEvent(this));
     }
 
     @Override
@@ -148,52 +167,34 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
         }
     }
 
-    public boolean isGlykemieVisible() {
-        return investModel.isVisible();
-    }
-
     public void setGlykemieVisible(boolean glykemieVisible) {
         investModel.setVisible(glykemieVisible);
-    }
-
-    public boolean isFoodVisible() {
-        return foodModel.isVisible();
+        fireTableStructureChanged();
     }
 
     public void setFoodVisible(boolean foodVisible) {
         foodModel.setVisible(foodVisible);
-    }
-
-    public boolean isInsulinVisible() {
-        return insulinModel.isVisible();
+        fireTableStructureChanged();
     }
 
     public void setInsulinVisible(boolean insulinVisible) {
         insulinModel.setVisible(insulinVisible);
-    }
-
-    public boolean isSumVisible() {
-        return sumModel.isVisible();
+        fireTableStructureChanged();
     }
 
     public void setSumVisible(boolean sumVisible) {
         sumModel.setVisible(sumVisible);
-    }
-
-    public boolean isOtherVisible() {
-        return otherModel.isVisible();
+        fireTableStructureChanged();
     }
 
     public void setOtherVisible(boolean otherVisible) {
         otherModel.setVisible(otherVisible);
-    }
-
-    public boolean isActivityVisible() {
-        return activityModel.isVisible();
+        fireTableStructureChanged();
     }
 
     public void setActivityVisible(boolean activityVisible) {
         activityModel.setVisible(activityVisible);
+        fireTableStructureChanged();
     }
 
     public boolean isOutOfRange(int row, int column) {
