@@ -19,7 +19,6 @@ package org.diabetesdiary.calendar.action;
 
 import org.diabetesdiary.calendar.ui.CalendarTopComponent;
 import org.diabetesdiary.calendar.ui.SelectPatientPanel;
-import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.openide.DialogDescriptor;
