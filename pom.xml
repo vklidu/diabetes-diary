@@ -103,13 +103,14 @@
         </pluginManagement>
     </build>
     <modules>
-        <module>diary</module>
-        <module>simulator</module>
-        <module>calendar</module>
-        <module>updatecenter</module>
+        <module>Diary</module>
+        <module>Simulator</module>
+        <module>Calendar</module>
+        <module>UpdateCenter</module>
         <module>branding</module>
         <module>application</module>
-        <module>commons</module>
+        <module>Commons</module>
+        <module>Print</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

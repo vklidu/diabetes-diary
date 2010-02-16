@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-diabetesdiary-print-PrintPreviewAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <file name="org-diabetesdiary-print-PrintPreviewAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-print-PrintPreviewAction.instance"/>
+                <attr name="position" intvalue="400"/>
+            </file>
+        </folder>
+        <folder name="Window">
+            <file name="PrintPreviewAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-print-PrintPreviewAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="D-P.shadow">
+            <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-print-PrintPreviewAction.instance"/>
+        </file>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Diary">
+            <file name="org-diabetesdiary-print-PrintPreviewAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-diabetesdiary-print-PrintPreviewAction.instance"/>
+                <attr name="position" intvalue="0"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="PrintPreviewTopComponent.settings" url="PrintPreviewTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="PrintPreviewTopComponent.wstcref" url="PrintPreviewTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
