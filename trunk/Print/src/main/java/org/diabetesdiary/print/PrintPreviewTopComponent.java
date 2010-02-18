@@ -71,7 +71,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         pagePanel = new PagePanel();
         try {
-            curFile = new PDFGenerator(null).generate();
+            curFile = new PDFGenerator(null).generateDocument();
             pagePanel.showPage(curFile.getPage(0));
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -194,7 +194,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         try {
-            openFile(new PDFGenerator(null).generate());
+            openFile(new PDFGenerator(null).generateDocument());
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }

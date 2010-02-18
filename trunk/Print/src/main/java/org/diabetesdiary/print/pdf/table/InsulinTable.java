@@ -17,8 +17,12 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
-import com.lowagie.text.pdf.PdfPTable;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.pdf.PdfPTable;
+import java.awt.Color;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
+import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.LocalDate;
 
 /**
@@ -27,28 +31,37 @@ import org.joda.time.LocalDate;
  */
 public class InsulinTable extends AbstractPdfSubTable {
 
-    public InsulinTable(LocalDate from, LocalDate to) {
-        super(from, to);
+    public InsulinTable(LocalDate from, LocalDate to, Patient patient) {
+        super(from, to, patient);
     }
 
     @Override
     public int getColumnCount() {
-        return 5;
+        return 6;
     }
 
     @Override
     public float getWidth() {
-        return 20;
+        return 6;
     }
 
     @Override
-    public PdfPTable getHeader() {
-        return GeneratorHelper.headerBuilder("Inzulín").addColumn("Bazál").addColumn("ráno").addSister("v poledne").addSister("večer").getParent().addSister("Bolus").addColumn("dopoledne").addSister("odpoledne").build();
+    protected HeaderBuilder getHeader() {
+        return (HeaderBuilder) GeneratorHelper.headerBuilder("Inzulín (U)")
+                .addColumn("snídaně").addColumn("rychlý").addSister("depotní").getParent()
+                .addSister("oběd").addColumn("rychlý").getParent()
+                .addSister("1. večeře").addColumn("rychlý").addSister("depotní").getParent()
+                .addSister("přídavek");
     }
 
     @Override
     protected String getValue(LocalDate date, int col) {
         return String.valueOf(date.getDayOfWeek());
+    }
+
+    @Override
+    protected BaseColor getBackGroundColor(LocalDate date, int col, boolean onlyBlackWhite) {
+        return col == 1 || col == 4 ? BaseColor.LIGHT_GRAY : super.getBackGroundColor(date, col, onlyBlackWhite);
     }
 
 }
