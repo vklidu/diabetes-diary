@@ -17,16 +17,12 @@
  */
 package org.diabetesdiary.print.pdf;
 
-import com.google.common.collect.Lists;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.BaseFont;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import java.util.List;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 
 /**
  *
@@ -39,10 +35,6 @@ public class GeneratorHelper {
 
     public static HeaderBuilder headerBuilder(String base) {
         return new HeaderBuilder(base);
-    }
-
-    public static DataBuilder dataBuilder(int columnCount) {
-        return new DataBuilder(columnCount);
     }
 
     public static abstract class AbstractBuilder {
@@ -75,8 +67,15 @@ public class GeneratorHelper {
 
     public static class HeaderBuilder extends AbstractBuilder {
 
+        private Font font;
+
         private HeaderBuilder(String base) {
             super(base);
+        }
+
+        public HeaderBuilder setFont(Font font) {
+            this.font = font;
+            return this;
         }
 
         @Override
@@ -91,45 +90,17 @@ public class GeneratorHelper {
                     if (node.getMaxWidth() > 0) {
                         cell.setColspan(node.getMaxWidth());
                     }
-                    Font font = PDFGenerator.DEJAVU;
+                    if (node.getMaxDepth() < node.getMaxDepthOfSisters()) {
+                        cell.setRowspan(node.getMaxDepthOfSisters() - node.getMaxDepth() + 1);
+                    }
                     cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     cell.setBorder(Rectangle.BOX);
-                    cell.setBorderWidth(1);
+                    cell.setBorderWidth(2);
                     cell.setPhrase(new Phrase(node.getValue(), font));
                     table.addCell(cell);
                 }
             });
-            return table;
-        }
-    }
-
-    public static class DataBuilder {
-
-        private final List<String> cols = Lists.newArrayList();
-        private final int columnCount;
-
-        private DataBuilder(int columnCount) {
-            this.columnCount = columnCount;
-        }
-
-        public void addCell(String value) {
-            cols.add(value);
-        }
-
-        public PdfPTable build() {
-            final PdfPTable table = new PdfPTable(columnCount);
-            for (String col : cols) {
-                PdfPCell cell = new PdfPCell();
-                Font font = PDFGenerator.DEJAVU;
-                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                cell.setBorder(Rectangle.BOX);
-                cell.setBorderWidth(1);
-                cell.setPhrase(new Phrase(col, font));
-                table.addCell(cell);
-
-            }
             return table;
         }
     }

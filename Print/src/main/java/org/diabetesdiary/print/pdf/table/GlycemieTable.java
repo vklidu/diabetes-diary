@@ -17,9 +17,10 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
-import com.lowagie.text.pdf.PdfPTable;
-import java.awt.Color;
+import com.itextpdf.text.BaseColor;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
+import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.LocalDate;
 
 /**
@@ -28,33 +29,38 @@ import org.joda.time.LocalDate;
  */
 public class GlycemieTable extends AbstractPdfSubTable {
 
-    public GlycemieTable(LocalDate from, LocalDate to) {
-        super(from, to);
+    public GlycemieTable(LocalDate from, LocalDate to, Patient patient) {
+        super(from, to, patient);
     }
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 8;
     }
 
     @Override
     public float getWidth() {
-        return 20;
+        return 8;
     }
 
     @Override
-    public PdfPTable getHeader() {
-        return GeneratorHelper.headerBuilder("Glykémie").addColumn("ráno").addSister("v poledne").addSister("odpoledne").addSister("večer").build();
+    protected HeaderBuilder getHeader() {
+        return (HeaderBuilder) GeneratorHelper.headerBuilder("Glykémie (mmol/l)")
+                .addColumn("snídaně").addColumn("před").addSister("po").getParent()
+                .addSister("oběd").addColumn("před").addSister("po").getParent()
+                .addSister("1. večeře").addColumn("před").addSister("po").getParent()
+                .addSister("před spaním")
+                .addSister("v noci");
     }
 
     @Override
     protected String getValue(LocalDate date, int col) {
-        return String.valueOf(date.getDayOfWeek());
+        return String.valueOf(date.getDayOfWeek()*2);
     }
 
     @Override
-    protected Color getBackGroundColor(LocalDate date, int col, boolean onlyBlackWhite) {
-        return date.getDayOfWeek() > 5 ? Color.RED : Color.GREEN;
+    protected BaseColor getBackGroundColor(LocalDate date, int col, boolean onlyBlackWhite) {
+        return date.getDayOfWeek() > 5 ? BaseColor.RED : BaseColor.GREEN;
     }
 
 }

@@ -17,17 +17,17 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import java.awt.Color;
-import org.aspectj.apache.bcel.generic.TABLESWITCH;
-import org.diabetesdiary.print.pdf.GeneratorHelper;
-import org.diabetesdiary.print.pdf.GeneratorHelper.DataBuilder;
-import org.diabetesdiary.print.pdf.PDFGenerator;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import org.diabetesdiary.diary.api.DiaryRepository;
+import org.diabetesdiary.diary.domain.Patient;
+import org.diabetesdiary.diary.utils.MyLookup;
+import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.LocalDate;
 
 /**
@@ -38,25 +38,33 @@ public abstract class AbstractPdfSubTable {
 
     protected final LocalDate from;
     protected final LocalDate to;
+    protected final DiaryRepository diary;
+    protected final Patient patient;
+    private boolean visible = true;
 
-    public AbstractPdfSubTable(LocalDate from, LocalDate to) {
+    public AbstractPdfSubTable(LocalDate from, LocalDate to, Patient patient) {
         this.from = from;
         this.to = to;
+        this.patient = patient;
+        diary = MyLookup.getDiaryRepo();
     }
 
     public abstract int getColumnCount();
 
     public abstract float getWidth();
 
-    public abstract PdfPTable getHeader();
+    protected abstract HeaderBuilder getHeader();
 
-    public PdfPTable getData(boolean blackWhite) {
+    public PdfPTable getHeader(boolean blackWhite, Font font) {
+        return getHeader().setFont(font).build();
+    }
+
+    public PdfPTable getData(boolean blackWhite, Font font) {
         PdfPTable table = new PdfPTable(getColumnCount());
         LocalDate pom = from;
         while (!pom.isAfter(to)) {
             for (int column = 0; column < getColumnCount(); column++) {
                 PdfPCell cell = new PdfPCell();
-                Font font = PDFGenerator.DEJAVU;
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                 cell.setBackgroundColor(getBackGroundColor(pom, column, blackWhite));
@@ -72,7 +80,16 @@ public abstract class AbstractPdfSubTable {
 
     protected abstract String getValue(LocalDate date, int col);
 
-    protected Color getBackGroundColor(LocalDate date, int col, boolean onlyBlackWhite) {
-        return Color.WHITE;
+    protected BaseColor getBackGroundColor(LocalDate date, int col, boolean onlyBlackWhite) {
+        return BaseColor.WHITE;
     }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
 }

@@ -64,6 +64,29 @@ public final class TreeContainer<T> {
         }
     }
 
+    public int getMaxDepth() {
+        if (children.size() == 0) {
+            return 0;
+        } else {
+            int ret = 0;
+            for (TreeContainer cont : children) {
+                ret = Math.max(cont.getMaxWidth(), ret);
+            }
+            return ret + 1;
+        }
+    }
+    
+    public int getMaxDepthOfSisters() {
+        if(parent == null) {
+            return -1;
+        }
+        int ret = -1;
+        for(TreeContainer cont : parent.getChildren()) {
+            ret = Math.max(ret, cont.getMaxDepth());
+        }
+        return ret;
+    }
+
     public TreeContainer<T> addChild(T value) {
         TreeContainer<T> child = new TreeContainer<T>(value, this);
         children.add(child);

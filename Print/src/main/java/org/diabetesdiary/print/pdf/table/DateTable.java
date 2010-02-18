@@ -17,9 +17,13 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
-import com.lowagie.text.pdf.PdfPTable;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.pdf.PdfPTable;
 import java.awt.Color;
+import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
+import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -30,8 +34,8 @@ import org.joda.time.format.DateTimeFormat;
  */
 public class DateTable extends AbstractPdfSubTable {
 
-    public DateTable(LocalDate from, LocalDate to) {
-        super(from, to);
+    public DateTable(LocalDate from, LocalDate to, Patient patient) {
+        super(from, to, patient);
     }
 
     @Override
@@ -41,12 +45,7 @@ public class DateTable extends AbstractPdfSubTable {
 
     @Override
     public float getWidth() {
-        return 5;
-    }
-
-    @Override
-    public PdfPTable getHeader() {
-        return GeneratorHelper.headerBuilder("Datum").build();
+        return 2;
     }
 
     @Override
@@ -55,8 +54,13 @@ public class DateTable extends AbstractPdfSubTable {
     }
 
     @Override
-    protected Color getBackGroundColor(LocalDate date, int col, boolean onlyBlackWhite) {
-        return date.getDayOfWeek() == DateTimeConstants.SUNDAY ? Color.LIGHT_GRAY : super.getBackGroundColor(date, col, onlyBlackWhite);
+    protected BaseColor getBackGroundColor(LocalDate date, int col, boolean onlyBlackWhite) {
+        return date.getDayOfWeek() == DateTimeConstants.SUNDAY ? BaseColor.LIGHT_GRAY : super.getBackGroundColor(date, col, onlyBlackWhite);
+    }
+
+    @Override
+    protected HeaderBuilder getHeader() {
+        return GeneratorHelper.headerBuilder("Datum");
     }
 
 }
