@@ -39,7 +39,7 @@ public abstract class AbstractPdfSubTable {
     protected final LocalDate from;
     protected final LocalDate to;
     protected final DiaryRepository diary;
-    protected final Patient patient;
+    protected Patient patient;
     private boolean visible = true;
 
     public AbstractPdfSubTable(LocalDate from, LocalDate to, Patient patient) {
@@ -90,6 +90,10 @@ public abstract class AbstractPdfSubTable {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
     }
 
 }

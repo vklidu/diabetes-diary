@@ -29,6 +29,12 @@ import org.joda.time.LocalDate;
  */
 public class GlycemieTable extends AbstractPdfSubTable {
 
+    private static BaseColor lowGlyColor = new BaseColor(55, 110, 200);
+    private static BaseColor normalGlyColor = new BaseColor(10, 200, 100);
+    private static BaseColor highGlyColor = new BaseColor(240, 40, 40);
+    private double normalMin = 4;
+    private double normalMax = 9;
+
     public GlycemieTable(LocalDate from, LocalDate to, Patient patient) {
         super(from, to, patient);
     }
@@ -45,22 +51,26 @@ public class GlycemieTable extends AbstractPdfSubTable {
 
     @Override
     protected HeaderBuilder getHeader() {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Glykémie (mmol/l)")
-                .addColumn("snídaně").addColumn("před").addSister("po").getParent()
-                .addSister("oběd").addColumn("před").addSister("po").getParent()
-                .addSister("1. večeře").addColumn("před").addSister("po").getParent()
-                .addSister("před spaním")
-                .addSister("v noci");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder("Glykémie (mmol/l)").addColumn("snídaně").addColumn("před").addSister("po").getParent().addSister("oběd").addColumn("před").addSister("po").getParent().addSister("1. večeře").addColumn("před").addSister("po").getParent().addSister("před spaním").addSister("v noci");
     }
 
     @Override
     protected String getValue(LocalDate date, int col) {
-        return String.valueOf(date.getDayOfWeek()*2);
+        return String.valueOf(date.getDayOfWeek() * 2);
     }
 
     @Override
     protected BaseColor getBackGroundColor(LocalDate date, int col, boolean onlyBlackWhite) {
-        return date.getDayOfWeek() > 5 ? BaseColor.RED : BaseColor.GREEN;
+        Double value = date.getDayOfWeek() * 2.0;
+        if (onlyBlackWhite || value == null) {
+            return super.getBackGroundColor(date, col, onlyBlackWhite);
+        }
+        if (value < normalMin) {
+            return lowGlyColor;
+        } else if (value <= normalMax) {
+            return normalGlyColor;
+        } else {
+            return highGlyColor;
+        }
     }
-
 }
