@@ -33,17 +33,25 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 import javax.swing.Action;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.InputMap;
+import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.print.pdf.PDFGenerator;
+import org.diabetesdiary.print.pdf.PageSize;
 import org.diabetesdiary.print.print.PDFPrintSupport;
-import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -52,7 +60,8 @@ import org.openide.windows.WindowManager;
 final class PrintPreviewTopComponent extends TopComponent implements TreeSelectionListener, KeyListener {
 
     private static PrintPreviewTopComponent instance;
-    static final String ICON_PATH = "org/diabetesdiary/print/print.png";
+    static final String ICON_PATH = "org/diabetesdiary/print/images/print_preview.png";
+    static final String ICON_PATH_SMALL = "org/diabetesdiary/print/images/print_preview16.png";
     private static final String PREFERRED_ID = "PrintPreviewTopComponent";
     public final static Color DEFAULT_BACKGROUND = Color.DARK_GRAY;
     public final static Color THUMBS_BACKGROUND = new Color(0xF5F5F5);
@@ -63,19 +72,17 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
     private Action unitScrollDown;
     private Action scrollUp;
     private Action scrollDown;
+    private PDFGenerator generator;
 
     private PrintPreviewTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(PrintPreviewTopComponent.class, "CTL_PrintPreviewTopComponent"));
         setToolTipText(NbBundle.getMessage(PrintPreviewTopComponent.class, "HINT_PrintPreviewTopComponent"));
-        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
+        setIcon(ImageUtilities.loadImage(ICON_PATH_SMALL, true));
+        fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileFilter(new FileNameExtensionFilter("*.pdf", "pdf"));
         pagePanel = new PagePanel();
-        try {
-            curFile = new PDFGenerator(null).generateDocument();
-            pagePanel.showPage(curFile.getPage(0));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         pageScroll.setViewportView(pagePanel);
         pagePanel.addKeyListener(this);
         //custom page panel key function
@@ -98,6 +105,11 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
                 PrintPreviewTopComponent.this.gotoPage(curpage);
             }
         });
+
+        generator = new PDFGenerator(MyLookup.getCurrentPatient());
+        generator.setVisibleActivity(false);
+
+        pageSize.setSelectedItem(PageSize.A4);
     }
 
     /** This method is called from within the constructor to
@@ -108,18 +120,32 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
+        jFileChooser1 = new javax.swing.JFileChooser();
         pageScroll = new javax.swing.JScrollPane();
         jToolBar1 = new javax.swing.JToolBar();
         prevButton = new javax.swing.JButton();
-        pageField = new javax.swing.JTextField();
+        pageField = new javax.swing.JLabel();
         nextButton = new javax.swing.JButton();
-        generateButton = new javax.swing.JButton();
         printButton = new javax.swing.JButton();
         savePDFButton = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
+        insuline = new javax.swing.JCheckBox();
+        glycemia = new javax.swing.JCheckBox();
+        otherInvest = new javax.swing.JCheckBox();
+        food = new javax.swing.JCheckBox();
+        activity = new javax.swing.JCheckBox();
+        sum = new javax.swing.JCheckBox();
+        jSeparator2 = new javax.swing.JToolBar.Separator();
+        jLabel1 = new javax.swing.JLabel();
+        fontSize = new javax.swing.JSpinner();
+        pageSize = new javax.swing.JComboBox();
+        horizontal = new javax.swing.JCheckBox();
+        colors = new javax.swing.JCheckBox();
 
         jToolBar1.setRollover(true);
 
-        org.openide.awt.Mnemonics.setLocalizedText(prevButton, "<");
+        prevButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/prev.png"))); // NOI18N
         prevButton.setFocusable(false);
         prevButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         prevButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -130,11 +156,10 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         });
         jToolBar1.add(prevButton);
 
-        pageField.setMaximumSize(new java.awt.Dimension(30, 50));
-        pageField.setPreferredSize(new java.awt.Dimension(20, 20));
+        org.openide.awt.Mnemonics.setLocalizedText(pageField, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.pageField.text")); // NOI18N
         jToolBar1.add(pageField);
 
-        org.openide.awt.Mnemonics.setLocalizedText(nextButton, ">");
+        nextButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/next.png"))); // NOI18N
         nextButton.setFocusable(false);
         nextButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         nextButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -145,15 +170,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         });
         jToolBar1.add(nextButton);
 
-        org.openide.awt.Mnemonics.setLocalizedText(generateButton, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.generateButton.text")); // NOI18N
-        generateButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generateButtonActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(generateButton);
-
-        org.openide.awt.Mnemonics.setLocalizedText(printButton, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.printButton.text")); // NOI18N
+        printButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/printer.png"))); // NOI18N
         printButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 printButtonActionPerformed(evt);
@@ -161,11 +178,158 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         });
         jToolBar1.add(printButton);
 
-        org.openide.awt.Mnemonics.setLocalizedText(savePDFButton, "savePDF");
+        savePDFButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/pdf.png"))); // NOI18N
         savePDFButton.setFocusable(false);
         savePDFButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         savePDFButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        savePDFButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                savePDFButtonActionPerformed(evt);
+            }
+        });
         jToolBar1.add(savePDFButton);
+        jToolBar1.add(jSeparator1);
+
+        insuline.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(insuline, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.insuline.text")); // NOI18N
+        insuline.setFocusable(false);
+        insuline.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        insuline.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        insuline.setInheritsPopupMenu(true);
+        insuline.setMaximumSize(new java.awt.Dimension(50, 50));
+        insuline.setMinimumSize(new java.awt.Dimension(50, 20));
+        insuline.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        insuline.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                insulineActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(insuline);
+
+        glycemia.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(glycemia, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.glycemia.text")); // NOI18N
+        glycemia.setFocusable(false);
+        glycemia.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        glycemia.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        glycemia.setInheritsPopupMenu(true);
+        glycemia.setMaximumSize(new java.awt.Dimension(50, 50));
+        glycemia.setMinimumSize(new java.awt.Dimension(50, 20));
+        glycemia.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        glycemia.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                glycemiaActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(glycemia);
+
+        otherInvest.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(otherInvest, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.otherInvest.text")); // NOI18N
+        otherInvest.setFocusable(false);
+        otherInvest.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        otherInvest.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        otherInvest.setInheritsPopupMenu(true);
+        otherInvest.setMaximumSize(new java.awt.Dimension(50, 50));
+        otherInvest.setMinimumSize(new java.awt.Dimension(50, 20));
+        otherInvest.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        otherInvest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                otherInvestActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(otherInvest);
+
+        food.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(food, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.food.text")); // NOI18N
+        food.setFocusable(false);
+        food.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        food.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        food.setInheritsPopupMenu(true);
+        food.setMaximumSize(new java.awt.Dimension(50, 50));
+        food.setMinimumSize(new java.awt.Dimension(50, 20));
+        food.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        food.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                foodActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(food);
+
+        org.openide.awt.Mnemonics.setLocalizedText(activity, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.activity.text")); // NOI18N
+        activity.setFocusable(false);
+        activity.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        activity.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        activity.setInheritsPopupMenu(true);
+        activity.setMaximumSize(new java.awt.Dimension(50, 50));
+        activity.setMinimumSize(new java.awt.Dimension(50, 20));
+        activity.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        activity.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                activityActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(activity);
+
+        sum.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(sum, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.sum.text")); // NOI18N
+        sum.setFocusable(false);
+        sum.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sum.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        sum.setInheritsPopupMenu(true);
+        sum.setMaximumSize(new java.awt.Dimension(50, 50));
+        sum.setMinimumSize(new java.awt.Dimension(50, 20));
+        sum.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        sum.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sumActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(sum);
+        jToolBar1.add(jSeparator2);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.jLabel1.text")); // NOI18N
+        jToolBar1.add(jLabel1);
+
+        fontSize.setModel(new javax.swing.SpinnerNumberModel(5, 1, 35, 1));
+        fontSize.setMaximumSize(new java.awt.Dimension(50, 25));
+        fontSize.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                fontSizeStateChanged(evt);
+            }
+        });
+        jToolBar1.add(fontSize);
+
+        pageSize.setModel(new DefaultComboBoxModel(PageSize.values()));
+        pageSize.setMaximumSize(new java.awt.Dimension(70, 25));
+        pageSize.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pageSizeActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(pageSize);
+
+        horizontal.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(horizontal, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.horizontal.text")); // NOI18N
+        horizontal.setFocusable(false);
+        horizontal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        horizontal.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        horizontal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                horizontalActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(horizontal);
+
+        colors.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(colors, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.colors.text")); // NOI18N
+        colors.setFocusable(false);
+        colors.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        colors.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        colors.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorsActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(colors);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -174,16 +338,16 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(pageScroll, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-                    .addComponent(jToolBar1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
+                    .addComponent(pageScroll, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE)
+                    .addComponent(jToolBar1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pageScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
+                .addComponent(pageScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -192,32 +356,108 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         new PDFPrintSupport(curFile, "test").print();
     }//GEN-LAST:event_printButtonActionPerformed
 
-    private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
-        try {
-            openFile(new PDFGenerator(null).generateDocument());
-        } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }//GEN-LAST:event_generateButtonActionPerformed
+    private void insulineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insulineActionPerformed
+        generator.setVisibleInsulin(insuline.isSelected());
+        generatePDF();
+    }//GEN-LAST:event_insulineActionPerformed
 
     private void prevButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevButtonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_prevButtonActionPerformed
+        doPrev();
+}//GEN-LAST:event_prevButtonActionPerformed
 
     private void nextButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextButtonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_nextButtonActionPerformed
+        doNext();
+}//GEN-LAST:event_nextButtonActionPerformed
+
+    private void glycemiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_glycemiaActionPerformed
+        generator.setVisibleGlycemie(glycemia.isSelected());
+        generatePDF();
+    }//GEN-LAST:event_glycemiaActionPerformed
+
+    private void otherInvestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherInvestActionPerformed
+        generator.setVisibleInvest(otherInvest.isSelected());
+        generatePDF();
+    }//GEN-LAST:event_otherInvestActionPerformed
+
+    private void foodActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodActionPerformed
+        generator.setVisibleFood(food.isSelected());
+        generatePDF();
+    }//GEN-LAST:event_foodActionPerformed
+
+    private void activityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_activityActionPerformed
+        generator.setVisibleActivity(activity.isSelected());
+        generatePDF();
+    }//GEN-LAST:event_activityActionPerformed
+
+    private void sumActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sumActionPerformed
+        generator.setVisibleSum(sum.isSelected());
+        generatePDF();
+    }//GEN-LAST:event_sumActionPerformed
+
+    private void pageSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pageSizeActionPerformed
+        generator.setPageSize((PageSize) pageSize.getSelectedItem());
+        generatePDF();
+    }//GEN-LAST:event_pageSizeActionPerformed
+
+    private void horizontalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_horizontalActionPerformed
+        generator.setHorizontal(horizontal.isSelected());
+        generatePDF();
+    }//GEN-LAST:event_horizontalActionPerformed
+
+    private void fontSizeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_fontSizeStateChanged
+        generator.setFontSize((Integer) fontSize.getValue());
+        generatePDF();
+    }//GEN-LAST:event_fontSizeStateChanged
+
+    private void colorsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorsActionPerformed
+        generator.setColors(colors.isSelected());
+        generatePDF();
+    }//GEN-LAST:event_colorsActionPerformed
+
+    private void savePDFButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savePDFButtonActionPerformed
+        int returnVal = fileChooser.showSaveDialog(PrintPreviewTopComponent.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            BufferedOutputStream out = null;
+            try {
+                FileOutputStream fstream = new FileOutputStream(file);
+                out = new BufferedOutputStream(fstream);
+                generator.generateDocument(out);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                try {
+                    out.close();
+                } catch (Exception ex) {}
+            }
+        }
+    }//GEN-LAST:event_savePDFButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton generateButton;
+    private javax.swing.JCheckBox activity;
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JCheckBox colors;
+    private javax.swing.JSpinner fontSize;
+    private javax.swing.JCheckBox food;
+    private javax.swing.JCheckBox glycemia;
+    private javax.swing.JCheckBox horizontal;
+    private javax.swing.JCheckBox insuline;
+    private javax.swing.JFileChooser jFileChooser1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JButton nextButton;
-    private javax.swing.JTextField pageField;
+    private javax.swing.JCheckBox otherInvest;
+    private javax.swing.JLabel pageField;
     private javax.swing.JScrollPane pageScroll;
+    private javax.swing.JComboBox pageSize;
     private javax.swing.JButton prevButton;
     private javax.swing.JButton printButton;
     private javax.swing.JButton savePDFButton;
+    private javax.swing.JCheckBox sum;
     // End of variables declaration//GEN-END:variables
     private PagePanel pagePanel;
+    private JFileChooser fileChooser;
 
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
@@ -275,21 +515,24 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         }
     }
 
-    public void gotoPage(int pagenum) {
-        if (pagenum < 0) {
-            pagenum = 0;
-        } else if (pagenum >= curFile.getNumPages()) {
-            pagenum = curFile.getNumPages() - 1;
+    public void generatePDF() {
+        try {
+            if (generator.getPatient() == null || !generator.getPatient().equals(MyLookup.getCurrentPatient())) {
+                generator.setPatient(MyLookup.getCurrentPatient());
+            }
+            curFile = new PDFFile(ByteBuffer.wrap(generator.generateDocument().toByteArray()));
+            gotoPage(0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        forceGotoPage(pagenum);
     }
 
     /**
      * Changes the displayed page.
      * @param pagenum the page to display
      */
-    public void forceGotoPage(int pagenum) {
-        if (pagenum <= 0) {
+    public void gotoPage(int pagenum) {
+        if (pagenum < 0) {
             pagenum = 0;
         } else if (pagenum >= curFile.getNumPages()) {
             pagenum = curFile.getNumPages() - 1;
@@ -297,7 +540,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         curpage = pagenum;
 
         // update the page text field
-        pageField.setText(String.valueOf(curpage + 1));
+        pageField.setText(String.format("%d of %d", curpage + 1, curFile.getNumPages()));
 
         // fetch the page and show it in the appropriate place
         PDFPage pg = curFile.getPage(pagenum + 1);
@@ -356,12 +599,8 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
      * Enable or disable all of the actions based on the current state.
      */
     public void setEnabling() {
-        boolean fileavailable = curFile != null;
-        boolean pageshown = pagePanel.getPage() != null;
-
-        pageField.setEnabled(fileavailable);
-        prevButton.setEnabled(pageshown);
-        nextButton.setEnabled(pageshown);
+        prevButton.setEnabled(curpage > 0);
+        nextButton.setEnabled(curpage < curFile.getNumPages() - 1);
     }
 
     /**
@@ -370,7 +609,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
      */
     public void openFile(PDFFile o) throws IOException {
         this.curFile = o;
-        forceGotoPage(0);
+        gotoPage(0);
     }
 
     /**
@@ -399,27 +638,6 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
      */
     public void doLast() {
         gotoPage(curFile.getNumPages() - 1);
-    }
-
-    /**
-     * Goes to the page that was typed in the page number text field
-     */
-    public void doPageTyped() {
-        int pagenum = -1;
-        try {
-            pagenum = Integer.parseInt(pageField.getText()) - 1;
-        } catch (NumberFormatException nfe) {
-        }
-        if (pagenum >= curFile.getNumPages()) {
-            pagenum = curFile.getNumPages() - 1;
-        }
-        if (pagenum >= 0) {
-            if (pagenum != curpage) {
-                gotoPage(pagenum);
-            }
-        } else {
-            pageField.setText(String.valueOf(curpage));
-        }
     }
     /**
      * Handle a key press for navigation

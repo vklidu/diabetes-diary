@@ -37,6 +37,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PagePanel;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 import javax.swing.JFrame;
@@ -67,6 +69,7 @@ public class PDFGenerator {
     private LocalDate from = new LocalDate().dayOfMonth().withMinimumValue();
     private LocalDate to = new LocalDate().dayOfMonth().withMaximumValue();
     private boolean blackWhite = false;
+    private int fontSize = 5;
     private final List<AbstractPdfSubTable> subTables = Lists.newArrayList();
 
     static {
@@ -86,12 +89,31 @@ public class PDFGenerator {
         setVisibleActivity(false);
     }
 
-    public PDFFile generateDocument() throws Exception {
-        return new PDFFile(ByteBuffer.wrap(generate().toByteArray()));
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
+    }
+
+    public void setColors(boolean colors) {
+        this.blackWhite = !colors;
+    }
+
+    public void setPageSize(org.diabetesdiary.print.pdf.PageSize pageSize) {
+        this.pageSize = pageSize.getPageSize();
     }
 
     public void setHorizontal(boolean horizontal) {
         this.horizontal = horizontal;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+        for (AbstractPdfSubTable subTable : subTables) {
+            subTable.setPatient(patient);
+        }
+    }
+
+    public Patient getPatient() {
+        return patient;
     }
 
     public void setVisibleInsulin(boolean visible) {
@@ -118,37 +140,49 @@ public class PDFGenerator {
         setVisible(SumTable.class, visible);
     }
 
-    private ByteArrayOutputStream generate() throws DocumentException {
+    public void generateDocument(OutputStream outputStream) throws DocumentException {
         Document document = new Document(horizontal ? pageSize.rotate() : pageSize, MARGIN, MARGIN, MARGIN, MARGIN);
+        PdfWriter pdfWriter = PdfWriter.getInstance(document, outputStream);
+        try {
+            DEJAVU.setSize(fontSize);
+
+            document.addProducer();
+            document.addAuthor("Jirka Majer");
+            document.addCreator("Diabetes Diary (www.diabetes-diary.org)");
+            document.addTitle("Diabetes diary - records");
+            document.open();
+
+            document.add(getHeader());
+            PdfPTable table = new PdfPTable(getWidths());
+            table.setLockedWidth(false);
+            table.setWidthPercentage(100);
+            table.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+            table.getDefaultCell().setPadding(0);
+            for (AbstractPdfSubTable sub : getVisibleModels()) {
+                table.addCell(sub.getHeader(blackWhite, DEJAVU));
+            }
+            for (AbstractPdfSubTable sub : getVisibleModels()) {
+                table.addCell(sub.getData(blackWhite, DEJAVU));
+            }
+            document.add(table);
+
+            DEJAVU.setColor(BaseColor.DARK_GRAY);
+            Paragraph para = new Paragraph("www.diabetes-diary.org", DEJAVU);
+            para.setAlignment(Element.ALIGN_CENTER);
+            document.add(para);
+        } finally {
+            document.close();
+            pdfWriter.close();
+        }
+    }
+
+    public ByteArrayOutputStream generateDocument() throws DocumentException, IOException {
         ByteArrayOutputStream baosPDF = new ByteArrayOutputStream();
-        PdfWriter pdfWriter = PdfWriter.getInstance(document, baosPDF);
-        document.addProducer();
-        document.addAuthor("Jirka Majer");
-        document.addCreator("Diabetes Diary (www.diabetes-diary.org)");
-        document.addTitle("Diabetes diary - records");
-        document.open();
-
-        document.add(getHeader());
-        PdfPTable table = new PdfPTable(getWidths());
-        table.setLockedWidth(false);
-        table.setWidthPercentage(100);
-        table.getDefaultCell().setBorder(Rectangle.NO_BORDER);
-        table.getDefaultCell().setPadding(0);
-        for (AbstractPdfSubTable sub : getVisibleModels()) {
-            table.addCell(sub.getHeader(blackWhite, DEJAVU));
+        try {
+            generateDocument(baosPDF);
+        } finally {
+            baosPDF.close();
         }
-        for (AbstractPdfSubTable sub : getVisibleModels()) {
-            table.addCell(sub.getData(blackWhite, DEJAVU));
-        }
-        document.add(table);
-
-        DEJAVU.setColor(BaseColor.DARK_GRAY);
-        Paragraph para = new Paragraph("www.diabetes-diary.org", DEJAVU);
-        para.setAlignment(Element.ALIGN_CENTER);
-        document.add(para);
-
-        document.close();
-        pdfWriter.close();
         return baosPDF;
     }
 
@@ -193,7 +227,7 @@ public class PDFGenerator {
         frame.setVisible(true);
 
         // show the first page
-        panel.showPage(generateDocument().getPage(0));
+        panel.showPage(new PDFFile(ByteBuffer.wrap(generateDocument().toByteArray())).getPage(0));
     }
 
     public static void main(final String[] args) {
