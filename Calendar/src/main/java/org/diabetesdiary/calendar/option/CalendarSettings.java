@@ -15,7 +15,6 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package org.diabetesdiary.calendar.option;
 
 import java.beans.PropertyChangeListener;
@@ -28,37 +27,31 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 
-public class CalendarSettings{
-    
+public class CalendarSettings {
+
     private FileObject settingsFolder;
     private FileObject settingsFile;
     private FileLock lock;
     private Properties settings;
-    
     /** Configuration file base name*/
     public static String PROPERTIES_BASE = "calendaroptions";
     /** Configuration file extension*/
     public static String PROPERTIES_EXTENSION = "properties";
-    
-    
     /** Key under which the carbohydrate unit is stored in the properties file*/
     public static final String KEY_CARBOHYDRATE_UNIT = "properties.carbohydrate.unit";
     public static final String KEY_GLYKEMIE_LOW_NORMAL = "properties.glykemie.lownormal";
     public static final String KEY_GLYKEMIE_HIGH_NORMAL = "properties.glykemie.highnormal";
-    
     /** There can only be one!*/
     private static CalendarSettings SINGLETON = null;
-    
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-    
-    
+
     private CalendarSettings() {
         settings = new Properties();
         setDefaultValues();
         settingsFolder = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("Settings");
-        if (settingsFolder==null) {        
+        if (settingsFolder == null) {
             try {
-                settingsFolder=Repository.getDefault().getDefaultFileSystem().getRoot().createFolder("Settings");
+                settingsFolder = Repository.getDefault().getDefaultFileSystem().getRoot().createFolder("Settings");
                 store();
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -67,30 +60,31 @@ public class CalendarSettings{
             load();
         }
     }
-    
+
     public static CalendarSettings getSettings() {
-        if (SINGLETON == null)
+        if (SINGLETON == null) {
             SINGLETON = new CalendarSettings();
+        }
         return SINGLETON;
     }
-    
+
     public void setDefaultValues() {
         settings.clear();
         settings.put(KEY_CARBOHYDRATE_UNIT, "u12");
-        settings.put(KEY_GLYKEMIE_LOW_NORMAL,"4");
-        settings.put(KEY_GLYKEMIE_HIGH_NORMAL,"9");
+        settings.put(KEY_GLYKEMIE_LOW_NORMAL, "4");
+        settings.put(KEY_GLYKEMIE_HIGH_NORMAL, "9");
     }
-    
+
     public void store() {
         try {
-            settingsFile = settingsFolder.getFileObject(PROPERTIES_BASE,PROPERTIES_EXTENSION);
-            if (settingsFile==null) {
-                settingsFile = settingsFolder.createData(PROPERTIES_BASE,PROPERTIES_EXTENSION);
+            settingsFile = settingsFolder.getFileObject(PROPERTIES_BASE, PROPERTIES_EXTENSION);
+            if (settingsFile == null) {
+                settingsFile = settingsFolder.createData(PROPERTIES_BASE, PROPERTIES_EXTENSION);
             }
-            
+
             lock = settingsFile.lock();
             OutputStream out = settingsFile.getOutputStream(lock);
-            settings.storeToXML(out,"Configuration File for My Options");
+            settings.storeToXML(out, "Configuration File for My Options");
             out.close();
             lock.releaseLock();
         } catch (IOException ex) {
@@ -98,9 +92,9 @@ public class CalendarSettings{
             ex.printStackTrace();
         }
     }
-    
+
     public void load() {
-        settingsFile = settingsFolder.getFileObject(PROPERTIES_BASE,PROPERTIES_EXTENSION);
+        settingsFile = settingsFolder.getFileObject(PROPERTIES_BASE, PROPERTIES_EXTENSION);
         if (settingsFile != null) {
             try {
                 InputStream in = settingsFile.getInputStream();
@@ -111,24 +105,22 @@ public class CalendarSettings{
             }
         }
     }
-    
+
     public String getValue(String key) {
         return settings.getProperty(key);
     }
-    
+
     public void setValue(String key, String value) {
         String oldValue = settings.getProperty(key);
         settings.setProperty(key, value.trim());
-        pcs.firePropertyChange(key,oldValue,value.trim());
+        pcs.firePropertyChange(key, oldValue, value.trim());
     }
-    
-    
-    public void addPropertyChangeListener( PropertyChangeListener listener ) {
-        this.pcs.addPropertyChangeListener( listener );
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.addPropertyChangeListener(listener);
     }
-    
-    public void removePropertyChangeListener( PropertyChangeListener listener ) {
-        this.pcs.removePropertyChangeListener( listener );
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.removePropertyChangeListener(listener);
     }
-    
 }

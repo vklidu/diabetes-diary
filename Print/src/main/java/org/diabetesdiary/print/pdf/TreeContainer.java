@@ -18,8 +18,10 @@
 package org.diabetesdiary.print.pdf;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  *
@@ -28,7 +30,7 @@ import java.util.List;
 public final class TreeContainer<T> {
 
     private List<TreeContainer<T>> children = new ArrayList<TreeContainer<T>>();
-    private final TreeContainer<T> parent;
+    private TreeContainer<T> parent;
     private final T value;
 
     public TreeContainer(T value) {
@@ -70,21 +72,42 @@ public final class TreeContainer<T> {
         } else {
             int ret = 0;
             for (TreeContainer cont : children) {
-                ret = Math.max(cont.getMaxWidth(), ret);
+                ret = Math.max(cont.getMaxDepth(), ret);
             }
             return ret + 1;
         }
     }
     
+    public int getHeight() {
+        int res = 0;
+        TreeContainer<T> node = this;
+        while(node.parent != null) {
+            node = node.parent;
+            res++;
+        }
+        return res;
+    }
+
     public int getMaxDepthOfSisters() {
-        if(parent == null) {
-            return -1;
+        final int height = getHeight();
+        final int[] res = new int[]{0};
+        getRoot().walkBreathFirst(new RecursiveWalker<T>() {
+            @Override
+            public void onAction(TreeContainer<T> node) {
+                if (node.getHeight() == height) {
+                    res[0] = Math.max(res[0], node.getMaxDepth());
+                }
+            }
+        });
+        return res[0];
+    }
+
+    public TreeContainer<T> getRoot() {
+        TreeContainer<T> result = this;
+        while(result.getParent() != null) {
+            result = result.getParent();
         }
-        int ret = -1;
-        for(TreeContainer cont : parent.getChildren()) {
-            ret = Math.max(ret, cont.getMaxDepth());
-        }
-        return ret;
+        return result;
     }
 
     public TreeContainer<T> addChild(T value) {
@@ -93,21 +116,23 @@ public final class TreeContainer<T> {
         return child;
     }
 
+    public TreeContainer<T> addChild(TreeContainer<T> value) {
+        value.parent = this;
+        children.add(value);
+        return value;
+    }
+
     /**
      * walk recursive to width
      * @param walker
      */
-    public void walkRecursive(RecursiveWalker<T> walker) {
-        walker.onNode(this);
-        walkRecursivePom(walker);
-    }
-
-    private void walkRecursivePom(RecursiveWalker<T> walker) {
-        for (TreeContainer<T> node : children) {
-            walker.onNode(node);
-        }
-        for (TreeContainer<T> node : children) {
-            node.walkRecursivePom(walker);
+    public void walkBreathFirst(RecursiveWalker<T> walker) {
+        Queue<TreeContainer<T>> queue = new ArrayDeque<TreeContainer<T>>();
+        queue.add(this);
+        while (!queue.isEmpty()) {
+            TreeContainer<T> item = queue.remove();
+            walker.onAction(item);
+            queue.addAll(item.getChildren());
         }
     }
 
@@ -117,6 +142,12 @@ public final class TreeContainer<T> {
 
     public static interface RecursiveWalker<T> {
 
-        public void onNode(TreeContainer<T> node);
+        public void onAction(TreeContainer<T> node);
     }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
+
 }

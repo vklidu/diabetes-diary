@@ -32,6 +32,7 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.sun.pdfview.PDFFile;
@@ -52,7 +53,7 @@ import org.diabetesdiary.print.pdf.table.GlycemieTable;
 import org.diabetesdiary.print.pdf.table.InsulinTable;
 import org.diabetesdiary.print.pdf.table.InvestTable;
 import org.diabetesdiary.print.pdf.table.SumTable;
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 /**
@@ -62,19 +63,17 @@ import org.joda.time.format.DateTimeFormat;
 public class PDFGenerator {
 
     private Rectangle pageSize = PageSize.A4;
-    public static final Font DEJAVU;
     private static final int MARGIN = 10;
     private Patient patient;
     private boolean horizontal = true;
-    private LocalDate from = new LocalDate().dayOfMonth().withMinimumValue();
-    private LocalDate to = new LocalDate().dayOfMonth().withMaximumValue();
+    private DateTime from = new DateTime().dayOfMonth().withMinimumValue();
+    private DateTime to = new DateTime().dayOfMonth().withMaximumValue();
     private boolean blackWhite = false;
-    private int fontSize = 5;
+    private int fontSize = 9;
     private final List<AbstractPdfSubTable> subTables = Lists.newArrayList();
 
     static {
         FontFactory.register("org/diabetesdiary/print/pdf/fonts/DejaVuSans.ttf");
-        DEJAVU = FontFactory.getFont("dejavusans", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 5);
     }
 
     public PDFGenerator(Patient patient) {
@@ -86,7 +85,11 @@ public class PDFGenerator {
         subTables.add(new FoodTable(from, to, patient));
         subTables.add(new ActivityTable(from, to, patient));
         subTables.add(new SumTable(from, to, patient));
-        setVisibleActivity(false);
+
+    }
+
+    public static Font getFont() {
+        return FontFactory.getFont("dejavusans", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
     }
 
     public void setFontSize(int fontSize) {
@@ -109,6 +112,12 @@ public class PDFGenerator {
         this.patient = patient;
         for (AbstractPdfSubTable subTable : subTables) {
             subTable.setPatient(patient);
+        }
+    }
+
+    public void reloadData() {
+        for (AbstractPdfSubTable subTable : subTables) {
+            subTable.dirtyData();
         }
     }
 
@@ -144,7 +153,12 @@ public class PDFGenerator {
         Document document = new Document(horizontal ? pageSize.rotate() : pageSize, MARGIN, MARGIN, MARGIN, MARGIN);
         PdfWriter pdfWriter = PdfWriter.getInstance(document, outputStream);
         try {
-            DEJAVU.setSize(fontSize);
+            Font headFont = getFont();
+            headFont.setSize(fontSize);
+            headFont.setStyle(Font.BOLD);
+
+            Font dataFont = getFont();
+            dataFont.setSize(fontSize);
 
             document.addProducer();
             document.addAuthor("Jirka Majer");
@@ -152,28 +166,48 @@ public class PDFGenerator {
             document.addTitle("Diabetes diary - records");
             document.open();
 
-            document.add(getHeader());
+            document.add(getHeader(dataFont));
             PdfPTable table = new PdfPTable(getWidths());
             table.setLockedWidth(false);
             table.setWidthPercentage(100);
             table.getDefaultCell().setBorder(Rectangle.NO_BORDER);
             table.getDefaultCell().setPadding(0);
+            GeneratorHelper.HeaderBuilder header = GeneratorHelper.headerBuilder("");
             for (AbstractPdfSubTable sub : getVisibleModels()) {
-                table.addCell(sub.getHeader(blackWhite, DEJAVU));
+                header.add(sub.getHeader());
             }
-            for (AbstractPdfSubTable sub : getVisibleModels()) {
-                table.addCell(sub.getData(blackWhite, DEJAVU));
+            for (PdfPCell cell : header.setFont(headFont).build()) {
+                table.addCell(cell);
             }
+            DateTime pom = from;
+            while (!pom.isAfter(to)) {
+                for (AbstractPdfSubTable sub : getVisibleModels()) {
+                    for (int innerColumn = 0; innerColumn < sub.getColumnCount(); innerColumn++) {
+                        table.addCell(sub.getData(blackWhite, dataFont, innerColumn, pom.toLocalDate()));
+                    }
+                }
+                pom = pom.plusDays(1);
+            }
+
             document.add(table);
 
-            DEJAVU.setColor(BaseColor.DARK_GRAY);
-            Paragraph para = new Paragraph("www.diabetes-diary.org", DEJAVU);
+            Font font = getFont();
+            font.setColor(BaseColor.DARK_GRAY);
+            Paragraph para = new Paragraph("www.diabetes-diary.org", font);
             para.setAlignment(Element.ALIGN_CENTER);
             document.add(para);
         } finally {
             document.close();
             pdfWriter.close();
         }
+    }
+
+    private int getVisibleColumnCount() {
+        int res = 0;
+        for (AbstractPdfSubTable subTable : getVisibleModels()) {
+            res += subTable.getColumnCount();
+        }
+        return res;
     }
 
     public ByteArrayOutputStream generateDocument() throws DocumentException, IOException {
@@ -187,20 +221,32 @@ public class PDFGenerator {
     }
 
     private float[] getWidths() {
-        float[] res = new float[Iterables.size(getVisibleModels())];
+        float[] widths = new float[getVisibleColumnCount()];
         int i = 0;
         for (AbstractPdfSubTable table : getVisibleModels()) {
-            res[i++] = table.getWidth();
+            for (int innerColumn = 0; innerColumn < table.getColumnCount(); innerColumn++) {
+                widths[i++] = table.getWidth(innerColumn);
+            }
         }
-        return res;
+        return widths;
     }
 
-    private Element getHeader() {
-        String date = from.getMonthOfYear() == to.getMonthOfYear() ? from.toString(DateTimeFormat.forPattern("MMMM yyyy")) : (from.toString(DateTimeFormat.mediumDate()) + to.toString(DateTimeFormat.mediumDate()));
-        if (patient == null) {
-            return new Phrase(date, DEJAVU);
+    private Element getHeader(Font font) {
+        String date;
+        if (from.getMonthOfYear() == to.getMonthOfYear() && from.dayOfMonth().withMinimumValue().equals(from) && to.dayOfMonth().withMaximumValue().equals(to)) {
+            date = from.toString(DateTimeFormat.forPattern("MMMM yyyy"));
         } else {
-            return new Phrase(String.format("%s %s (%s)", patient.getName(), patient.getSurname(), date), DEJAVU);
+            date = from.toString(DateTimeFormat.mediumDate()) + " - " + to.toString(DateTimeFormat.mediumDate());
+        }
+
+        if (patient == null) {
+            return new Phrase(String.format("Není otevřen deník (%s)", date), font);
+        } else {
+            Double weight = patient.getWeightBefore(to);
+            Double height = patient.getTallBefore(to);
+            String weightS = weight != null ? weight.toString() + " kg" : "? kg";
+            String heightS = height != null ? height.toString() + " cm" : "? cm";
+            return new Phrase(String.format("%s %s (%s), %s/%s", patient.getName(), patient.getSurname(), date, weightS, heightS), font);
         }
     }
 
@@ -242,5 +288,19 @@ public class PDFGenerator {
                 }
             }
         });
+    }
+
+    public void setFrom(DateTime from) {
+        this.from = from;
+        for (AbstractPdfSubTable subTable : subTables) {
+            subTable.setFrom(from);
+        }
+    }
+
+    public void setTo(DateTime to) {
+        this.to = to;
+        for (AbstractPdfSubTable subTable : subTables) {
+            subTable.setTo(to);
+        }
     }
 }

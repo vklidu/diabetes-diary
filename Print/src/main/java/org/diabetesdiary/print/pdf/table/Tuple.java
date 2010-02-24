@@ -17,42 +17,41 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
-import org.diabetesdiary.diary.domain.Patient;
-import org.diabetesdiary.print.pdf.GeneratorHelper;
-import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import com.google.common.base.Preconditions;
 
 /**
  *
  * @author Jirka Majer
  */
-public class InvestTable extends AbstractPdfSubTable {
+public class Tuple<T, S> {
 
-    public InvestTable(DateTime from, DateTime to, Patient patient) {
-        super(from, to, patient);
+    private final T value1;
+    private final S value2;
+
+    public Tuple(T value1, S value2) {
+        this.value1 = Preconditions.checkNotNull(value1);
+        this.value2 = Preconditions.checkNotNull(value2);
+    }
+
+    public T getValue1() {
+        return value1;
+    }
+
+    public S getValue2() {
+        return value2;
     }
 
     @Override
-    public int getColumnCount() {
-        return 2;
+    public int hashCode() {
+        return value1.hashCode() + value2.hashCode();
     }
 
     @Override
-    public float getWidth(int column) {
-        return 0.5f;
+    public boolean equals(Object obj) {
+        if (obj instanceof Tuple) {
+            Tuple inst = (Tuple) obj;
+            return inst.value1.equals(value1) && inst.value2.equals(value2);
+        }
+        return false;
     }
-
-    @Override
-    public HeaderBuilder getHeader() {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Moč")
-                .addColumn("Cukr")
-                .addSister("Ketolátky");
-    }
-
-    @Override
-    protected String getValue(LocalDate date, int col) {
-        return String.valueOf(date.getDayOfWeek());
-    }
-
 }

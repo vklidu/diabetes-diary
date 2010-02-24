@@ -22,7 +22,6 @@ package org.diabetesdiary.simulator.ui;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -37,7 +36,6 @@ import org.diabetesdiary.diary.domain.RecordInsulin;
  */
 public class InsulinPumpTableModel extends AbstractTableModel{
     private Double[] values;
-    private static SimpleDateFormat format = new SimpleDateFormat("HH:mm");
     
     /** Creates a new instance of SimulationTableModel */
     public InsulinPumpTableModel() {

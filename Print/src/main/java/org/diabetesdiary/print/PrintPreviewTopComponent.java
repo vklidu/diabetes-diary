@@ -48,10 +48,12 @@ import javax.swing.KeyStroke;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.diabetesdiary.commons.swing.calendar.DateTimePanel;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.print.pdf.PDFGenerator;
 import org.diabetesdiary.print.pdf.PageSize;
 import org.diabetesdiary.print.print.PDFPrintSupport;
+import org.joda.time.DateTime;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -79,10 +81,8 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         setName(NbBundle.getMessage(PrintPreviewTopComponent.class, "CTL_PrintPreviewTopComponent"));
         setToolTipText(NbBundle.getMessage(PrintPreviewTopComponent.class, "HINT_PrintPreviewTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH_SMALL, true));
-        fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setFileFilter(new FileNameExtensionFilter("*.pdf", "pdf"));
         pagePanel = new PagePanel();
+        pagePanel.setBackground(Color.DARK_GRAY);
         pageScroll.setViewportView(pagePanel);
         pagePanel.addKeyListener(this);
         //custom page panel key function
@@ -108,8 +108,11 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
 
         generator = new PDFGenerator(MyLookup.getCurrentPatient());
         generator.setVisibleActivity(false);
-
-        pageSize.setSelectedItem(PageSize.A4);
+        generator.setFontSize(9);
+        dateTo.setTimeVisible(false);
+        dateFrom.setTimeVisible(false);
+        generator.setFrom(dateFrom.getDateTime());
+        generator.setTo(dateTo.getDateTime());
     }
 
     /** This method is called from within the constructor to
@@ -119,9 +122,9 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        jFileChooser1 = new javax.swing.JFileChooser();
+        jFileChooser = new javax.swing.JFileChooser();
         pageScroll = new javax.swing.JScrollPane();
         jToolBar1 = new javax.swing.JToolBar();
         prevButton = new javax.swing.JButton();
@@ -129,7 +132,13 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         nextButton = new javax.swing.JButton();
         printButton = new javax.swing.JButton();
         savePDFButton = new javax.swing.JButton();
+        refresh = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
+        jPanel1 = new javax.swing.JPanel();
+        dateFrom = new org.diabetesdiary.commons.swing.calendar.DateTimePanel();
+        dateTo = new org.diabetesdiary.commons.swing.calendar.DateTimePanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         insuline = new javax.swing.JCheckBox();
         glycemia = new javax.swing.JCheckBox();
         otherInvest = new javax.swing.JCheckBox();
@@ -137,15 +146,20 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         activity = new javax.swing.JCheckBox();
         sum = new javax.swing.JCheckBox();
         jSeparator2 = new javax.swing.JToolBar.Separator();
-        jLabel1 = new javax.swing.JLabel();
+        fontSizeLabel = new javax.swing.JLabel();
         fontSize = new javax.swing.JSpinner();
         pageSize = new javax.swing.JComboBox();
         horizontal = new javax.swing.JCheckBox();
         colors = new javax.swing.JCheckBox();
 
+        jFileChooser.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
+        jFileChooser.setFileFilter(new FileNameExtensionFilter("*.pdf", "pdf"));
+
+        jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
         prevButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/prev.png"))); // NOI18N
+        prevButton.setToolTipText(org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.prevButton.toolTipText")); // NOI18N
         prevButton.setFocusable(false);
         prevButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         prevButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -156,10 +170,11 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         });
         jToolBar1.add(prevButton);
 
-        org.openide.awt.Mnemonics.setLocalizedText(pageField, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.pageField.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(pageField, "1 of 1"); // NOI18N
         jToolBar1.add(pageField);
 
         nextButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/next.png"))); // NOI18N
+        nextButton.setToolTipText(org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.nextButton.toolTipText")); // NOI18N
         nextButton.setFocusable(false);
         nextButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         nextButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -171,6 +186,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         jToolBar1.add(nextButton);
 
         printButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/printer.png"))); // NOI18N
+        printButton.setToolTipText(org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.printButton.toolTipText")); // NOI18N
         printButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 printButtonActionPerformed(evt);
@@ -179,6 +195,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         jToolBar1.add(printButton);
 
         savePDFButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/pdf.png"))); // NOI18N
+        savePDFButton.setToolTipText(org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.savePDFButton.toolTipText")); // NOI18N
         savePDFButton.setFocusable(false);
         savePDFButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         savePDFButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -188,7 +205,65 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
             }
         });
         jToolBar1.add(savePDFButton);
+
+        refresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/refresh.png"))); // NOI18N
+        refresh.setToolTipText(org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.refresh.toolTipText")); // NOI18N
+        refresh.setFocusable(false);
+        refresh.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        refresh.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        refresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(refresh);
         jToolBar1.add(jSeparator1);
+
+        jPanel1.setMaximumSize(new java.awt.Dimension(150, 50));
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        dateFrom.setDateTime(new DateTime().dayOfMonth().withMinimumValue());
+        dateFrom.setTimeVisible(false);
+        dateFrom.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                dateFromPropertyChange(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipady = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel1.add(dateFrom, gridBagConstraints);
+
+        dateTo.setDateTime(new DateTime().dayOfMonth().withMaximumValue());
+        dateTo.setTimeVisible(false);
+        dateTo.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                dateToPropertyChange(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel1.add(dateTo, gridBagConstraints);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.jLabel1.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel1.add(jLabel1, gridBagConstraints);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.jLabel2.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel1.add(jLabel2, gridBagConstraints);
+
+        jToolBar1.add(jPanel1);
 
         insuline.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(insuline, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.insuline.text")); // NOI18N
@@ -286,10 +361,10 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         jToolBar1.add(sum);
         jToolBar1.add(jSeparator2);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.jLabel1.text")); // NOI18N
-        jToolBar1.add(jLabel1);
+        org.openide.awt.Mnemonics.setLocalizedText(fontSizeLabel, org.openide.util.NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.fontSizeLabel.text")); // NOI18N
+        jToolBar1.add(fontSizeLabel);
 
-        fontSize.setModel(new javax.swing.SpinnerNumberModel(5, 1, 35, 1));
+        fontSize.setModel(new javax.swing.SpinnerNumberModel(10, 1, 30, 1));
         fontSize.setMaximumSize(new java.awt.Dimension(50, 25));
         fontSize.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -299,6 +374,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         jToolBar1.add(fontSize);
 
         pageSize.setModel(new DefaultComboBoxModel(PageSize.values()));
+        pageSize.setSelectedItem(PageSize.A4);
         pageSize.setMaximumSize(new java.awt.Dimension(70, 25));
         pageSize.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -338,8 +414,8 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(pageScroll, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE)
-                    .addComponent(jToolBar1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE))
+                    .addComponent(pageScroll, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 913, Short.MAX_VALUE)
+                    .addComponent(jToolBar1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 913, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -347,7 +423,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pageScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
+                .addComponent(pageScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -415,9 +491,9 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
     }//GEN-LAST:event_colorsActionPerformed
 
     private void savePDFButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savePDFButtonActionPerformed
-        int returnVal = fileChooser.showSaveDialog(PrintPreviewTopComponent.this);
+        int returnVal = jFileChooser.showSaveDialog(PrintPreviewTopComponent.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
+            File file = jFileChooser.getSelectedFile();
             BufferedOutputStream out = null;
             try {
                 FileOutputStream fstream = new FileOutputStream(file);
@@ -428,21 +504,46 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
             } finally {
                 try {
                     out.close();
-                } catch (Exception ex) {}
+                } catch (Exception ex) {
+                }
             }
         }
     }//GEN-LAST:event_savePDFButtonActionPerformed
+
+    private void dateFromPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateFromPropertyChange
+        if (evt.getPropertyName().equals(DateTimePanel.DATE_PROPERTY)) {
+            generator.setFrom(dateFrom.getDateTime());
+            generatePDF();
+        }
+    }//GEN-LAST:event_dateFromPropertyChange
+
+    private void dateToPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateToPropertyChange
+        if (evt.getPropertyName().equals(DateTimePanel.DATE_PROPERTY)) {
+            generator.setTo(dateTo.getDateTime());
+            generatePDF();
+        }
+    }//GEN-LAST:event_dateToPropertyChange
+
+    private void refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshActionPerformed
+        generator.reloadData();
+        generatePDF();
+    }//GEN-LAST:event_refreshActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox activity;
-    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JCheckBox colors;
+    private org.diabetesdiary.commons.swing.calendar.DateTimePanel dateFrom;
+    private org.diabetesdiary.commons.swing.calendar.DateTimePanel dateTo;
     private javax.swing.JSpinner fontSize;
+    private javax.swing.JLabel fontSizeLabel;
     private javax.swing.JCheckBox food;
     private javax.swing.JCheckBox glycemia;
     private javax.swing.JCheckBox horizontal;
     private javax.swing.JCheckBox insuline;
-    private javax.swing.JFileChooser jFileChooser1;
+    private javax.swing.JFileChooser jFileChooser;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar jToolBar1;
@@ -453,11 +554,11 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
     private javax.swing.JComboBox pageSize;
     private javax.swing.JButton prevButton;
     private javax.swing.JButton printButton;
+    private javax.swing.JButton refresh;
     private javax.swing.JButton savePDFButton;
     private javax.swing.JCheckBox sum;
     // End of variables declaration//GEN-END:variables
     private PagePanel pagePanel;
-    private JFileChooser fileChooser;
 
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
@@ -532,6 +633,9 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
      * @param pagenum the page to display
      */
     public void gotoPage(int pagenum) {
+        if (curFile == null) {
+            return;
+        }
         if (pagenum < 0) {
             pagenum = 0;
         } else if (pagenum >= curFile.getNumPages()) {

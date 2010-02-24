@@ -29,7 +29,7 @@ public final class CalendarOptionsCategory extends OptionsCategory {
     
     @Override
     public Icon getIcon() {
-        return new ImageIcon(ImageUtilities.loadImage("org/diabetesdiary/calendar/resources/Pencil.gif"));
+        return new ImageIcon(ImageUtilities.loadImage("org/diabetesdiary/calendar/resources/settings.png"));
     }
     
     @Override

@@ -17,10 +17,24 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.itextpdf.text.BaseColor;
+import java.util.List;
+import java.util.Map;
+import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.commons.utils.MathUtils;
+import org.diabetesdiary.commons.utils.StringUtils;
+import org.diabetesdiary.diary.domain.InvSeason;
 import org.diabetesdiary.diary.domain.Patient;
+import org.diabetesdiary.diary.domain.RecordInvest;
+import org.diabetesdiary.diary.domain.WKInvest;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 /**
@@ -32,45 +46,86 @@ public class GlycemieTable extends AbstractPdfSubTable {
     private static BaseColor lowGlyColor = new BaseColor(55, 110, 200);
     private static BaseColor normalGlyColor = new BaseColor(10, 200, 100);
     private static BaseColor highGlyColor = new BaseColor(240, 40, 40);
-    private double normalMin = 4;
-    private double normalMax = 9;
+    private Map<Tuple<LocalDate, InvSeason>, List<RecordInvest>> data;
 
-    public GlycemieTable(LocalDate from, LocalDate to, Patient patient) {
+    public GlycemieTable(DateTime from, DateTime to, Patient patient) {
         super(from, to, patient);
     }
 
     @Override
     public int getColumnCount() {
-        return 8;
+        return 9;
     }
 
     @Override
-    public float getWidth() {
-        return 8;
-    }
-
-    @Override
-    protected HeaderBuilder getHeader() {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Glykémie (mmol/l)").addColumn("snídaně").addColumn("před").addSister("po").getParent().addSister("oběd").addColumn("před").addSister("po").getParent().addSister("1. večeře").addColumn("před").addSister("po").getParent().addSister("před spaním").addSister("v noci");
+    public HeaderBuilder getHeader() {
+        return (HeaderBuilder) GeneratorHelper.headerBuilder("Glykémie (mmol/l)")
+                .addColumn("v noci")
+                .addSister("snídaně").addColumn("před").addSister("po").getParent()
+                .addSister("oběd").addColumn("před").addSister("po").getParent()
+                .addSister("1. večeře").addColumn("před").addSister("po").getParent()
+                .addSister("před spaním")
+                .addSister("v noci");
     }
 
     @Override
     protected String getValue(LocalDate date, int col) {
-        return String.valueOf(date.getDayOfWeek() * 2);
+        List<Double> values = getGlycemies(date, col);
+        return values == null ? "" : StringUtils.collectionToDelimitedString(values, ";");
     }
 
     @Override
     protected BaseColor getBackGroundColor(LocalDate date, int col, boolean onlyBlackWhite) {
-        Double value = date.getDayOfWeek() * 2.0;
-        if (onlyBlackWhite || value == null) {
+        List<Double> values = getGlycemies(date, col);
+        if (onlyBlackWhite || values == null || values.size() == 0) {
             return super.getBackGroundColor(date, col, onlyBlackWhite);
         }
-        if (value < normalMin) {
+        double average = MathUtils.average(values, col);
+        if (average < Double.valueOf(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_GLYKEMIE_LOW_NORMAL))) {
             return lowGlyColor;
-        } else if (value <= normalMax) {
+        } else if (average <= Double.valueOf(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_GLYKEMIE_HIGH_NORMAL))) {
             return normalGlyColor;
         } else {
             return highGlyColor;
         }
+    }
+
+    private List<Double> getGlycemies(LocalDate date, final int column) {
+        if (dirty) {
+            loadData();
+            dirty = false;
+        }
+        List<RecordInvest> list = data.get(new Tuple<LocalDate, InvSeason>(date, getSeason(column)));
+        return list == null ? null : Lists.transform(Lists.newArrayList(Iterables.filter(list, new Predicate<RecordInvest>() {
+            @Override
+            public boolean apply(RecordInvest input) {
+                return column == 0 ? input.getDatetime().getHourOfDay() < 12 : input.getDatetime().getHourOfDay() > 12;
+            }
+        })), new Function<RecordInvest, Double>() {
+
+            @Override
+            public Double apply(RecordInvest from) {
+                return from.getValue();
+            }
+        });
+    }
+
+    private void loadData() {
+        data = Maps.newHashMap();
+        if (patient != null) {
+            for (RecordInvest rec : patient.getRecordInvests(from, to, WKInvest.GLYCEMIE)) {
+                Tuple<LocalDate, InvSeason> key = new Tuple<LocalDate, InvSeason>(rec.getDatetime().toLocalDate(), rec.getSeason());
+                List<RecordInvest> list = data.get(key);
+                if (list == null) {
+                    list = Lists.newArrayList();
+                    data.put(key, list);
+                }
+                list.add(rec);
+            }
+        }
+    }
+
+    private InvSeason getSeason(int columnIndex) {
+        return columnIndex == 0 ? InvSeason.M : InvSeason.values()[columnIndex - 1];
     }
 }

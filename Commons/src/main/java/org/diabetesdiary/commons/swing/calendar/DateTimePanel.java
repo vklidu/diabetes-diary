@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
  */
 public class DateTimePanel extends javax.swing.JPanel {
 
+    public static final String DATE_PROPERTY = "datetime.property";
     /** Creates new form DateTimePanel */
     public DateTimePanel() {
         this(null);
@@ -41,11 +42,21 @@ public class DateTimePanel extends javax.swing.JPanel {
     }
 
     public DateTime getDateTime() {
-        DateTime time = timeJSpinner1.getDateTime();
-        return dateJSpinner1.getDateTime().withTime(time.getHourOfDay(), time.getMinuteOfHour(), 0, 0);
+        if (!timeJSpinner1.isVisible()) {
+            return dateJSpinner1.getDateTime().toDateMidnight().toDateTime();
+        } else {
+            DateTime time = timeJSpinner1.getDateTime();
+            return dateJSpinner1.getDateTime().withTime(time.getHourOfDay(), time.getMinuteOfHour(), 0, 0);
+        }
     }
 
+    public void setTimeVisible(boolean visible) {
+        timeJSpinner1.setVisible(visible);
+    }
 
+    public boolean isTimeVisible() {
+        return timeJSpinner1.isVisible();
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -55,17 +66,33 @@ public class DateTimePanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         dateTimePicker1 = new org.diabetesdiary.commons.swing.calendar.DateTimePicker();
         timeJSpinner1 = new org.diabetesdiary.commons.swing.calendar.TimeJSpinner();
         dateJSpinner1 = new org.diabetesdiary.commons.swing.calendar.DateJSpinner();
         jButton1 = new javax.swing.JButton();
 
-        setLayout(null);
-        add(timeJSpinner1);
-        timeJSpinner1.setBounds(79, 0, 51, 20);
-        add(dateJSpinner1);
-        dateJSpinner1.setBounds(0, 0, 73, 20);
+        setLayout(new java.awt.GridBagLayout());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        add(timeJSpinner1, gridBagConstraints);
+
+        dateJSpinner1.setMinimumSize(new java.awt.Dimension(100, 20));
+        dateJSpinner1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                dateJSpinner1StateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        add(dateJSpinner1, gridBagConstraints);
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/commons/swing/calendar/JCalendarColor32.gif"))); // NOI18N
         jButton1.setBorder(null);
@@ -76,8 +103,13 @@ public class DateTimePanel extends javax.swing.JPanel {
                 jButton1ActionPerformed(evt);
             }
         });
-        add(jButton1);
-        jButton1.setBounds(130, 0, 33, 20);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = -12;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        add(jButton1, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -87,6 +119,9 @@ public class DateTimePanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void dateJSpinner1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_dateJSpinner1StateChanged
+        firePropertyChange(DATE_PROPERTY, null, getDateTime());
+    }//GEN-LAST:event_dateJSpinner1StateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private org.diabetesdiary.commons.swing.calendar.DateJSpinner dateJSpinner1;
