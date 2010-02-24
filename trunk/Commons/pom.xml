@@ -50,6 +50,7 @@
                         <publicPackage>org.joda.time.format</publicPackage>
                         <publicPackage>org.joda.time.format</publicPackage>
                         <publicPackage>org.diabetesdiary.commons.swing.calendar</publicPackage>
+                        <publicPackage>org.diabetesdiary.commons.utils</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

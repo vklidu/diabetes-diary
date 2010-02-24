@@ -17,12 +17,14 @@
  */
 package org.diabetesdiary.print.pdf;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
+import java.util.List;
 
 /**
  *
@@ -37,7 +39,7 @@ public class GeneratorHelper {
         return new HeaderBuilder(base);
     }
 
-    public static abstract class AbstractBuilder {
+    public static abstract class AbstractBuilder<T> {
 
         protected final TreeContainer<String> tree;
         private TreeContainer<String> current;
@@ -52,6 +54,11 @@ public class GeneratorHelper {
             return this;
         }
 
+        public AbstractBuilder add(AbstractBuilder<T> builder) {
+            tree.addChild(builder.tree);
+            return this;
+        }
+
         public AbstractBuilder addSister(String name) {
             current = current.getParent().addChild(name);
             return this;
@@ -62,10 +69,10 @@ public class GeneratorHelper {
             return this;
         }
 
-        public abstract PdfPTable build();
+        public abstract T build();
     }
 
-    public static class HeaderBuilder extends AbstractBuilder {
+    public static class HeaderBuilder extends AbstractBuilder<List<PdfPCell>> {
 
         private Font font;
 
@@ -79,26 +86,27 @@ public class GeneratorHelper {
         }
 
         @Override
-        public PdfPTable build() {
-            final PdfPTable table = new PdfPTable(tree.getMaxWidth());
-            table.setHorizontalAlignment(PdfPTable.ALIGN_CENTER);
-            tree.walkRecursive(new TreeContainer.RecursiveWalker<String>() {
+        public List<PdfPCell> build() {
+            Preconditions.checkNotNull(font);
+            final List<PdfPCell> table = Lists.newArrayList();
+            tree.walkBreathFirst(new TreeContainer.RecursiveWalker<String>() {
 
                 @Override
-                public void onNode(TreeContainer<String> node) {
+                public void onAction(TreeContainer<String> node) {
+                    if (node.getValue() == null) {
+                        return;
+                    }
                     PdfPCell cell = new PdfPCell();
-                    if (node.getMaxWidth() > 0) {
-                        cell.setColspan(node.getMaxWidth());
-                    }
-                    if (node.getMaxDepth() < node.getMaxDepthOfSisters()) {
-                        cell.setRowspan(node.getMaxDepthOfSisters() - node.getMaxDepth() + 1);
-                    }
+                    int colspan = node.getMaxWidth();
+                    int rowspan = node.getMaxDepth() < node.getMaxDepthOfSisters() && node.getChildren().size() == 0 ? node.getMaxDepthOfSisters() - node.getMaxDepth() + 1 : 1;
+                    cell.setColspan(colspan);
+                    cell.setRowspan(rowspan);
                     cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     cell.setBorder(Rectangle.BOX);
-                    cell.setBorderWidth(2);
+                    cell.setBorderWidth(1);
                     cell.setPhrase(new Phrase(node.getValue(), font));
-                    table.addCell(cell);
+                    table.add(cell);
                 }
             });
             return table;

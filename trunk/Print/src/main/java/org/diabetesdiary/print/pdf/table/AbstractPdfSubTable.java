@@ -23,11 +23,11 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
 import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 /**
@@ -35,14 +35,14 @@ import org.joda.time.LocalDate;
  * @author Jirka Majer
  */
 public abstract class AbstractPdfSubTable {
-
-    protected final LocalDate from;
-    protected final LocalDate to;
+    protected DateTime from;
+    protected DateTime to;
     protected final DiaryRepository diary;
     protected Patient patient;
     private boolean visible = true;
+    protected boolean dirty = true;
 
-    public AbstractPdfSubTable(LocalDate from, LocalDate to, Patient patient) {
+    public AbstractPdfSubTable(DateTime from, DateTime to, Patient patient) {
         this.from = from;
         this.to = to;
         this.patient = patient;
@@ -51,31 +51,25 @@ public abstract class AbstractPdfSubTable {
 
     public abstract int getColumnCount();
 
-    public abstract float getWidth();
-
-    protected abstract HeaderBuilder getHeader();
-
-    public PdfPTable getHeader(boolean blackWhite, Font font) {
-        return getHeader().setFont(font).build();
+    public float getWidth(int column) {
+        return 1;
     }
 
-    public PdfPTable getData(boolean blackWhite, Font font) {
-        PdfPTable table = new PdfPTable(getColumnCount());
-        LocalDate pom = from;
-        while (!pom.isAfter(to)) {
-            for (int column = 0; column < getColumnCount(); column++) {
-                PdfPCell cell = new PdfPCell();
-                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                cell.setBackgroundColor(getBackGroundColor(pom, column, blackWhite));
-                cell.setBorder(Rectangle.BOX);
-                cell.setBorderWidth(1);
-                cell.setPhrase(new Phrase(getValue(pom, column), font));
-                table.addCell(cell);
-            }
-            pom = pom.plusDays(1);
-        }
-        return table;
+    public abstract HeaderBuilder getHeader();
+
+    public void dirtyData() {
+        dirty = true;
+    }
+
+    public PdfPCell getData(boolean blackWhite, Font font, int column, LocalDate date) {
+        PdfPCell cell = new PdfPCell();
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setBackgroundColor(getBackGroundColor(date, column, blackWhite));
+        cell.setBorder(Rectangle.BOX);
+        cell.setBorderWidth(1);
+        cell.setPhrase(new Phrase(getValue(date, column), font));
+        return cell;
     }
 
     protected abstract String getValue(LocalDate date, int col);
@@ -93,7 +87,17 @@ public abstract class AbstractPdfSubTable {
     }
 
     public void setPatient(Patient patient) {
+        dirtyData();
         this.patient = patient;
     }
 
+    public void setFrom(DateTime from) {
+        dirtyData();
+        this.from = from;
+    }
+
+    public void setTo(DateTime to) {
+        dirtyData();
+        this.to = to;
+    }
 }

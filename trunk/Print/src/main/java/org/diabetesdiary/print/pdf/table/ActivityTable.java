@@ -20,6 +20,7 @@ package org.diabetesdiary.print.pdf.table;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 /**
@@ -28,7 +29,7 @@ import org.joda.time.LocalDate;
  */
 public class ActivityTable extends AbstractPdfSubTable {
 
-    public ActivityTable(LocalDate from, LocalDate to, Patient patient) {
+    public ActivityTable(DateTime from, DateTime to, Patient patient) {
         super(from, to, patient);
     }
 
@@ -38,12 +39,12 @@ public class ActivityTable extends AbstractPdfSubTable {
     }
 
     @Override
-    public float getWidth() {
-        return 6;
+    public float getWidth(int column) {
+        return 1.5f;
     }
 
     @Override
-    protected HeaderBuilder getHeader() {
+    public HeaderBuilder getHeader() {
         return (HeaderBuilder) GeneratorHelper.headerBuilder("Energie (kJ)")
                 .addColumn("Výdej")
                 .addColumn("Aktivity")

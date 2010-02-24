@@ -18,12 +18,10 @@
 package org.diabetesdiary.print.pdf.table;
 
 import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.pdf.PdfPTable;
-import java.awt.Color;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -34,7 +32,7 @@ import org.joda.time.format.DateTimeFormat;
  */
 public class DateTable extends AbstractPdfSubTable {
 
-    public DateTable(LocalDate from, LocalDate to, Patient patient) {
+    public DateTable(DateTime from, DateTime to, Patient patient) {
         super(from, to, patient);
     }
 
@@ -44,7 +42,7 @@ public class DateTable extends AbstractPdfSubTable {
     }
 
     @Override
-    public float getWidth() {
+    public float getWidth(int column) {
         return 2;
     }
 
@@ -59,7 +57,7 @@ public class DateTable extends AbstractPdfSubTable {
     }
 
     @Override
-    protected HeaderBuilder getHeader() {
+    public HeaderBuilder getHeader() {
         return GeneratorHelper.headerBuilder("Datum");
     }
 

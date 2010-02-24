@@ -92,6 +92,17 @@ public class Patient extends AbstractDomainObject {
     }
 
     @Transactional(readOnly=true)
+    public Double getTallBefore(DateTime date) {
+        List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
+                .createAlias("invest", "invest")
+                .add(Restrictions.lt("datetime", date))
+                .add(Restrictions.eq("invest.wkinvest", WKInvest.HEIGHT))
+                .add(Restrictions.eq("patient.id", id))
+                .addOrder(Order.desc("datetime")).list();
+        return result.size() > 0 ? new RecordInvest(result.get(0)).getValue() : null;
+    }
+
+    @Transactional(readOnly=true)
     public List<RecordInvest> getRecordInvests(DateTime from, DateTime to) {
         List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
                 .add(Restrictions.ge("datetime", from))
