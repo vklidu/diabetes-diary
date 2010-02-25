@@ -17,12 +17,14 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
+import com.google.common.base.Function;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
+import java.text.NumberFormat;
 import org.diabetesdiary.diary.api.DiaryRepository;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.utils.MyLookup;
@@ -41,6 +43,7 @@ public abstract class AbstractPdfSubTable {
     protected Patient patient;
     private boolean visible = true;
     protected boolean dirty = true;
+    protected NumberFormat format = NumberFormat.getInstance();
 
     public AbstractPdfSubTable(DateTime from, DateTime to, Patient patient) {
         this.from = from;
@@ -48,6 +51,13 @@ public abstract class AbstractPdfSubTable {
         this.patient = patient;
         diary = MyLookup.getDiaryRepo();
     }
+
+    protected final Function<Number, String> FORMAT_FUNCTION = new Function<Number, String>() {
+        @Override
+        public String apply(Number from) {
+            return format.format(from);
+        }
+    };
 
     public abstract int getColumnCount();
 
@@ -61,15 +71,19 @@ public abstract class AbstractPdfSubTable {
         dirty = true;
     }
 
-    public PdfPCell getData(boolean blackWhite, Font font, int column, LocalDate date) {
+    public final PdfPCell getData(boolean blackWhite, Font font, int column, LocalDate date) {
         PdfPCell cell = new PdfPCell();
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setBackgroundColor(getBackGroundColor(date, column, blackWhite));
         cell.setBorder(Rectangle.BOX);
         cell.setBorderWidth(1);
-        cell.setPhrase(new Phrase(getValue(date, column), font));
+        cell.setPhrase(getPhrase(font, column, date));
         return cell;
+    }
+
+    protected Phrase getPhrase(Font font, int column, LocalDate date) {
+        return new Phrase(getValue(date, column), font);
     }
 
     protected abstract String getValue(LocalDate date, int col);

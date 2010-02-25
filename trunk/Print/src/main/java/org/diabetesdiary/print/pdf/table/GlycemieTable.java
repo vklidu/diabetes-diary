@@ -18,8 +18,6 @@
 package org.diabetesdiary.print.pdf.table;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.BaseColor;
@@ -46,7 +44,7 @@ public class GlycemieTable extends AbstractPdfSubTable {
     private static BaseColor lowGlyColor = new BaseColor(55, 110, 200);
     private static BaseColor normalGlyColor = new BaseColor(10, 200, 100);
     private static BaseColor highGlyColor = new BaseColor(240, 40, 40);
-    private Map<Tuple<LocalDate, InvSeason>, List<RecordInvest>> data;
+    private Map<Tuple2<LocalDate, Integer>, List<RecordInvest>> data;
 
     public GlycemieTable(DateTime from, DateTime to, Patient patient) {
         super(from, to, patient);
@@ -71,7 +69,7 @@ public class GlycemieTable extends AbstractPdfSubTable {
     @Override
     protected String getValue(LocalDate date, int col) {
         List<Double> values = getGlycemies(date, col);
-        return values == null ? "" : StringUtils.collectionToDelimitedString(values, ";");
+        return values == null ? "" : StringUtils.collectionToDelimitedString(Lists.transform(values, FORMAT_FUNCTION), "; ");
     }
 
     @Override
@@ -95,14 +93,8 @@ public class GlycemieTable extends AbstractPdfSubTable {
             loadData();
             dirty = false;
         }
-        List<RecordInvest> list = data.get(new Tuple<LocalDate, InvSeason>(date, getSeason(column)));
-        return list == null ? null : Lists.transform(Lists.newArrayList(Iterables.filter(list, new Predicate<RecordInvest>() {
-            @Override
-            public boolean apply(RecordInvest input) {
-                return column == 0 ? input.getDatetime().getHourOfDay() < 12 : input.getDatetime().getHourOfDay() > 12;
-            }
-        })), new Function<RecordInvest, Double>() {
-
+        List<RecordInvest> list = data.get(new Tuple2<LocalDate, Integer>(date, column));
+        return list == null ? null : Lists.transform(list, new Function<RecordInvest, Double>() {
             @Override
             public Double apply(RecordInvest from) {
                 return from.getValue();
@@ -114,7 +106,7 @@ public class GlycemieTable extends AbstractPdfSubTable {
         data = Maps.newHashMap();
         if (patient != null) {
             for (RecordInvest rec : patient.getRecordInvests(from, to, WKInvest.GLYCEMIE)) {
-                Tuple<LocalDate, InvSeason> key = new Tuple<LocalDate, InvSeason>(rec.getDatetime().toLocalDate(), rec.getSeason());
+                Tuple2<LocalDate, Integer> key = new Tuple2<LocalDate, Integer>(rec.getDatetime().toLocalDate(), getColumn(rec));
                 List<RecordInvest> list = data.get(key);
                 if (list == null) {
                     list = Lists.newArrayList();
@@ -125,7 +117,11 @@ public class GlycemieTable extends AbstractPdfSubTable {
         }
     }
 
-    private InvSeason getSeason(int columnIndex) {
-        return columnIndex == 0 ? InvSeason.M : InvSeason.values()[columnIndex - 1];
+    private int getColumn(RecordInvest rec) {
+        if (rec.getSeason() == InvSeason.M) {
+            return rec.getDatetime().getHourOfDay() < 12 ? 0 : 8;
+        }
+        return rec.getSeason().ordinal() + 1;
     }
+
 }
