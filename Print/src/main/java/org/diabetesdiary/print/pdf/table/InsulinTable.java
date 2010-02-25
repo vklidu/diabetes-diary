@@ -17,23 +17,36 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.PdfPCell;
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import org.diabetesdiary.commons.utils.StringUtils;
 import org.diabetesdiary.diary.domain.Patient;
+import org.diabetesdiary.diary.domain.RecordInsulin;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.diabetesdiary.print.pdf.PDFGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  *
  * @author Jirka Majer
  */
 public class InsulinTable extends AbstractPdfSubTable {
+
+    private Map<Tuple2<LocalDate, Integer>, List<RecordInsulin>> data;
 
     public InsulinTable(DateTime from, DateTime to, Patient patient) {
         super(from, to, patient);
@@ -50,7 +63,7 @@ public class InsulinTable extends AbstractPdfSubTable {
             return 4;
         }
         if ((isPump() && column == 3) || (!isPump() && column == 5)) {
-            return 1f;
+            return 1.2f;
         }
         return 0.7f;
     }
@@ -58,36 +71,55 @@ public class InsulinTable extends AbstractPdfSubTable {
     @Override
     public HeaderBuilder getHeader() {
         if (isPump()) {
-            return (HeaderBuilder) GeneratorHelper.headerBuilder("Inzulín (U)")
-                    .addColumn("Bolus").addColumn("snídaně").addSister("oběd").addSister("Večeře").addSister("Přídavek").getParent()
-                    .addSister("Bazál");
+            return (HeaderBuilder) GeneratorHelper.headerBuilder("Inzulín (U)").addColumn("Bolus").addColumn("snídaně").addSister("oběd").addSister("Večeře").addSister("Přídavek").getParent().addSister("Bazál");
         }
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Inzulín (U)")
-                .addColumn("snídaně").addColumn("rychlý").addSister("depotní").getParent()
-                .addSister("oběd").addColumn("rychlý").getParent()
-                .addSister("1. večeře").addColumn("rychlý").addSister("depotní").getParent()
-                .addSister("přídavek");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder("Inzulín (U)").addColumn("snídaně").addColumn("rychlý").addSister("depotní").getParent().addSister("oběd").addColumn("rychlý").getParent().addSister("1. večeře").addColumn("rychlý").addSister("depotní").getParent().addSister("přídavek");
     }
 
     @Override
     protected String getValue(LocalDate date, int column) {
-        if (isPump() && column == 4) {
-            return "00:00-04:00 1,1U 04:00-08:00 1,2U 08:00-15:00 1,5 U 15:00-20:00 1,1 U 20:00-23:00 1,0 U 23:00-24:00 1,1 U";
-        }
-        return String.valueOf(date.getDayOfWeek());
+        throw new IllegalStateException("isn't used because is overriedn getPhrase");
     }
 
     @Override
-    public PdfPCell getData(boolean blackWhite, Font font, int column, LocalDate date) {
-        PdfPCell cell = super.getData(blackWhite, font, column, date);
+    protected Phrase getPhrase(Font font, int column, LocalDate date) {
+        if (dirty) {
+            loadData();
+            dirty = false;
+        }
+        List<RecordInsulin> recs = data.get(Tuples.of(date, column));
+        if (recs == null || recs.isEmpty()) {
+            return new Phrase();
+        }
+
         if ((isPump() && column == 3) || (!isPump() && column == 5)) {
+            Phrase phrase = new Phrase();
             Font pomfont = PDFGenerator.getFont();
             pomfont.setSize(font.getSize() > 6 ? font.getSize() - 4 : 2);
-            Chunk chunk = new Chunk("12:30");
-            chunk.setTextRise(5).setFont(pomfont);
-            cell.getPhrase().add(chunk);
+            boolean first = true;
+            for (RecordInsulin rec : recs) {
+                if (!first) {
+                    Chunk chunk = new Chunk(" ");
+                    chunk.setFont(font);
+                    phrase.add(chunk);
+                    first = false;
+                }
+                Chunk chunk = new Chunk(format.format(rec.getAmount()));
+                chunk.setFont(font);
+                phrase.add(chunk);
+
+                chunk = new Chunk(DateTimeFormat.shortTime().print(rec.getDatetime()));
+                chunk.setTextRise(5).setFont(pomfont);
+                phrase.add(chunk);
+            }
+            return phrase;
         }
-        return cell;
+
+        if (isPump() && column == 4) {
+            return new Phrase(formatBasales(recs), font);
+        }
+
+        return new Phrase(StringUtils.collectionToDelimitedString(Lists.transform(recs, Functions.compose(FORMAT_FUNCTION, VALUE_FUNC)), ";"), font);
     }
 
     @Override
@@ -102,4 +134,73 @@ public class InsulinTable extends AbstractPdfSubTable {
         return patient != null && patient.isPumpUsage();
     }
 
+    private void loadData() {
+        data = Maps.newHashMap();
+        if (patient != null) {
+            for (RecordInsulin rec : patient.getRecordInsulins(from, to)) {
+                Tuple2<LocalDate, Integer> key = new Tuple2<LocalDate, Integer>(rec.getDatetime().toLocalDate(), getColumn(rec));
+                List<RecordInsulin> list = data.get(key);
+                if (list == null) {
+                    list = Lists.newArrayList();
+                    data.put(key, list);
+                }
+                list.add(rec);
+            }
+        }
+    }
+
+    private int getColumn(RecordInsulin rec) {
+        if (isPump()) {
+            return rec.getSeason().ordinal();
+        } else {
+            switch (rec.getSeason()) {
+                case B:
+                    return 0 + (rec.isBasal() ? 1 : 0);
+                case D:
+                    return 2;
+                case L:
+                    return 3 + (rec.isBasal() ? 1 : 0);
+                case ADD:
+                    return 5;
+                default:
+                    return 5;
+            }
+        }
+    }
+
+    private String formatBasales(List<RecordInsulin> recs) {
+        StringBuffer result = new StringBuffer();
+        DateTimeFormatter dateFormat = DateTimeFormat.shortTime();
+        RecordInsulin lastRec = null;
+        Queue<RecordInsulin> queue = new ArrayDeque<RecordInsulin>();
+        for (RecordInsulin rec : recs) {
+            if (queue.isEmpty()) {
+                queue.add(rec);
+            } else if (!lastRec.getDatetime().plusHours(1).isEqual(rec.getDatetime()) || !lastRec.getAmount().equals(rec.getAmount())) {
+                result.append(dateFormat.print(queue.peek().getDatetime()));
+                result.append("-");
+                result.append(dateFormat.print(lastRec.getDatetime().plusHours(1)));
+                result.append(" ").append(queue.peek().getAmount()).append("U ");
+                queue.poll();
+                queue.add(rec);
+            }
+            lastRec = rec;
+        }
+        if (!queue.isEmpty()) {
+            result.append(dateFormat.print(queue.peek().getDatetime()));
+            result.append("-");
+            result.append(dateFormat.print(lastRec.getDatetime().plusHours(1)));
+            result.append(" ").append(queue.peek().getAmount()).append("U\n");
+
+        }
+        return result.length() > 0 ? result.substring(0, result.length() - 1) : "";
+    }
+    
+    private static final Function<RecordInsulin, Double> VALUE_FUNC = new Function<RecordInsulin, Double>() {
+
+        @Override
+        public Double apply(RecordInsulin from) {
+            return from.getAmount();
+        }
+    };
 }

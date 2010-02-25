@@ -18,10 +18,11 @@
 package org.diabetesdiary.calendar.table.renderer;
 
 import java.awt.Color;
-import java.text.DateFormat;
-import java.util.Date;
 import org.diabetesdiary.diary.domain.RecordInsulinPumpBasal;
 import org.diabetesdiary.diary.domain.RecordInsulin;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  *
@@ -43,39 +44,39 @@ public class InsulinPumpBasalRenderer extends AbstractDiaryCellRenderer<RecordIn
             return null;
         }
         StringBuffer result = new StringBuffer();
-        DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+        DateTimeFormatter dateFormat = DateTimeFormat.shortTime();
         double lastVal = -1;
-        Date firstDate = null;
-        Date lastDate = null;
+        DateTime firstDate = null;
+        DateTime lastDate = null;
         for (RecordInsulin rec : records.getData()) {
             if (rec != null) {
                 if (lastVal == -1) {
-                    firstDate = rec.getDatetime().toDate();
-                    lastDate = rec.getDatetime().toDate();
+                    firstDate = rec.getDatetime();
+                    lastDate = rec.getDatetime();
                     lastVal = rec.getAmount();
                 } else if (rec.getAmount() != lastVal) {
-                    result.append(dateFormat.format(firstDate));
+                    result.append(dateFormat.print(firstDate));
                     result.append("-");
-                    result.append(dateFormat.format(new Date(rec.getDatetime().toDate().getTime())));
+                    result.append(dateFormat.print(rec.getDatetime()));
                     result.append(" ").append(lastVal).append("U\n");
                     lastVal = rec.getAmount();
-                    firstDate = rec.getDatetime().toDate();
-                    lastDate = rec.getDatetime().toDate();
+                    firstDate = rec.getDatetime();
+                    lastDate = rec.getDatetime();
                 } else {
-                    lastDate = rec.getDatetime().toDate();
+                    lastDate = rec.getDatetime();
                 }
             } else if (lastVal != -1) {
-                result.append(dateFormat.format(firstDate));
+                result.append(dateFormat.print(firstDate));
                 result.append("-");
-                result.append(dateFormat.format(new Date(lastDate.getTime() + 60 * 60 * 1000)));
+                result.append(dateFormat.print(lastDate.plusHours(1)));
                 result.append(" ").append(lastVal).append("U\n");
                 lastVal = -1;
             }
         }
         if (lastVal != -1) {
-            result.append(dateFormat.format(firstDate));
+            result.append(dateFormat.print(firstDate));
             result.append("-");
-            result.append(dateFormat.format(new Date(lastDate.getTime() + 60 * 60 * 1000)));
+            result.append(dateFormat.print(lastDate.plusHours(1)));
             result.append(" ").append(lastVal).append("U\n");
 
         }

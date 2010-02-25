@@ -107,7 +107,9 @@ public class Patient extends AbstractDomainObject {
         List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
                 .add(Restrictions.ge("datetime", from))
                 .add(Restrictions.le("datetime", to))
-                .add(Restrictions.eq("patient.id", id)).list();
+                .add(Restrictions.eq("patient.id", id))
+                .addOrder(Order.asc("datetime"))
+                .list();
         return Lists.newArrayList(Lists.transform(result, RecordInvest.CREATE_FUNCTION));
 
     }
@@ -131,7 +133,9 @@ public class Patient extends AbstractDomainObject {
         List<RecordFoodDO> result = getSession().createCriteria(RecordFoodDO.class)
                 .add(Restrictions.ge("datetime", from))
                 .add(Restrictions.le("datetime", to))
-                .add(Restrictions.eq("patient.id", id)).list();
+                .add(Restrictions.eq("patient.id", id))
+                .addOrder(Order.asc("datetime"))
+                .list();
         return Lists.newArrayList(Lists.transform(result, RecordFood.CREATE_FUNCTION));
     }
 
@@ -140,7 +144,9 @@ public class Patient extends AbstractDomainObject {
         List<RecordActivityDO> result = getSession().createCriteria(RecordActivityDO.class)
                 .add(Restrictions.ge("datetime", from))
                 .add(Restrictions.le("datetime", to))
-                .add(Restrictions.eq("patient.id", id)).list();
+                .add(Restrictions.eq("patient.id", id))
+                .addOrder(Order.asc("datetime"))
+                .list();
         return Lists.newArrayList(Lists.transform(result, RecordActivity.CREATE_FUNCTION));
     }
 
@@ -149,7 +155,9 @@ public class Patient extends AbstractDomainObject {
         List<RecordInsulinDO> result = getSession().createCriteria(RecordInsulinDO.class)
                 .add(Restrictions.ge("datetime", from))
                 .add(Restrictions.le("datetime", to))
-                .add(Restrictions.eq("patient.id", id)).list();
+                .add(Restrictions.eq("patient.id", id))
+                .addOrder(Order.asc("datetime"))
+                .list();
         return Lists.newArrayList(Lists.transform(result, RecordInsulin.CREATE_FUNCTION));
     }
 
@@ -242,7 +250,9 @@ public class Patient extends AbstractDomainObject {
     public List<RecordFood> getRecordFoods(DateTime date) {
         List<RecordFoodDO> result = getSession().createCriteria(RecordFoodDO.class)
                 .add(Restrictions.eq("datetime", date))
-                .add(Restrictions.eq("patient.id", id)).list();
+                .add(Restrictions.eq("patient.id", id))
+                .addOrder(Order.asc("datetime"))
+                .list();
         return Lists.newArrayList(Lists.transform(result, RecordFood.CREATE_FUNCTION));
     }
 

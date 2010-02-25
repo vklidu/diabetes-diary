@@ -149,7 +149,7 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
                             edited.getData()[i].delete();
                             edited.getData()[i] = null;
                         }
-                    } else if (amount > 1) {
+                    } else if (amount > 0) {
                         if (edited == null) {
                             edited = new RecordInsulinPumpBasal();
                             dataBasal[recDateTime.getDayOfMonth() - 1][columnIndex - 4] = edited;

@@ -17,6 +17,8 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
+import org.diabetesdiary.calendar.option.CalendarSettings;
+import org.diabetesdiary.diary.domain.FoodUnit;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
@@ -40,7 +42,8 @@ public class FoodTable extends AbstractPdfSubTable {
 
     @Override
     public HeaderBuilder getHeader() {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Jídlo (~12g sach.)")
+        FoodUnit sachUnit = diary.getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
+        return (HeaderBuilder) GeneratorHelper.headerBuilder(String.format("Jídlo (~%.0f g sach.)", sachUnit.getKoef()))
                 .addColumn("snídaně")
                 .addSister("svačina")
                 .addSister("oběd")
