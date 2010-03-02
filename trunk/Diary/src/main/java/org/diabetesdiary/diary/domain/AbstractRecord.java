@@ -29,15 +29,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Configurable
 public abstract class AbstractRecord extends AbstractDomainObject {
 
-    protected final Patient patient;
     protected final DateTime datetime;
     protected final String notice;
+    protected final Long patientId;
+    private Patient patient;
 
     public AbstractRecord(Long id, PatientDO patientDO, DateTime dateTime, String notice) {
         super(id);
         this.datetime = dateTime;
-        this.patient = new Patient(patientDO);
         this.notice = notice;
+        this.patientId = patientDO.getId();
     }
 
     protected abstract Class getPersistentClass();
@@ -52,7 +53,11 @@ public abstract class AbstractRecord extends AbstractDomainObject {
         return getSession().get(getPersistentClass(), id) != null;
     }
 
-    public Patient getPatient() {
+    @Transactional(readOnly=true)
+    protected Patient getPatient() {
+        if (patient == null) {
+            patient = new Patient((PatientDO) getSession().get(PatientDO.class, patientId));
+        }
         return patient;
     }
 

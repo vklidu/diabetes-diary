@@ -50,6 +50,7 @@ public abstract class AbstractPdfSubTable {
         this.to = to;
         this.patient = patient;
         diary = MyLookup.getDiaryRepo();
+        format.setMaximumFractionDigits(1);
     }
 
     protected final Function<Number, String> FORMAT_FUNCTION = new Function<Number, String>() {
@@ -60,6 +61,12 @@ public abstract class AbstractPdfSubTable {
     };
 
     public abstract int getColumnCount();
+
+    /**
+     * It is called before  getData only if data is dirty
+     */
+    protected void loadData() {
+    }
 
     public float getWidth(int column) {
         return 1;
@@ -72,13 +79,17 @@ public abstract class AbstractPdfSubTable {
     }
 
     public final PdfPCell getData(boolean blackWhite, Font font, int column, LocalDate date) {
+        if (dirty) {
+            loadData();
+            dirty = false;
+        }
         PdfPCell cell = new PdfPCell();
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setBackgroundColor(getBackGroundColor(date, column, blackWhite));
         cell.setBorder(Rectangle.BOX);
         cell.setBorderWidth(1);
-        cell.setPhrase(getPhrase(font, column, date));
+        cell.setPhrase(patient == null ? new Phrase() : getPhrase(font, column, date));
         return cell;
     }
 

@@ -25,6 +25,8 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Mame 4 zakladni druhy inzulinu. Deli se podle rychlosti vstrebavani do tela
@@ -33,6 +35,7 @@ import org.hibernate.annotations.BatchSize;
  * @author Jiri Majer
  */
 @Entity
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 @BatchSize(size = AbstractDO.BATCH_SIZE)
 @Table(name = "insulin_type")
 public class InsulinTypeDO extends AbstractDO {

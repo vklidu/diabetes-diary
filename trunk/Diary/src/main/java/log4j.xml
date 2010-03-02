@@ -8,7 +8,7 @@
             <param name="ConversionPattern"  value="%d{ABSOLUTE} %-5p&lt;%t&gt;[%c] - %m%n"/>
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
-            <param name="levelMin" value="WARN" />
+            <param name="levelMin" value="DEBUG" />
             <param name="levelMax" value="FATAL" />
         </filter>
     </appender>
@@ -35,6 +35,10 @@
 
     <category name="org.hibernate.event.def.AbstractFlushingEventListener">
         <priority value="FATAL"/>
+    </category>
+
+    <category name="org.netbeans">
+        <priority value="WARN"/>
     </category>
 
     <!--category name="org.springframework">

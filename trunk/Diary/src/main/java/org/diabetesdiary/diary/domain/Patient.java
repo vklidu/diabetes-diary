@@ -20,6 +20,8 @@ package org.diabetesdiary.diary.domain;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.List;
+import org.diabetesdiary.diary.api.UnknownHeightException;
+import org.diabetesdiary.diary.api.UnknownWeightException;
 import org.diabetesdiary.diary.service.db.ActivityDO;
 import org.diabetesdiary.diary.service.db.FoodDO;
 import org.diabetesdiary.diary.service.db.FoodUnitDO;
@@ -34,6 +36,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.Years;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,29 +83,45 @@ public class Patient extends AbstractDomainObject {
         this.renalThreshold = pat.getRenalThreshold();
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public Double getWeightBefore(DateTime date) {
         List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
                 .createAlias("invest", "invest")
-                .add(Restrictions.lt("datetime", date))
+                .add(Restrictions.lt("datetime", date.dayOfMonth().withMaximumValue()))
                 .add(Restrictions.eq("invest.wkinvest", WKInvest.WEIGHT))
                 .add(Restrictions.eq("patient.id", id))
-                .addOrder(Order.desc("datetime")).list();
-        return result.size() > 0 ? new RecordInvest(result.get(0)).getValue() : null;
+                .addOrder(Order.desc("datetime"))
+                .setCacheRegion("patient.invests")
+                .setCacheable(true)
+                .list();
+        for (RecordInvestDO rec : result) {
+            if (rec.getDate().isBefore(date)) {
+                return rec.getValue();
+            }
+        }
+        return null;
     }
 
-    @Transactional(readOnly=true)
-    public Double getTallBefore(DateTime date) {
+    @Transactional(readOnly = true)
+    public Double getHeightBefore(DateTime date) {
         List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
                 .createAlias("invest", "invest")
-                .add(Restrictions.lt("datetime", date))
+                .add(Restrictions.lt("datetime", date.dayOfMonth().withMaximumValue()))
                 .add(Restrictions.eq("invest.wkinvest", WKInvest.HEIGHT))
                 .add(Restrictions.eq("patient.id", id))
-                .addOrder(Order.desc("datetime")).list();
-        return result.size() > 0 ? new RecordInvest(result.get(0)).getValue() : null;
+                .addOrder(Order.desc("datetime"))
+                .setCacheRegion("patient.invests")
+                .setCacheable(true)
+                .list();
+        for (RecordInvestDO rec : result) {
+            if (rec.getDate().isBefore(date)) {
+                return rec.getValue();
+            }
+        }
+        return null;
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public List<RecordInvest> getRecordInvests(DateTime from, DateTime to) {
         List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
                 .add(Restrictions.ge("datetime", from))
@@ -115,20 +134,20 @@ public class Patient extends AbstractDomainObject {
     }
 
     @Transactional(readOnly=true)
-    public List<RecordInvest> getRecordInvests(DateTime from, DateTime to, WKInvest wKInvest) {
+    public List<RecordInvest> getRecordInvests(DateTime from, DateTime to, WKInvest ... wKInvest) {
         List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
                 .createAlias("invest", "invest")
                 .add(Restrictions.ge("datetime", from))
                 .add(Restrictions.le("datetime", to))
                 .add(Restrictions.eq("patient.id", id))
-                .add(Restrictions.eq("invest.wkinvest", wKInvest))
+                .add(Restrictions.in("invest.wkinvest", wKInvest))
                 .addOrder(Order.asc("datetime"))
                 .list();
         return Lists.newArrayList(Lists.transform(result, RecordInvest.CREATE_FUNCTION));
 
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public List<RecordFood> getRecordFoods(DateTime from, DateTime to) {
         List<RecordFoodDO> result = getSession().createCriteria(RecordFoodDO.class)
                 .add(Restrictions.ge("datetime", from))
@@ -139,7 +158,7 @@ public class Patient extends AbstractDomainObject {
         return Lists.newArrayList(Lists.transform(result, RecordFood.CREATE_FUNCTION));
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public List<RecordActivity> getRecordActivities(DateTime from, DateTime to) {
         List<RecordActivityDO> result = getSession().createCriteria(RecordActivityDO.class)
                 .add(Restrictions.ge("datetime", from))
@@ -150,7 +169,7 @@ public class Patient extends AbstractDomainObject {
         return Lists.newArrayList(Lists.transform(result, RecordActivity.CREATE_FUNCTION));
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public List<RecordInsulin> getRecordInsulins(DateTime from, DateTime to) {
         List<RecordInsulinDO> result = getSession().createCriteria(RecordInsulinDO.class)
                 .add(Restrictions.ge("datetime", from))
@@ -246,52 +265,35 @@ public class Patient extends AbstractDomainObject {
         return addRecordInsulin(datetime, basal, basal ? basalInsulin : bolusInsulin, amount, season, notice);
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public List<RecordFood> getRecordFoods(DateTime date) {
-        List<RecordFoodDO> result = getSession().createCriteria(RecordFoodDO.class)
-                .add(Restrictions.eq("datetime", date))
-                .add(Restrictions.eq("patient.id", id))
-                .addOrder(Order.asc("datetime"))
-                .list();
+        List<RecordFoodDO> result = getSession().createCriteria(RecordFoodDO.class).add(Restrictions.eq("datetime", date)).add(Restrictions.eq("patient.id", id)).addOrder(Order.asc("datetime")).list();
         return Lists.newArrayList(Lists.transform(result, RecordFood.CREATE_FUNCTION));
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public RecordFood getRecordFood(DateTime date, Food food) {
-        RecordFoodDO res = (RecordFoodDO) getSession().createCriteria(RecordFoodDO.class)
-                .add(Restrictions.eq("datetime", date))
-                .add(Restrictions.eq("food.id", food.getId()))
-                .add(Restrictions.eq("patient.id", id)).uniqueResult();
+        RecordFoodDO res = (RecordFoodDO) getSession().createCriteria(RecordFoodDO.class).add(Restrictions.eq("datetime", date)).add(Restrictions.eq("food.id", food.getId())).add(Restrictions.eq("patient.id", id)).uniqueResult();
         return res == null ? null : new RecordFood(res);
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public RecordInsulin getRecordInsulin(DateTime date, Insulin ins) {
-        RecordInsulinDO res = (RecordInsulinDO) getSession().createCriteria(RecordInsulinDO.class)
-                .add(Restrictions.eq("datetime", date))
-                .add(Restrictions.eq("insulin.id", ins.getId()))
-                .add(Restrictions.eq("patient.id", id)).uniqueResult();
+        RecordInsulinDO res = (RecordInsulinDO) getSession().createCriteria(RecordInsulinDO.class).add(Restrictions.eq("datetime", date)).add(Restrictions.eq("insulin.id", ins.getId())).add(Restrictions.eq("patient.id", id)).uniqueResult();
         return res == null ? null : new RecordInsulin(res);
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public RecordInvest getRecordInvest(DateTime date, Investigation inv) {
-        RecordInvestDO res = (RecordInvestDO) getSession().createCriteria(RecordInvestDO.class)
-                .add(Restrictions.eq("datetime", date))
-                .add(Restrictions.eq("invest.id", inv.getId()))
-                .add(Restrictions.eq("patient.id", id)).uniqueResult();
+        RecordInvestDO res = (RecordInvestDO) getSession().createCriteria(RecordInvestDO.class).add(Restrictions.eq("datetime", date)).add(Restrictions.eq("invest.id", inv.getId())).add(Restrictions.eq("patient.id", id)).uniqueResult();
         return res == null ? null : new RecordInvest(res);
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public RecordActivity getRecordActivity(DateTime date, Activity act) {
-        RecordActivityDO res = (RecordActivityDO) getSession().createCriteria(RecordActivityDO.class)
-                .add(Restrictions.eq("datetime", date))
-                .add(Restrictions.eq("activity.id", act.getId()))
-                .add(Restrictions.eq("patient.id", id)).uniqueResult();
+        RecordActivityDO res = (RecordActivityDO) getSession().createCriteria(RecordActivityDO.class).add(Restrictions.eq("datetime", date)).add(Restrictions.eq("activity.id", act.getId())).add(Restrictions.eq("patient.id", id)).uniqueResult();
         return res == null ? null : new RecordActivity(res);
     }
-
     public static Function<PatientDO, Patient> CREATE_FUNCTION = new Function<PatientDO, Patient>() {
 
         @Override
@@ -299,6 +301,30 @@ public class Patient extends AbstractDomainObject {
             return new Patient(activityDO);
         }
     };
+
+    public int getNumberOfYears(DateTime dateTime) {
+        return Years.yearsBetween(born, dateTime.toLocalDate()).getYears();
+    }
+
+    public Energy getMetabolismus(LocalDate date) throws UnknownWeightException, UnknownHeightException {
+        Integer years = getNumberOfYears(date.toDateTimeAtStartOfDay());
+        Double weight = getWeightBefore(date.toDateTimeAtStartOfDay());
+        Double tall = getHeightBefore(date.toDateTimeAtStartOfDay());
+        if (weight == null) {
+            throw new UnknownWeightException();
+        }
+        if (tall == null) {
+            throw new UnknownHeightException();
+        }
+        //http://www.mte.cz/bmr.php
+        //BMR(ženy) = 655,0955 + (9,5634 × váha v kg) + (1,8496 × výška v cm) - (4,6756 × věk v letech)
+        //BMR(muži) = 66,473 + (13,7516 × váha v kg) + (5,0033 × výška v cm) - (6,755 × věk v letech)
+        if (male) {
+            return new Energy(Energy.Unit.kJ, 66.473 + (13.7516 * weight) + (5.0033 * tall) - (6.755 * years));
+        } else {
+            return new Energy(Energy.Unit.kJ, 655.0955 + (9.5634 * weight) + (1.8496 * tall) - (4.6756 * years));
+        }
+    }
 
     public String getName() {
         return name;
@@ -364,5 +390,4 @@ public class Patient extends AbstractDomainObject {
     public String toString() {
         return String.format("%s %s (%s)", name, surname, born.toString(DateTimeFormat.forStyle("M-")));
     }
-
 }

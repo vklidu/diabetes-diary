@@ -15,7 +15,7 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.diabetesdiary.calendar.table;
+package org.diabetesdiary.diary.domain;
 
 /**
  *
@@ -23,11 +23,11 @@ package org.diabetesdiary.calendar.table;
  */
 public class Energy {
 
-    private double value;
+    private final double value;
     private final Unit unit;
 
     public Energy(Unit unit) {
-        this.unit = unit;
+        this(unit, 0);
     }
 
     public Energy(Unit unit, double value) {
@@ -39,16 +39,16 @@ public class Energy {
         return value;
     }
 
-    public void setValue(double value) {
-        this.value = value;
+    public Energy withValue(double value) {
+        return new Energy(unit, value);
     }
 
-    public void minus(Energy energy) {
-        value = value - energy.getValue(unit);
+    public Energy minus(Energy energy) {
+        return new Energy(unit, value - energy.getValue(unit));
     }
 
-    public void plus(Energy energy) {
-        value = value + energy.getValue(unit);
+    public Energy plus(Energy energy) {
+        return new Energy(unit, value + energy.getValue(unit));
     }
 
     public double getValue(Unit newUnit) {

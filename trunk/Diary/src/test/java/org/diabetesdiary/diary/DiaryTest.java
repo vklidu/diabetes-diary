@@ -39,4 +39,11 @@ public class DiaryTest extends AbstractAppContextTest {
         } catch (ObjectNotFoundException e) {
         }
     }
+
+    @Test
+    public void testCache() {
+        for (int i = 0; i < 10; i++) {
+            repos.getSacharidUnits();
+        }
+    }
 }

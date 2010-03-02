@@ -27,11 +27,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * @author Jiri Majer
  */
 @Entity
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 @BatchSize(size = AbstractDO.BATCH_SIZE)
 @Table(name = "food_group")
 public class FoodGroupDO extends AbstractDO implements Comparable<FoodGroupDO> {

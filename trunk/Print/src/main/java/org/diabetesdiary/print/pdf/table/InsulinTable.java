@@ -17,6 +17,8 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
+import org.diabetesdiary.commons.utils.tuples.Tuple2;
+import org.diabetesdiary.commons.utils.tuples.Tuples;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
@@ -83,10 +85,6 @@ public class InsulinTable extends AbstractPdfSubTable {
 
     @Override
     protected Phrase getPhrase(Font font, int column, LocalDate date) {
-        if (dirty) {
-            loadData();
-            dirty = false;
-        }
         List<RecordInsulin> recs = data.get(Tuples.of(date, column));
         if (recs == null || recs.isEmpty()) {
             return new Phrase();
@@ -134,7 +132,8 @@ public class InsulinTable extends AbstractPdfSubTable {
         return patient != null && patient.isPumpUsage();
     }
 
-    private void loadData() {
+    @Override
+    protected void loadData() {
         data = Maps.newHashMap();
         if (patient != null) {
             for (RecordInsulin rec : patient.getRecordInsulins(from, to)) {

@@ -17,6 +17,7 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
+import org.diabetesdiary.commons.utils.tuples.Tuple2;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -89,10 +90,6 @@ public class GlycemieTable extends AbstractPdfSubTable {
     }
 
     private List<Double> getGlycemies(LocalDate date, final int column) {
-        if (dirty) {
-            loadData();
-            dirty = false;
-        }
         List<RecordInvest> list = data.get(new Tuple2<LocalDate, Integer>(date, column));
         return list == null ? null : Lists.transform(list, new Function<RecordInvest, Double>() {
             @Override
@@ -102,7 +99,8 @@ public class GlycemieTable extends AbstractPdfSubTable {
         });
     }
 
-    private void loadData() {
+    @Override
+    protected void loadData() {
         data = Maps.newHashMap();
         if (patient != null) {
             for (RecordInvest rec : patient.getRecordInvests(from, to, WKInvest.GLYCEMIE)) {

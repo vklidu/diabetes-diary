@@ -58,14 +58,14 @@ public class RecordActivity extends AbstractRecord {
 
 
     private Double weight;
-    public Double getEnergy() throws UnknownWeightException {
+    public Energy getEnergy() throws UnknownWeightException {
         if (weight == null) {
-            weight = patient.getWeightBefore(datetime);
+            weight = getPatient().getWeightBefore(datetime);
         }
         if (weight == null) {
             throw new UnknownWeightException();
         }
-        return activity.getPower() * duration * weight;
+        return new Energy(Energy.Unit.kJ, activity.getPower() * duration * weight);
     }
 
     public static Function<RecordActivityDO, RecordActivity> CREATE_FUNCTION = new Function<RecordActivityDO, RecordActivity>() {
