@@ -65,8 +65,8 @@ public class RecordFood extends AbstractRecord {
         return update(datetime, food, totalAmount, amount, unit, season, notice);
     }
 
-    public double getEnergyInKJ() {
-        return unit.getKoef() * amount * food.getEnergy() / 100;
+    public Energy getEnergy() {
+        return new Energy(Energy.Unit.kJ, unit.getKoef() * amount * food.getEnergy() / 100);
     }
 
     public double getSachUnits(FoodUnit sachUnit) {

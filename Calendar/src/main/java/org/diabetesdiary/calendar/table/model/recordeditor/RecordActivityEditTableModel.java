@@ -77,7 +77,7 @@ public class RecordActivityEditTableModel extends AbstractTableModel implements 
             case 2:
                 return dateFormat.print(rec.getDatetime());
             case 3:
-                Double weight = rec.getPatient().getWeightBefore(rec.getDatetime());
+                Double weight = MyLookup.getCurrentPatient().getWeightBefore(rec.getDatetime());
                 if(weight != null){
                     double res = rec.getDuration() * rec.getActivity().getPower() * weight;
                     return format.format(res);

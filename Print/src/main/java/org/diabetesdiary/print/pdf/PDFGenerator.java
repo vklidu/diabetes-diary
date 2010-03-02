@@ -243,7 +243,7 @@ public class PDFGenerator {
             return new Phrase(String.format("Není otevřen deník (%s)", date), font);
         } else {
             Double weight = patient.getWeightBefore(to);
-            Double height = patient.getTallBefore(to);
+            Double height = patient.getHeightBefore(to);
             String weightS = weight != null ? weight.toString() + " kg" : "? kg";
             String heightS = height != null ? height.toString() + " cm" : "? cm";
             return new Phrase(String.format("%s %s (%s), %s/%s", patient.getName(), patient.getSurname(), date, weightS, heightS), font);

@@ -17,25 +17,28 @@
  */
 package org.diabetesdiary.calendar.table.model;
 
+import com.google.common.collect.Maps;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
-import org.diabetesdiary.calendar.table.Energy;
+import org.diabetesdiary.diary.api.UnknownWeightException;
+import org.diabetesdiary.diary.domain.Energy;
 import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.renderer.ActivityCellRenderer;
 import org.diabetesdiary.calendar.utils.DataChangeEvent;
+import org.diabetesdiary.diary.api.DiaryException;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInvest;
-import org.diabetesdiary.diary.domain.WKInvest;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.joda.time.DateTime;
-import org.joda.time.Years;
+import org.joda.time.LocalDate;
 import org.openide.util.NbBundle;
 
 /**
@@ -45,9 +48,8 @@ import org.openide.util.NbBundle;
 public class ActivityModel extends AbstractRecordSubModel {
 
     private RecordActivity[][][] dataActivity;
-    private List<RecordInvest> weights;
-    private List<RecordInvest> heighes;
     private List<RecordFood> foods;
+    private Map<LocalDate, Energy> metabols;
 
     public ActivityModel(DateTime month, Patient patient) {
         super(month, patient);
@@ -119,48 +121,6 @@ public class ActivityModel extends AbstractRecordSubModel {
         return col == 0;
     }
 
-    private Double getWeight(int rowIndex) {
-        if (weights == null) {
-            weights = MyLookup.getCurrentPatient().getRecordInvests(getFrom(), getTo(), WKInvest.WEIGHT);
-        }
-        Double result = null;
-        for (RecordInvest weight : weights) {
-            if (dateTime.withDayOfMonth(rowIndex + 1).isBefore(weight.getDatetime())) {
-                break;
-            }
-            result = weight.getValue();
-        }
-        return result == null && !weights.isEmpty() ? weights.get(0).getValue() : result;
-    }
-
-    private Double getHeight(int rowIndex) {
-        if (heighes == null) {
-            heighes = MyLookup.getCurrentPatient().getRecordInvests(getFrom(), getTo(), WKInvest.HEIGHT);
-        }
-        Double result = null;
-        for (RecordInvest heigh : heighes) {
-            if (dateTime.withDayOfMonth(rowIndex + 1).isBefore(heigh.getDatetime())) {
-                break;
-            }
-            result = heigh.getValue();
-        }
-        return result == null && !heighes.isEmpty() ? heighes.get(0).getValue() : result;
-    }
-
-    private Integer getNumberOfYears(int rowIndex) {
-        if (MyLookup.getCurrentPatient() != null) {
-            return Years.yearsBetween(MyLookup.getCurrentPatient().getBorn(), dateTime.withDayOfMonth(rowIndex + 1).toLocalDate()).getYears();
-        }
-        return null;
-    }
-
-    private Boolean isMale() {
-        if (MyLookup.getCurrentPatient() != null) {
-            return MyLookup.getCurrentPatient().isMale();
-        }
-        return null;
-    }
-
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (dataActivity == null || foods == null) {
@@ -177,30 +137,29 @@ public class ActivityModel extends AbstractRecordSubModel {
                 }
                 break;
             case 1:
-                Integer years = getNumberOfYears(rowIndex);
-                Boolean boy = isMale();
-                Double weight = getWeight(rowIndex);
-                Double tall = getHeight(rowIndex);
-                //http://www.mte.cz/bmr.php
-                //BMR(ženy) = 655,0955 + (9,5634 × váha v kg) + (1,8496 × výška v cm) - (4,6756 × věk v letech)
-                //BMR(muži) = 66,473 + (13,7516 × váha v kg) + (5,0033 × výška v cm) - (6,755 × věk v letech)
-                if (weight != null && tall != null && years != null) {
-                    Energy energy = new Energy(Energy.Unit.kcal);
-                    if (boy) {
-                        energy.setValue(66.473 + (13.7516 * weight) + (5.0033 * tall) - (6.755 * years));
-                    } else {
-                        energy.setValue(655.0955 + (9.5634 * weight) + (1.8496 * tall) - (4.6756 * years));
-                    }
-                    return energy;
+                if (patient == null) {
+                    return null;
                 }
-                return NbBundle.getMessage(SumModel.class, "unknown.weight.tall");
+                if (metabols == null) {
+                    metabols = Maps.newHashMap();
+                }
+                LocalDate key = dateTime.withDayOfMonth(rowIndex + 1).toLocalDate();
+                if (metabols.get(key) == null) {
+                    Energy metabol = new Energy(Energy.Unit.kJ);
+                    try {
+                        metabol = patient.getMetabolismus(key);
+                    } catch (DiaryException ex) {
+                    }
+                    metabols.put(key, metabol);
+                }
+                return metabols.get(key).getValue() == 0 ? NbBundle.getMessage(SumModel.class, "unknown.weight.tall") : metabols.get(key);
             case 2:
                 Energy energ = new Energy(Energy.Unit.kJ);
                 DateTime rowDateFrom = dateTime.withDayOfMonth(rowIndex + 1).toDateMidnight().toDateTime();
                 DateTime rowDateTo = rowDateFrom.plusDays(1);
                 for (RecordFood rec : foods) {
                     if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
-                        energ.plus(new Energy(Energy.Unit.kJ, rec.getEnergyInKJ()));
+                        energ = energ.plus(rec.getEnergy());
                     }
                 }
                 return energ.getValue() > 0 ? energ : null;
@@ -213,18 +172,18 @@ public class ActivityModel extends AbstractRecordSubModel {
                 //metabolismus
                 Object metab = getValueAt(rowIndex, 1);
                 if (metab instanceof Energy) {
-                    food.minus((Energy) metab);
+                    food = food.minus((Energy) metab);
                 } else {
                     return NbBundle.getMessage(SumModel.class, "unknown.weight.tall");
                 }
                 //aktivity
-                Double weight2 = getWeight(rowIndex);
-                if (weight2 == null) {
+                try {
+                    Energy en = countAktEnergy(getValueAt(rowIndex, 0));
+                    if (en != null) {
+                        food = food.minus(en);
+                    }
+                } catch (UnknownWeightException e) {
                     return NbBundle.getMessage(SumModel.class, "unknown.weight");
-                }
-                Energy en = countAktEnergy(getValueAt(rowIndex, 0), weight2);
-                if (en != null) {
-                    food.minus(en);
                 }
                 return food;
         }
@@ -232,24 +191,17 @@ public class ActivityModel extends AbstractRecordSubModel {
         return null;
     }
 
-    private static Energy countAktEnergy(Object value, double weight) {
+    private static Energy countAktEnergy(Object value) throws UnknownWeightException {
         if (value instanceof RecordActivity[]) {
             RecordActivity[] values = (RecordActivity[]) value;
-            if (values.length > 0 && values[0] != null && values[0].getActivity() != null) {
-                Double sum = 0d;
-                for (RecordActivity val : values) {
-                    sum += val.getActivity().getPower() * val.getDuration() * weight;
-                }
-                Energy res = new Energy(Energy.Unit.kJ);
-                res.setValue(sum);
+            Energy energy = new Energy(Energy.Unit.kJ);
+            for (RecordActivity val : values) {
+                energy = energy.plus(val.getEnergy());
             }
+            return energy;
         } else if (value instanceof RecordActivity) {
             RecordActivity rec = (RecordActivity) value;
-            if (rec.getDuration() != null && rec.getActivity() != null) {
-                Energy res = new Energy(Energy.Unit.kJ);
-                res.setValue(rec.getActivity().getPower() * rec.getDuration() * weight);
-                return res;
-            }
+            return rec.getEnergy();
         }
         return null;
     }
@@ -303,16 +255,14 @@ public class ActivityModel extends AbstractRecordSubModel {
     public void onDataChange(DataChangeEvent evt) {
         if (evt.getDataChangedClazz() == null) {
             dataActivity = null;
-            weights = null;
-            heighes = null;
             foods = null;
+            metabols = null;
         } else if (evt.getDataChangedClazz().equals(RecordActivity.class)) {
             dataActivity = null;
-        } else if (evt.getDataChangedClazz().equals(RecordInvest.class)) {
-            weights = null;
-            heighes = null;
         } else if (evt.getDataChangedClazz().equals(RecordFood.class)) {
             foods = null;
+        } else if (evt.getDataChangedClazz().equals(RecordInvest.class)) {
+            metabols = null;
         }
     }
 }

@@ -26,11 +26,14 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * @author Jiri Majer
  */
 @Entity
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 @BatchSize(size = AbstractDO.BATCH_SIZE)
 @Table(name="activity_group")
 public class ActivityGroupDO extends AbstractDO implements Comparable<ActivityGroupDO> {

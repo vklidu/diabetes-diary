@@ -15,43 +15,19 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.diabetesdiary.print.pdf.table;
-
-import com.google.common.base.Preconditions;
+package org.diabetesdiary.commons.utils.tuples;
 
 /**
  *
  * @author Jirka Majer
  */
-public class Tuple2<T, S> {
+public class Tuples {
 
-    private final T value1;
-    private final S value2;
-
-    public Tuple2(T value1, S value2) {
-        this.value1 = Preconditions.checkNotNull(value1);
-        this.value2 = Preconditions.checkNotNull(value2);
+    private Tuples() {
     }
 
-    public T getValue1() {
-        return value1;
+    public static <T,S> Tuple2<T,S> of(T val1, S val2) {
+        return new Tuple2<T, S>(val1, val2);
     }
 
-    public S getValue2() {
-        return value2;
-    }
-
-    @Override
-    public int hashCode() {
-        return value1.hashCode() + value2.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Tuple2) {
-            Tuple2 inst = (Tuple2) obj;
-            return inst.value1.equals(value1) && inst.value2.equals(value2);
-        }
-        return false;
-    }
 }

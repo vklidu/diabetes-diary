@@ -27,6 +27,11 @@
             <version>1.6</version>
         </dependency>
         <dependency>
+            <groupId>com.google.collections</groupId>
+            <artifactId>google-collections</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
             <groupId>oracle.bali</groupId>
             <artifactId>ewt</artifactId>
             <version>4</version>
@@ -51,6 +56,7 @@
                         <publicPackage>org.joda.time.format</publicPackage>
                         <publicPackage>org.diabetesdiary.commons.swing.calendar</publicPackage>
                         <publicPackage>org.diabetesdiary.commons.utils</publicPackage>
+                        <publicPackage>org.diabetesdiary.commons.utils.tuples</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

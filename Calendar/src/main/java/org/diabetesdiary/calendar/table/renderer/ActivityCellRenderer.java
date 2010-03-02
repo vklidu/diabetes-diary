@@ -17,7 +17,7 @@
  */
 package org.diabetesdiary.calendar.table.renderer;
 
-import org.diabetesdiary.calendar.table.Energy;
+import org.diabetesdiary.diary.domain.Energy;
 import org.diabetesdiary.calendar.table.model.SumModel;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -37,15 +37,13 @@ public class ActivityCellRenderer extends AbstractDiaryCellRenderer<Object> {
     protected String getText(Object value) {
         if (value instanceof Energy) {
             Energy rec = (Energy) value;
-            return format.format(rec.getValue());
+            return format.format(rec.getValue(Energy.Unit.kJ));
         } else if (value instanceof RecordActivity) {
             RecordActivity rec = (RecordActivity) value;
-            if (rec.getDuration() != null && rec.getActivity() != null) {
-                try {
-                    return format.format(rec.getEnergy()) + (rec.getNotice() != null && rec.getNotice().length() > 0 ? "!" : "");
-                } catch (UnknownWeightException e) {
-                    return NbBundle.getMessage(SumModel.class, "unknown.weight");
-                }
+            try {
+                return format.format(rec.getEnergy().getValue(Energy.Unit.kJ)) + (rec.getNotice() != null && rec.getNotice().length() > 0 ? "!" : "");
+            } catch (UnknownWeightException e) {
+                return NbBundle.getMessage(SumModel.class, "unknown.weight");
             }
         } else if (value instanceof RecordActivity[]) {
             RecordActivity[] values = (RecordActivity[]) value;
@@ -54,7 +52,7 @@ public class ActivityCellRenderer extends AbstractDiaryCellRenderer<Object> {
                 Double sum = 0d;
                 try {
                     for (RecordActivity val : values) {
-                        sum += val.getEnergy();
+                        sum += val.getEnergy().getValue(Energy.Unit.kJ);
                         if (val.getNotice() != null && val.getNotice().length() > 0) {
                             note = true;
                         }
@@ -64,6 +62,8 @@ public class ActivityCellRenderer extends AbstractDiaryCellRenderer<Object> {
                     return NbBundle.getMessage(SumModel.class, "unknown.weight");
                 }
             }
+        } else if (value instanceof String) {
+            return (String) value;
         }
         return null;
     }

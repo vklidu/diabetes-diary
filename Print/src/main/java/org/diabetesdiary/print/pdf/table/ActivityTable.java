@@ -17,7 +17,16 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import org.diabetesdiary.diary.domain.Energy;
+import org.diabetesdiary.diary.api.DiaryException;
+import org.diabetesdiary.diary.api.UnknownWeightException;
 import org.diabetesdiary.diary.domain.Patient;
+import org.diabetesdiary.diary.domain.RecordActivity;
+import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.DateTime;
@@ -29,8 +38,12 @@ import org.joda.time.LocalDate;
  */
 public class ActivityTable extends AbstractPdfSubTable {
 
+    private Map<LocalDate, List<RecordActivity>> data;
+    private List<RecordFood> foods;
+
     public ActivityTable(DateTime from, DateTime to, Patient patient) {
         super(from, to, patient);
+        format.setMaximumFractionDigits(0);
     }
 
     @Override
@@ -45,17 +58,73 @@ public class ActivityTable extends AbstractPdfSubTable {
 
     @Override
     public HeaderBuilder getHeader() {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Energie (kJ)")
-                .addColumn("Výdej")
-                .addColumn("Aktivity")
-                .addSister("Metabolismus").getParent()
-                .addSister("Příjem")
-                .addSister("Bilance");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder("Energie (kJ)").addColumn("Výdej").addColumn("Aktivity").addSister("Metabolismus").getParent().addSister("Příjem").addSister("Bilance");
     }
 
     @Override
     protected String getValue(LocalDate date, int col) {
-        return String.valueOf(date.getDayOfWeek()*1000) + ",5";
+        switch (col) {
+            case 0:
+                Energy enIn = getEnergyIncome(date);
+                return enIn.getValue() > 0 ? FORMAT_FUNCTION.apply(enIn.getValue(Energy.Unit.kJ)) : "";
+            case 1:
+                try {
+                    return FORMAT_FUNCTION.apply(patient.getMetabolismus(date).getValue(Energy.Unit.kJ));
+                } catch (DiaryException ex) {
+                    return "";
+                }
+            case 2:
+                Energy en = getEnergyIncome(date);
+                return en.getValue() > 0 ? FORMAT_FUNCTION.apply(en.getValue(Energy.Unit.kJ)) : "";
+            case 3:                
+                try {
+                    Energy sum = getEnergyIncome(date).minus(patient.getMetabolismus(date)).minus(getEnergyActivity(date));
+                    return FORMAT_FUNCTION.apply(sum.getValue(Energy.Unit.kJ));
+                } catch (DiaryException e) {
+                    return "";
+                }
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
+    @Override
+    protected void loadData() {
+        data = Maps.newHashMap();
+        if (patient != null) {
+            for (RecordActivity rec : patient.getRecordActivities(from, to)) {
+                LocalDate key = rec.getDatetime().toLocalDate();
+                List<RecordActivity> list = data.get(key);
+                if (list == null) {
+                    list = Lists.newArrayList();
+                    data.put(key, list);
+                }
+                list.add(rec);
+            }
+            foods = patient.getRecordFoods(from, to);
+        }
+    }
+
+    private Energy getEnergyIncome(LocalDate date) {
+        Energy energ = new Energy(Energy.Unit.kJ);
+        DateTime rowDateFrom = date.toDateTimeAtStartOfDay();
+        DateTime rowDateTo = date.toDateTimeAtStartOfDay().plusDays(1);
+        for (RecordFood rec : foods) {
+            if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                energ = energ.plus(rec.getEnergy());
+            }
+        }
+        return energ;
+    }
+
+    private Energy getEnergyActivity(LocalDate date) throws UnknownWeightException {
+        Energy energ = new Energy(Energy.Unit.kJ);
+        if (data.get(date) == null) {
+            return energ;
+        }
+        for (RecordActivity rec : data.get(date)) {
+            energ = energ.plus(rec.getEnergy());
+        }
+        return energ;
+    }
 }

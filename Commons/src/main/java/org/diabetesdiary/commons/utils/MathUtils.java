@@ -17,6 +17,7 @@
  */
 package org.diabetesdiary.commons.utils;
 
+import com.google.common.collect.Lists;
 import java.math.BigDecimal;
 import java.util.Collection;
 
@@ -35,5 +36,17 @@ public class MathUtils {
             sum = sum.add(new BigDecimal(num));
         }
         return numbers.size() == 0 ? sum.doubleValue() : sum.divide(new BigDecimal(numbers.size()), fractionDigit, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+    public static double sum(Double ... numbers) {
+        return sum(Lists.newArrayList(numbers));
+    }
+
+    public static double sum(Iterable<Double> numbers) {
+        double result = 0;
+        for (Double num : numbers) {
+            result += num;
+        }
+        return result;
     }
 }
