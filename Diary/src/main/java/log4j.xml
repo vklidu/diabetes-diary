@@ -8,8 +8,7 @@
             <param name="ConversionPattern"  value="%d{ABSOLUTE} %-5p&lt;%t&gt;[%c] - %m%n"/>
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
-            <param name="levelMin" value="DEBUG" />
-            <param name="levelMax" value="FATAL" />
+            <param name="levelMin" value="WARN" />
         </filter>
     </appender>
 

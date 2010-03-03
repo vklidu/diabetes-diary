@@ -17,11 +17,9 @@
  */
 package org.diabetesdiary.calendar.table.model;
 
-import com.google.common.collect.Maps;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -35,10 +33,8 @@ import org.diabetesdiary.diary.api.DiaryException;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.diabetesdiary.diary.domain.RecordFood;
-import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.openide.util.NbBundle;
 
 /**
@@ -49,7 +45,6 @@ public class ActivityModel extends AbstractRecordSubModel {
 
     private RecordActivity[][][] dataActivity;
     private List<RecordFood> foods;
-    private Map<LocalDate, Energy> metabols;
 
     public ActivityModel(DateTime month, Patient patient) {
         super(month, patient);
@@ -137,22 +132,11 @@ public class ActivityModel extends AbstractRecordSubModel {
                 }
                 break;
             case 1:
-                if (patient == null) {
-                    return null;
+                try {
+                    return patient == null ? null : patient.getMetabolismus(dateTime.withDayOfMonth(rowIndex + 1).toLocalDate());
+                } catch (DiaryException ex) {
+                    return NbBundle.getMessage(SumModel.class, "unknown.weight.tall");
                 }
-                if (metabols == null) {
-                    metabols = Maps.newHashMap();
-                }
-                LocalDate key = dateTime.withDayOfMonth(rowIndex + 1).toLocalDate();
-                if (metabols.get(key) == null) {
-                    Energy metabol = new Energy(Energy.Unit.kJ);
-                    try {
-                        metabol = patient.getMetabolismus(key);
-                    } catch (DiaryException ex) {
-                    }
-                    metabols.put(key, metabol);
-                }
-                return metabols.get(key).getValue() == 0 ? NbBundle.getMessage(SumModel.class, "unknown.weight.tall") : metabols.get(key);
             case 2:
                 Energy energ = new Energy(Energy.Unit.kJ);
                 DateTime rowDateFrom = dateTime.withDayOfMonth(rowIndex + 1).toDateMidnight().toDateTime();
@@ -256,13 +240,10 @@ public class ActivityModel extends AbstractRecordSubModel {
         if (evt.getDataChangedClazz() == null) {
             dataActivity = null;
             foods = null;
-            metabols = null;
         } else if (evt.getDataChangedClazz().equals(RecordActivity.class)) {
             dataActivity = null;
         } else if (evt.getDataChangedClazz().equals(RecordFood.class)) {
             foods = null;
-        } else if (evt.getDataChangedClazz().equals(RecordInvest.class)) {
-            metabols = null;
         }
     }
 }

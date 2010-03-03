@@ -57,7 +57,8 @@ public class InvestTable extends AbstractPdfSubTable {
     @Override
     public HeaderBuilder getHeader() {
         if (patient != null && !patient.isMale()) {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Moč")
+        return (HeaderBuilder) GeneratorHelper.headerBuilder("Ostatní")
+                .addColumn("Moč")
                 .addColumn("Cukr")
                 .addSister("Ketolátky").getParent()
                 .addSister("Menstruace");
