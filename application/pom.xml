@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.netbeans.cluster</groupId>
-            <artifactId>platform10</artifactId>
+            <artifactId>platform11</artifactId>
             <version>${netbeans.version}</version>
             <type>pom</type>
         </dependency>
@@ -66,6 +66,9 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <etcConfFile>src/main/conf/diabetesdiary.conf</etcConfFile>
+                </configuration>
             </plugin>
         </plugins>
     </build>
