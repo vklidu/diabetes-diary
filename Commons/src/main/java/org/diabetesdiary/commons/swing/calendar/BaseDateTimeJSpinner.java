@@ -26,11 +26,11 @@ import org.joda.time.DateTime;
  *
  * @author Jirka Majer
  */
-public abstract class AbstractDateTimeJSpinner extends JSpinner {
+public class BaseDateTimeJSpinner extends JSpinner {
 
     private final SpinnerDateModel sm;
 
-    public AbstractDateTimeJSpinner(DateTime dateTime, String pattern, int calendarField) {
+    public BaseDateTimeJSpinner(DateTime dateTime, String pattern, int calendarField) {
         super();
         sm = new SpinnerDateModel(dateTime != null ? dateTime.toDate() : new Date(), null, null, calendarField);
         setModel(sm);

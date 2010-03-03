@@ -31,6 +31,7 @@ import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -65,8 +66,11 @@ public class ActivityTable extends AbstractPdfSubTable {
     protected String getValue(LocalDate date, int col) {
         switch (col) {
             case 0:
-                Energy enIn = getEnergyIncome(date);
-                return enIn.getValue() > 0 ? FORMAT_FUNCTION.apply(enIn.getValue(Energy.Unit.kJ)) : "";
+                try {
+                    return FORMAT_FUNCTION.apply(getEnergyActivity(date).getValue(Energy.Unit.kJ));
+                } catch (UnknownWeightException ex) {
+                    return "";
+                }
             case 1:
                 try {
                     return FORMAT_FUNCTION.apply(patient.getMetabolismus(date).getValue(Energy.Unit.kJ));
@@ -76,7 +80,7 @@ public class ActivityTable extends AbstractPdfSubTable {
             case 2:
                 Energy en = getEnergyIncome(date);
                 return en.getValue() > 0 ? FORMAT_FUNCTION.apply(en.getValue(Energy.Unit.kJ)) : "";
-            case 3:                
+            case 3:
                 try {
                     Energy sum = getEnergyIncome(date).minus(patient.getMetabolismus(date)).minus(getEnergyActivity(date));
                     return FORMAT_FUNCTION.apply(sum.getValue(Energy.Unit.kJ));

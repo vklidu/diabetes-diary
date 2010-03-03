@@ -24,7 +24,7 @@ import org.joda.time.DateTime;
  *
  * @author Jirka Majer
  */
-public class TimeJSpinner extends AbstractDateTimeJSpinner {
+public class TimeJSpinner extends BaseDateTimeJSpinner {
 
     public TimeJSpinner() {
         this(null);

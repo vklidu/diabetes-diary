@@ -48,7 +48,7 @@ public class DateTable extends AbstractPdfSubTable {
 
     @Override
     protected String getValue(LocalDate date, int col) {
-        return date.toString(DateTimeFormat.mediumDate());
+        return date.toString(DateTimeFormat.shortDate());
     }
 
     @Override
