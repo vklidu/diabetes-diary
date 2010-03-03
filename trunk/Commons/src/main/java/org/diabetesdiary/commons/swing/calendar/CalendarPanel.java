@@ -19,24 +19,21 @@ package org.diabetesdiary.commons.swing.calendar;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.EventObject;
 import java.util.Locale;
-import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 /**
@@ -51,19 +48,23 @@ public class CalendarPanel extends javax.swing.JPanel {
         model = new DayTableModel(date);
         initComponents();
         jTable1.setDefaultRenderer(LocalDate.class, new LocalDateRenderer());
-        ButtonEditor editor = new ButtonEditor(jTable1) {
-
-            @Override
-            public void onClickButton(LocalDate date) {
-                CalendarPanel.this.onDayClicked(date);
-            }
-        };
-        jTable1.setDefaultEditor(LocalDate.class, editor);
         for (int i = 0; i < jTable1.getColumnCount(); i++) {
             TableColumn col = jTable1.getColumnModel().getColumn(i);
             col.setHeaderValue(date.withDayOfWeek(i + 1).toString("E", this.locale));
         }
-        yearSpinner.getModel().setValue(date.getYear());
+        jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        jTable1.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = jTable1.rowAtPoint(e.getPoint());
+                int column = jTable1.columnAtPoint(e.getPoint());
+                LocalDate clickDate = (LocalDate) jTable1.getValueAt(row, column);
+                onDayClicked(clickDate);
+                setLocalDate(clickDate);
+            }
+        });
+
     }
 
     /** This method is called from within the constructor to
@@ -80,9 +81,10 @@ public class CalendarPanel extends javax.swing.JPanel {
         jButton1 = new BasicArrowButton(BasicArrowButton.WEST);
         jButton2 = new BasicArrowButton(BasicArrowButton.EAST);
         jComboBox1 = new javax.swing.JComboBox();
-        yearSpinner = new javax.swing.JSpinner();
+        yearSpinner = new YearSpinner(date.toDateTimeAtCurrentTime());
 
         jTable1.setModel(model);
+        jTable1.setCellSelectionEnabled(true);
         jTable1.getTableHeader().setResizingAllowed(false);
         jTable1.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(jTable1);
@@ -112,7 +114,6 @@ public class CalendarPanel extends javax.swing.JPanel {
             }
         });
 
-        yearSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(2010), Integer.valueOf(0), null, Integer.valueOf(1)));
         yearSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 yearSpinnerStateChanged(evt);
@@ -168,14 +169,16 @@ public class CalendarPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void yearSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_yearSpinnerStateChanged
-        date = date.withYear((Integer) yearSpinner.getValue());
+        YearSpinner spin = (YearSpinner) yearSpinner;
+        date = date.withYear(spin.getDateTime().getYear());
         refresh();
     }//GEN-LAST:event_yearSpinnerStateChanged
 
     private void refresh() {
         model.setLocalDate(date);
         jComboBox1.setSelectedItem(date.getMonthOfYear());
-        yearSpinner.setValue(date.getYear());
+        YearSpinner spin = (YearSpinner) yearSpinner;
+        spin.setDateTime(date.toDateTimeAtCurrentTime());
     }
 
     /**
@@ -229,70 +232,14 @@ public class CalendarPanel extends javax.swing.JPanel {
             LocalDate val = (LocalDate) value;
             label.setText(String.valueOf(val.getDayOfMonth()));
             label.setEnabled(val.monthOfYear().equals(date.monthOfYear()));
-            return label;
-        }
-    }
-
-    private static class ButtonEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
-
-        JTable table;
-        JButton button = new JButton();
-        int clickCountToStart = 1;
-
-        public ButtonEditor(JTable table) {
-            this.table = table;
-            button.addActionListener(this);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int row = table.getEditingRow();
-            int col = table.getEditingColumn();
-            LocalDate val = (LocalDate) table.getValueAt(row, col);
-            stopCellEditing();
-            onClickButton(val);
-        }
-
-        public void onClickButton(LocalDate date) {
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table,
-                Object value,
-                boolean isSelected,
-                int row, int column) {
-
-            LocalDate val = (LocalDate) value;
-            button.setText(String.valueOf(val.getDayOfMonth()));
-            return button;
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return button.getText();
-        }
-
-        @Override
-        public boolean isCellEditable(EventObject anEvent) {
-            if (anEvent instanceof MouseEvent) {
-                return ((MouseEvent) anEvent).getClickCount() >= clickCountToStart;
+            if (isSelected) {
+                label.setBackground(table.getSelectionBackground());
+                label.setForeground(table.getSelectionForeground());
+            } else {
+                label.setBackground(table.getBackground());
+                label.setForeground(table.getForeground());
             }
-            return true;
-        }
-
-        @Override
-        public boolean shouldSelectCell(EventObject anEvent) {
-            return true;
-        }
-
-        @Override
-        public boolean stopCellEditing() {
-            return super.stopCellEditing();
-        }
-
-        @Override
-        public void cancelCellEditing() {
-            super.cancelCellEditing();
+            return label;
         }
     }
 
@@ -347,23 +294,16 @@ public class CalendarPanel extends javax.swing.JPanel {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            final LocalDate butDate = getDate(rowIndex, columnIndex);
-            return butDate;
-        }
-
-        private LocalDate getDate(int row, int col) {
             int firstDayOfWeek = date.dayOfMonth().withMinimumValue().getDayOfWeek();
-            return date.dayOfMonth().withMinimumValue().minusDays(firstDayOfWeek - 1).plusDays(row * 7 + col);
+            if (firstDayOfWeek == DateTimeConstants.MONDAY) {
+                return date.dayOfMonth().withMinimumValue().minusDays(firstDayOfWeek - 1).plusDays((rowIndex-1) * 7 + columnIndex);
+            }
+            return date.dayOfMonth().withMinimumValue().minusDays(firstDayOfWeek - 1).plusDays(rowIndex * 7 + columnIndex);
         }
 
         @Override
         public Class<?> getColumnClass(int columnIndex) {
             return LocalDate.class;
-        }
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return getDate(rowIndex, columnIndex).monthOfYear().equals(date.monthOfYear());
         }
     };
 }

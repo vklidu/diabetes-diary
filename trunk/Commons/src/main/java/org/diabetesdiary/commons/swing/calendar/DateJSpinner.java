@@ -26,7 +26,7 @@ import org.joda.time.format.DateTimeFormat;
  *
  * @author Jirka Majer
  */
-public class DateJSpinner extends AbstractDateTimeJSpinner {
+public class DateJSpinner extends BaseDateTimeJSpinner {
 
     public DateJSpinner() {
         this(null);
