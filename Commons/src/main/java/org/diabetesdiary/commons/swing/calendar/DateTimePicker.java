@@ -18,10 +18,10 @@
 package org.diabetesdiary.commons.swing.calendar;
 
 import java.awt.Component;
-import org.diabetesdiary.commons.swing.calendar.datemania.CalendarPanel;
 import java.awt.Dialog;
-import java.util.Date;
+import java.util.Locale;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 
@@ -35,16 +35,16 @@ public class DateTimePicker {
     private final CalendarPanel calendar;
     private DateTime result;
     private final DialogDescriptor dialogDesc;
+    private DateTime initiDateTime;
 
     public DateTimePicker() {
-        calendar = new CalendarPanel() {
+        calendar = new CalendarPanel(new LocalDate(), Locale.getDefault()) {
+
             @Override
-            protected void onDaySelected(Date[] selectedDates) {
-                if (selectedDates != null && selectedDates.length > 0 && selectedDates[0] != null) {
-                    result = new DateTime(selectedDates[0].getTime());
-                    dialog.setVisible(false);
-                    dialog.dispose();
-                }
+            public void onDayClicked(LocalDate date) {
+                result = initiDateTime != null ? date.toDateTime(initiDateTime.toLocalTime()) : date.toDateTimeAtCurrentTime();
+                dialog.setVisible(false);
+                dialog.dispose();
             }
         };
         dialogDesc = new DialogDescriptor(calendar, "");
@@ -54,10 +54,11 @@ public class DateTimePicker {
 
     public synchronized DateTime getDateTimeFromUser(DateTime initialDateTime, Component caller) {
         result = null;
+        this.initiDateTime = initialDateTime;
         dialog = DialogDisplayer.getDefault().createDialog(dialogDesc);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(caller);
-        calendar.setSelectedDate(initialDateTime != null ? initialDateTime.toDate() : new Date());
+        calendar.setLocalDate(initialDateTime != null ? initialDateTime.toLocalDate() : new LocalDate());
         dialog.setVisible(true);
         return result;
     }
