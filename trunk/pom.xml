@@ -114,10 +114,24 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>nbm-maven-plugin</artifactId>
+                        <inherited>false</inherited>
                         <executions>
                             <execution>
                                 <phase>package</phase>
+                                <goals>
+                                    <goal>autoupdate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
@@ -147,7 +161,7 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.version>RELEASE67</netbeans.version>
+        <netbeans.version>RELEASE68</netbeans.version>
         <brandingToken>diabetesdiary</brandingToken>
         <diary.version>2.0</diary.version>
         <spring.version>3.0.0.RELEASE</spring.version>

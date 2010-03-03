@@ -39,6 +39,10 @@
                     <artifactId>asm-attrs</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>hibernate</groupId>
+                    <artifactId>antlr</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>

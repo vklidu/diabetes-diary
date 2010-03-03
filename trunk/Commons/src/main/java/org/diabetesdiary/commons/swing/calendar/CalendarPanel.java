@@ -60,8 +60,8 @@ public class CalendarPanel extends javax.swing.JPanel {
                 int row = jTable1.rowAtPoint(e.getPoint());
                 int column = jTable1.columnAtPoint(e.getPoint());
                 LocalDate clickDate = (LocalDate) jTable1.getValueAt(row, column);
-                onDayClicked(clickDate);
                 setLocalDate(clickDate);
+                onDayClicked(clickDate);                
             }
         });
 
@@ -211,6 +211,7 @@ public class CalendarPanel extends javax.swing.JPanel {
 
     public void setLocalDate(LocalDate date) {
         this.date = date;
+        refresh();
     }
 
     public void onDayClicked(LocalDate date) {
