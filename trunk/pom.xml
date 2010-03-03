@@ -69,6 +69,7 @@
                         <distributionUrl>http://diabetes-diary.googlecode.com/svn/dist/${diary.version}/updates</distributionUrl>
                         <sourceManifestFile>src/main/nbm/manifest.mf</sourceManifestFile>
                         <cluster>diabetesdiary</cluster>
+                        <fileName>catalog.xml</fileName>
                     </configuration>
                 </plugin>
 
@@ -107,23 +108,25 @@
             </plugins>
         </pluginManagement>
     </build>
-        <profiles>
+    <profiles>
         <profile>
             <id>deployment</id>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>nbm-maven-plugin</artifactId>
+                        <artifactId>maven-antrun-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>updatesite</id>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>autoupdate</goal>
+                                    <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <fileName>catalog.xml</fileName>
+                                    <tasks>
+                                        <copy todir="../dist/${diary.version}/updates">
+                                            <fileset dir="${project.build.directory}/netbeans_site"/>
+                                        </copy>
+                                    </tasks>
                                 </configuration>
                             </execution>
                         </executions>

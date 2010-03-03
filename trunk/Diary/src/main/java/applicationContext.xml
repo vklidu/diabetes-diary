@@ -19,7 +19,7 @@
 
     <bean id="diaryDataSource" class="org.springframework.jdbc.datasource.SingleConnectionDataSource" destroy-method="closeConnection">
         <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-        <property name="url" value="jdbc:hsqldb:file:${user.home}/.diabetesdiary/2/data;shutdown=true" />
+        <property name="url" value="jdbc:hsqldb:file:${user.home}/.diabetesdiary/db/2.0/data;shutdown=true" />
         <property name="username" value="sa" />
         <property name="password" value="" />
         <property name="suppressClose" value="true" />
