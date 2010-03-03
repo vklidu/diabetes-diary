@@ -94,7 +94,7 @@ public class DateTimePanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(dateJSpinner1, gridBagConstraints);
 
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/commons/swing/calendar/JCalendarColor32.gif"))); // NOI18N
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/commons/swing/calendar/Calendar_32.png"))); // NOI18N
         jButton1.setBorder(null);
         jButton1.setContentAreaFilled(false);
         jButton1.setPreferredSize(new java.awt.Dimension(32, 32));

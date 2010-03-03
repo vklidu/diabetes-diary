@@ -31,17 +31,6 @@
             <artifactId>google-collections</artifactId>
             <version>1.0</version>
         </dependency>
-        <dependency>
-            <groupId>oracle.bali</groupId>
-            <artifactId>ewt</artifactId>
-            <version>4</version>
-        </dependency>
-        <dependency>
-            <groupId>oracle.bali</groupId>
-            <artifactId>share</artifactId>
-            <version>11.1.1</version>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
