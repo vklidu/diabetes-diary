@@ -86,17 +86,7 @@
                                     <goal>autoupdate</goal>
                                 </goals>
                                 <configuration>
-                                    <!--distBase>central::default::http://repo1.maven.org/maven2</distBase-->
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>webstart</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>webstart-app</goal>
-                                </goals>
-                                <configuration>
-                                    <codebase>${project.build.directory}/webstart/${brandingToken}</codebase>
+                                    <fileName>catalog.xml</fileName>
                                 </configuration>
                             </execution>
                         </executions>

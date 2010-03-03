@@ -18,8 +18,15 @@
 package org.diabetesdiary.diary.domain;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.List;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import org.diabetesdiary.commons.utils.tuples.Tuple2;
+import org.diabetesdiary.commons.utils.tuples.Tuple3;
+import org.diabetesdiary.commons.utils.tuples.Tuples;
 import org.diabetesdiary.diary.api.UnknownHeightException;
 import org.diabetesdiary.diary.api.UnknownWeightException;
 import org.diabetesdiary.diary.service.db.ActivityDO;
@@ -48,6 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Configurable
 public class Patient extends AbstractDomainObject {
 
+    private final Cache cache = CacheManager.getInstance().getCache("cache.patient");
     private final String name;
     private final String surname;
     private final boolean male;
@@ -85,37 +93,32 @@ public class Patient extends AbstractDomainObject {
 
     @Transactional(readOnly = true)
     public Double getWeightBefore(DateTime date) {
-        List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
-                .createAlias("invest", "invest")
-                .add(Restrictions.lt("datetime", date.dayOfMonth().withMaximumValue()))
-                .add(Restrictions.eq("invest.wkinvest", WKInvest.WEIGHT))
-                .add(Restrictions.eq("patient.id", id))
-                .addOrder(Order.desc("datetime"))
-                .setCacheRegion("patient.invests")
-                .setCacheable(true)
-                .list();
-        for (RecordInvestDO rec : result) {
-            if (rec.getDate().isBefore(date)) {
-                return rec.getValue();
-            }
-        }
-        return null;
+       return getCachedInvestBefore(date, WKInvest.WEIGHT);
     }
 
     @Transactional(readOnly = true)
     public Double getHeightBefore(DateTime date) {
-        List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
-                .createAlias("invest", "invest")
-                .add(Restrictions.lt("datetime", date.dayOfMonth().withMaximumValue()))
-                .add(Restrictions.eq("invest.wkinvest", WKInvest.HEIGHT))
-                .add(Restrictions.eq("patient.id", id))
-                .addOrder(Order.desc("datetime"))
-                .setCacheRegion("patient.invests")
-                .setCacheable(true)
-                .list();
-        for (RecordInvestDO rec : result) {
-            if (rec.getDate().isBefore(date)) {
-                return rec.getValue();
+        return getCachedInvestBefore(date, WKInvest.HEIGHT);
+    }
+
+    private Double getCachedInvestBefore(DateTime date, WKInvest invest) {
+        DateTime lastMonthDay = date.toDateMidnight().dayOfMonth().withMaximumValue().toDateTime();
+        Tuple3<WKInvest, Long, DateTime> key = Tuples.of(invest, id, lastMonthDay);
+        Element element = cache.get(key);
+        List<Tuple2<DateTime, Double>> value = (List<Tuple2<DateTime, Double>>) (element != null ? element.getObjectValue() : null);
+        if (value == null) {
+            List<RecordInvest> result = getRecordInvests(date.minusYears(1), date, invest);
+            value = Lists.newArrayList(Iterables.transform(result, new Function<RecordInvest, Tuple2<DateTime, Double>>() {
+                @Override
+                public Tuple2<DateTime, Double> apply(RecordInvest rec) {
+                    return Tuples.of(rec.getDatetime(), rec.getValue());
+                }
+            }));
+            cache.put(new Element(key, value));
+        }
+        for (Tuple2<DateTime, Double> rec : Iterables.reverse(value)) {
+            if (rec.getValue1().isBefore(date)) {
+                return rec.getValue2();
             }
         }
         return null;

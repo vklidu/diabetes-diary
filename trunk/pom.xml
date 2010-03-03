@@ -66,7 +66,7 @@
                     <configuration>
                         <descriptor>src/main/nbm/module.xml</descriptor>
                         <brandingToken>${brandingToken}</brandingToken>
-                        <distributionUrl>http://www.diabetes-diary.org/download/1.0.1/updates</distributionUrl>
+                        <distributionUrl>http://diabetes-diary.googlecode.com/svn/dist/${diary.version}/updates</distributionUrl>
                         <sourceManifestFile>src/main/nbm/manifest.mf</sourceManifestFile>
                         <cluster>diabetesdiary</cluster>
                     </configuration>
@@ -121,7 +121,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.version>RELEASE67</netbeans.version>
         <brandingToken>diabetesdiary</brandingToken>
-        <diary.version>1.2</diary.version>
+        <diary.version>2.0</diary.version>
         <spring.version>3.0.0.RELEASE</spring.version>
         <aspectj.version>1.6.7</aspectj.version>
     </properties>

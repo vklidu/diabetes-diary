@@ -30,4 +30,8 @@ public class Tuples {
         return new Tuple2<T, S>(val1, val2);
     }
 
+    public static <T,S,R> Tuple3<T,S,R> of(T val1, S val2, R val3) {
+        return new Tuple3<T, S, R>(val1, val2, val3);
+    }
+
 }
