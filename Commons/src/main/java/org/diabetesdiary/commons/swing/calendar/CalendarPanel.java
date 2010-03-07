@@ -19,6 +19,7 @@ package org.diabetesdiary.commons.swing.calendar;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Locale;
@@ -61,7 +62,7 @@ public class CalendarPanel extends javax.swing.JPanel {
                 int column = jTable1.columnAtPoint(e.getPoint());
                 LocalDate clickDate = (LocalDate) jTable1.getValueAt(row, column);
                 setLocalDate(clickDate);
-                onDayClicked(clickDate);                
+                onDayClicked(clickDate);
             }
         });
 
@@ -232,7 +233,14 @@ public class CalendarPanel extends javax.swing.JPanel {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             LocalDate val = (LocalDate) value;
             label.setText(String.valueOf(val.getDayOfMonth()));
-            label.setEnabled(val.monthOfYear().equals(date.monthOfYear()));
+            if (val.monthOfYear().equals(date.monthOfYear())) {
+                label.setEnabled(true);
+                label.setFont(label.getFont().deriveFont(Font.BOLD));
+            } else {
+                label.setEnabled(false);                
+                label.setFont(label.getFont().deriveFont(Font.PLAIN));
+            }
+
             if (isSelected) {
                 label.setBackground(table.getSelectionBackground());
                 label.setForeground(table.getSelectionForeground());
@@ -297,7 +305,7 @@ public class CalendarPanel extends javax.swing.JPanel {
         public Object getValueAt(int rowIndex, int columnIndex) {
             int firstDayOfWeek = date.dayOfMonth().withMinimumValue().getDayOfWeek();
             if (firstDayOfWeek == DateTimeConstants.MONDAY) {
-                return date.dayOfMonth().withMinimumValue().minusDays(firstDayOfWeek - 1).plusDays((rowIndex-1) * 7 + columnIndex);
+                return date.dayOfMonth().withMinimumValue().minusDays(firstDayOfWeek - 1).plusDays((rowIndex - 1) * 7 + columnIndex);
             }
             return date.dayOfMonth().withMinimumValue().minusDays(firstDayOfWeek - 1).plusDays(rowIndex * 7 + columnIndex);
         }
