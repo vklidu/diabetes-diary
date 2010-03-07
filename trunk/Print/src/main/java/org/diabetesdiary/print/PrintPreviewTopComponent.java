@@ -498,7 +498,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = jFileChooser.getSelectedFile();
             if (file.exists()) {
-                Confirmation msg = new NotifyDescriptor.Confirmation(String.format("Soubor %s existuje. Chcete ho přepsat?", file.getName()),
+                Confirmation msg = new NotifyDescriptor.Confirmation(String.format(NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.saveConfirmation"), file.getName()),
                         NotifyDescriptor.OK_CANCEL_OPTION,
                         NotifyDescriptor.QUESTION_MESSAGE);
                 Object result = DialogDisplayer.getDefault().notify(msg);
@@ -655,7 +655,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         curpage = pagenum;
 
         // update the page text field
-        pageField.setText(String.format("%d of %d", curpage + 1, curFile.getNumPages()));
+        pageField.setText(String.format(NbBundle.getMessage(PrintPreviewTopComponent.class, "PrintPreviewTopComponent.pageField.text"), curpage + 1, curFile.getNumPages()));
 
         // fetch the page and show it in the appropriate place
         PDFPage pg = curFile.getPage(pagenum + 1);

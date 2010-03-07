@@ -41,6 +41,7 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -73,9 +74,9 @@ public class InsulinTable extends AbstractPdfSubTable {
     @Override
     public HeaderBuilder getHeader() {
         if (isPump()) {
-            return (HeaderBuilder) GeneratorHelper.headerBuilder("Inzulín (U)").addColumn("Bolus").addColumn("snídaně").addSister("oběd").addSister("Večeře").addSister("Přídavek").getParent().addSister("Bazál");
+            return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(InsulinTable.class, "INZULÍN (U)")).addColumn(NbBundle.getMessage(InsulinTable.class, "BOLUS")).addColumn(NbBundle.getMessage(InsulinTable.class, "SNÍDANĚ")).addSister(NbBundle.getMessage(InsulinTable.class, "OBĚD")).addSister(NbBundle.getMessage(InsulinTable.class, "VEČEŘE")).addSister(NbBundle.getMessage(InsulinTable.class, "PŘÍDAVEK")).getParent().addSister(NbBundle.getMessage(InsulinTable.class, "BAZÁL"));
         }
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Inzulín (U)").addColumn("snídaně").addColumn("rychlý").addSister("depotní").getParent().addSister("oběd").addColumn("rychlý").getParent().addSister("1. večeře").addColumn("rychlý").addSister("depotní").getParent().addSister("přídavek");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(InsulinTable.class, "INZULÍN (U)")).addColumn(NbBundle.getMessage(InsulinTable.class, "SNÍDANĚ")).addColumn(NbBundle.getMessage(InsulinTable.class, "RYCHLÝ")).addSister(NbBundle.getMessage(InsulinTable.class, "DEPOTNÍ")).getParent().addSister(NbBundle.getMessage(InsulinTable.class, "OBĚD")).addColumn(NbBundle.getMessage(InsulinTable.class, "RYCHLÝ")).getParent().addSister(NbBundle.getMessage(InsulinTable.class, "1. VEČEŘE")).addColumn(NbBundle.getMessage(InsulinTable.class, "RYCHLÝ")).addSister(NbBundle.getMessage(InsulinTable.class, "DEPOTNÍ")).getParent().addSister(NbBundle.getMessage(InsulinTable.class, "PŘÍDAVEK"));
     }
 
     @Override
@@ -90,6 +91,7 @@ public class InsulinTable extends AbstractPdfSubTable {
             return new Phrase();
         }
 
+        //addition intake
         if ((isPump() && column == 3) || (!isPump() && column == 5)) {
             Phrase phrase = new Phrase();
             Font pomfont = PDFGenerator.getFont();
@@ -106,7 +108,7 @@ public class InsulinTable extends AbstractPdfSubTable {
                 chunk.setFont(font);
                 phrase.add(chunk);
 
-                chunk = new Chunk(DateTimeFormat.shortTime().print(rec.getDatetime()));
+                chunk = new Chunk(DateTimeFormat.mediumTime().print(rec.getDatetime()));
                 chunk.setTextRise(5).setFont(pomfont);
                 phrase.add(chunk);
             }

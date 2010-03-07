@@ -27,6 +27,7 @@ import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -49,11 +50,11 @@ public class SumTable extends AbstractPdfSubTable {
 
     @Override
     public HeaderBuilder getHeader() {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Celkem")
-                .addColumn("Inzulín")
-                .addSister("Jídlo")
-                .addSister("bolus/sach.")
-                .addSister("ins./kg");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(SumTable.class, "CELKEM"))
+                .addColumn(NbBundle.getMessage(SumTable.class, "INZULÍN"))
+                .addSister(NbBundle.getMessage(SumTable.class, "JÍDLO"))
+                .addSister(NbBundle.getMessage(SumTable.class, "BOLUS/SACH."))
+                .addSister(NbBundle.getMessage(SumTable.class, "INS./KG"));
     }
 
     @Override

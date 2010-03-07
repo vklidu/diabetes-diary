@@ -35,6 +35,7 @@ import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -58,13 +59,13 @@ public class GlycemieTable extends AbstractPdfSubTable {
 
     @Override
     public HeaderBuilder getHeader() {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Glykémie (mmol/l)")
-                .addColumn("v noci")
-                .addSister("snídaně").addColumn("před").addSister("po").getParent()
-                .addSister("oběd").addColumn("před").addSister("po").getParent()
-                .addSister("1. večeře").addColumn("před").addSister("po").getParent()
-                .addSister("před spaním")
-                .addSister("v noci");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(GlycemieTable.class, "GLYKÉMIE (MMOL/L)"))
+                .addColumn(NbBundle.getMessage(GlycemieTable.class, "V NOCI"))
+                .addSister(NbBundle.getMessage(GlycemieTable.class, "SNÍDANĚ")).addColumn(NbBundle.getMessage(GlycemieTable.class, "PŘED")).addSister(NbBundle.getMessage(GlycemieTable.class, "PO")).getParent()
+                .addSister(NbBundle.getMessage(GlycemieTable.class, "OBĚD")).addColumn(NbBundle.getMessage(GlycemieTable.class, "PŘED")).addSister(NbBundle.getMessage(GlycemieTable.class, "PO")).getParent()
+                .addSister(NbBundle.getMessage(GlycemieTable.class, "1. VEČEŘE")).addColumn(NbBundle.getMessage(GlycemieTable.class, "PŘED")).addSister(NbBundle.getMessage(GlycemieTable.class, "PO")).getParent()
+                .addSister(NbBundle.getMessage(GlycemieTable.class, "PŘED SPANÍM"))
+                .addSister(NbBundle.getMessage(GlycemieTable.class, "V NOCI"));
     }
 
     @Override

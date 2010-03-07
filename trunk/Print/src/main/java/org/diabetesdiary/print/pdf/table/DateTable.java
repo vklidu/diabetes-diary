@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -58,7 +59,7 @@ public class DateTable extends AbstractPdfSubTable {
 
     @Override
     public HeaderBuilder getHeader() {
-        return GeneratorHelper.headerBuilder("Datum");
+        return GeneratorHelper.headerBuilder(NbBundle.getMessage(DateTable.class, "DATUM"));
     }
 
 }
