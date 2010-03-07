@@ -44,7 +44,6 @@ public class FoodTable extends AbstractPdfSubTable {
 
     public FoodTable(DateTime from, DateTime to, Patient patient) {
         super(from, to, patient);
-        sachUnit = diary.getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
     }
 
     @Override
