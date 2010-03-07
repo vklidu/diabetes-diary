@@ -31,7 +31,6 @@ import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.openide.util.Exceptions;
 
 /**
  *
