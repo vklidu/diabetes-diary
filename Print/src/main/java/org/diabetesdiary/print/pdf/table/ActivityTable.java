@@ -31,6 +31,7 @@ import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -58,7 +59,12 @@ public class ActivityTable extends AbstractPdfSubTable {
 
     @Override
     public HeaderBuilder getHeader() {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Energie (kJ)").addColumn("Výdej").addColumn("Aktivity").addSister("Metabolismus").getParent().addSister("Příjem").addSister("Bilance");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(ActivityTable.class, "ENERGIE (KJ)"))
+                .addColumn(NbBundle.getMessage(ActivityTable.class, "VÝDEJ"))
+                .addColumn(NbBundle.getMessage(ActivityTable.class, "AKTIVITY"))
+                .addSister(NbBundle.getMessage(ActivityTable.class, "METABOLISMUS"))
+                .getParent().addSister(NbBundle.getMessage(ActivityTable.class, "PŘÍJEM"))
+                .addSister(NbBundle.getMessage(ActivityTable.class, "BILANCE"));
     }
 
     @Override

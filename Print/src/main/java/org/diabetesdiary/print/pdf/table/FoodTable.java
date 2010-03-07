@@ -32,6 +32,7 @@ import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -54,13 +55,13 @@ public class FoodTable extends AbstractPdfSubTable {
     @Override
     public HeaderBuilder getHeader() {
         FoodUnit unit = diary.getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
-        return (HeaderBuilder) GeneratorHelper.headerBuilder(String.format("Jídlo (~%.0f g sach.)", unit.getKoef()))
-                .addColumn("snídaně")
-                .addSister("svačina")
-                .addSister("oběd")
-                .addSister("svačina")
-                .addSister("1. večeře")
-                .addSister("2. večeře");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder(String.format(NbBundle.getMessage(FoodTable.class, "JÍDLO (~%.0F G SACH.)"), unit.getKoef()))
+                .addColumn(NbBundle.getMessage(FoodTable.class, "SNÍDANĚ"))
+                .addSister(NbBundle.getMessage(FoodTable.class, "SVAČINA"))
+                .addSister(NbBundle.getMessage(FoodTable.class, "OBĚD"))
+                .addSister(NbBundle.getMessage(FoodTable.class, "SVAČINA"))
+                .addSister(NbBundle.getMessage(FoodTable.class, "1. VEČEŘE"))
+                .addSister(NbBundle.getMessage(FoodTable.class, "2. VEČEŘE"));
     }
 
     @Override

@@ -31,6 +31,7 @@ import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -57,15 +58,15 @@ public class InvestTable extends AbstractPdfSubTable {
     @Override
     public HeaderBuilder getHeader() {
         if (patient != null && !patient.isMale()) {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Ostatní")
-                .addColumn("Moč")
-                .addColumn("Cukr")
-                .addSister("Ketolátky").getParent()
-                .addSister("Menstruace");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(InvestTable.class, "OSTATNÍ"))
+                .addColumn(NbBundle.getMessage(InvestTable.class, "MOČ"))
+                .addColumn(NbBundle.getMessage(InvestTable.class, "CUKR"))
+                .addSister(NbBundle.getMessage(InvestTable.class, "KETOLÁTKY")).getParent()
+                .addSister(NbBundle.getMessage(InvestTable.class, "MENSTRUACE"));
         }
-        return (HeaderBuilder) GeneratorHelper.headerBuilder("Moč")
-                .addColumn("Cukr")
-                .addSister("Ketolátky");
+        return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(InvestTable.class, "MOČ"))
+                .addColumn(NbBundle.getMessage(InvestTable.class, "CUKR"))
+                .addSister(NbBundle.getMessage(InvestTable.class, "KETOLÁTKY"));
     }
 
     @Override
