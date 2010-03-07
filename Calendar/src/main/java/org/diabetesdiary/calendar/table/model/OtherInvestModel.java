@@ -25,7 +25,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
-import org.diabetesdiary.calendar.table.renderer.GlykemieCellRenderer;
+import org.diabetesdiary.calendar.table.renderer.GlycaemiaCellRenderer;
 import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.InvSeason;
 import org.diabetesdiary.diary.domain.Patient;
@@ -67,7 +67,7 @@ public class OtherInvestModel extends AbstractRecordSubModel {
         dataOtherInvest = new RecordInvest[31][4][1];
         Calendar cal = Calendar.getInstance();
         for (RecordInvest rec : data) {
-            if (!rec.getInvest().anyType(WKInvest.GLYCEMIE)) {
+            if (!rec.getInvest().anyType(WKInvest.GLYCAEMIA)) {
                 cal.setTimeInMillis(rec.getDatetime().getMillis());
                 WKInvest inst = rec.getInvest().getWKInvest();
 
@@ -153,7 +153,7 @@ public class OtherInvestModel extends AbstractRecordSubModel {
                 return 0;
             case URINE_SUGAR:
                 return 1;
-            case ACETON:
+            case KETONES:
                 return 2;
             case MENSES:
                 return 3;
@@ -173,7 +173,7 @@ public class OtherInvestModel extends AbstractRecordSubModel {
                 return WKInvest.URINE_SUGAR;//sugar
 
             case 2:
-                return WKInvest.ACETON;//aceton
+                return WKInvest.KETONES;//aceton
 
             case 3:
                 return WKInvest.MENSES;//menses
@@ -214,7 +214,7 @@ public class OtherInvestModel extends AbstractRecordSubModel {
 
     @Override
     public TableCellRenderer getCellRenderer(int columnIndex) {
-        return new GlykemieCellRenderer();
+        return new GlycaemiaCellRenderer();
     }
 
     @Override

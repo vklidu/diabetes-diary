@@ -108,7 +108,7 @@ public class InsulinTable extends AbstractPdfSubTable {
                 chunk.setFont(font);
                 phrase.add(chunk);
 
-                chunk = new Chunk(DateTimeFormat.mediumTime().print(rec.getDatetime()));
+                chunk = new Chunk(DateTimeFormat.forPattern("H:mm").print(rec.getDatetime()));
                 chunk.setTextRise(5).setFont(pomfont);
                 phrase.add(chunk);
             }

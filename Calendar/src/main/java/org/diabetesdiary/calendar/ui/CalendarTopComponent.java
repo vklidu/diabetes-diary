@@ -136,7 +136,7 @@ public final class CalendarTopComponent extends TopComponent implements Property
                     } else if (subModel instanceof RecordInvestModel) {
                         RecordInvestModel model = (RecordInvestModel) subModel;
                         comp.setInvestComponents(model.getClickCellDate(row, subCol), 1d, null,
-                                MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCEMIE), model.getSeason(subCol));
+                                MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCAEMIA), model.getSeason(subCol));
                     } else if (subModel instanceof RecordInsulinPumpModel) {
                         RecordInsulinPumpModel model = (RecordInsulinPumpModel) subModel;
                         comp.setInsulinComponents(model.getClickCellDate(row, subCol), 1d, null, model.getSeason(subCol),

@@ -28,7 +28,7 @@ import org.diabetesdiary.diary.domain.WKInvest;
  *
  * @author Jiri Majer
  */
-public class GlykemieCellRenderer extends AbstractDiaryCellRenderer<Object> {
+public class GlycaemiaCellRenderer extends AbstractDiaryCellRenderer<Object> {
 
     private static NumberFormat format = NumberFormat.getInstance();
     private static Color lowGlyColor = new Color(55, 110, 200);
@@ -45,7 +45,7 @@ public class GlykemieCellRenderer extends AbstractDiaryCellRenderer<Object> {
             RecordInvest rec = (RecordInvest) value;
             String res;
             if (rec.getValue() != null && rec.getInvest() != null) {
-                if (rec.getInvest().anyType(WKInvest.ACETON, WKInvest.URINE_SUGAR)) {
+                if (rec.getInvest().anyType(WKInvest.KETONES, WKInvest.URINE_SUGAR)) {
                     res = getCharForValue(rec.getValue());
                 } else if (rec.getInvest().anyType(WKInvest.MENSES)) {
                     res = getCharForMenzesValue(rec.getValue());
@@ -59,7 +59,7 @@ public class GlykemieCellRenderer extends AbstractDiaryCellRenderer<Object> {
             StringBuilder res = new StringBuilder();
             if (values.length > 0 && values[0] != null && values[0].getInvest() != null) {
                 for (RecordInvest val : values) {
-                    if (val.getInvest().anyType(WKInvest.ACETON, WKInvest.URINE_SUGAR)) {
+                    if (val.getInvest().anyType(WKInvest.KETONES, WKInvest.URINE_SUGAR)) {
                         res.append(" " + getCharForValue(val.getValue()));
                     } else if (val.getInvest().anyType(WKInvest.MENSES)) {
                         res.append(" " + getCharForMenzesValue(val.getValue()));
@@ -116,12 +116,12 @@ public class GlykemieCellRenderer extends AbstractDiaryCellRenderer<Object> {
     protected Color getBackgroundColor(Object value, boolean selected) {
         if (value instanceof RecordInvest) {
             RecordInvest rec = (RecordInvest) value;
-            if (rec.getInvest().getWKInvest() == WKInvest.GLYCEMIE) {
+            if (rec.getInvest().getWKInvest() == WKInvest.GLYCAEMIA) {
                 return getGlycemieBackColor(rec.getValue(), selected);
             }
         } else if (value instanceof RecordInvest[]) {
             RecordInvest[] values = (RecordInvest[]) value;
-            if (values[0].getInvest().anyType(WKInvest.GLYCEMIE)) {
+            if (values[0].getInvest().anyType(WKInvest.GLYCAEMIA)) {
                 //average glycemie is count and the background color is set
                 double sum = 0;
                 for (RecordInvest val : values) {

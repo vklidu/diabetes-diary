@@ -46,7 +46,7 @@ public class Hemoglobin {
     public Hemoglobin(List<RecordInvest> records) {        
         Frequency f = new Frequency();
         for(RecordInvest rec : records){
-            if(rec.getInvest().anyType(WKInvest.GLYCEMIE)){
+            if(rec.getInvest().anyType(WKInvest.GLYCAEMIA)){
                 f.addValue(rec.getValue());
             }
         }
