@@ -23,5 +23,5 @@ package org.diabetesdiary.diary.domain;
  */
 public enum WKInvest {
 
-    MENSES, ACETON, WEIGHT, URINE_SUGAR, GLYCEMIE, HEIGHT;
+    MENSES, KETONES, WEIGHT, URINE_SUGAR, GLYCAEMIA, HEIGHT;
 }

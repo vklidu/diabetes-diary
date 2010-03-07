@@ -24,7 +24,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.header.ColumnGroup;
-import org.diabetesdiary.calendar.table.renderer.GlykemieCellRenderer;
+import org.diabetesdiary.calendar.table.renderer.GlycaemiaCellRenderer;
 import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.domain.RecordInvest;
 import org.diabetesdiary.diary.domain.InvSeason;
@@ -109,7 +109,7 @@ public class RecordInvestModel extends AbstractRecordSubModel {
                 edited = pat.addRecordInvest(
                         getClickCellDate(rowIndex, columnIndex),
                         (Double) value,
-                        MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCEMIE),
+                        MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCAEMIA),
                         getSeason(columnIndex),
                         null);
             }
@@ -153,7 +153,7 @@ public class RecordInvestModel extends AbstractRecordSubModel {
         dataInvest = new RecordInvest[31][getColumnCount()][1];
         Calendar cal = Calendar.getInstance();
         for (RecordInvest rec : data) {
-            if (rec.getInvest().anyType(WKInvest.GLYCEMIE)) {
+            if (rec.getInvest().anyType(WKInvest.GLYCAEMIA)) {
                 cal.setTimeInMillis(rec.getDatetime().getMillis());
                 int column = rec.getSeason().ordinal() + 1;
                 if (rec.getSeason() == InvSeason.M) {
@@ -223,7 +223,7 @@ public class RecordInvestModel extends AbstractRecordSubModel {
 
     @Override
     public TableCellRenderer getCellRenderer(int columnIndex) {
-        return new GlykemieCellRenderer();
+        return new GlycaemiaCellRenderer();
     }
 
     @Override

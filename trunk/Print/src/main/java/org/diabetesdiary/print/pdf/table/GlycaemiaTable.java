@@ -41,14 +41,14 @@ import org.openide.util.NbBundle;
  *
  * @author Jirka Majer
  */
-public class GlycemieTable extends AbstractPdfSubTable {
+public class GlycaemiaTable extends AbstractPdfSubTable {
 
     private static BaseColor lowGlyColor = new BaseColor(55, 110, 200);
     private static BaseColor normalGlyColor = new BaseColor(10, 200, 100);
     private static BaseColor highGlyColor = new BaseColor(240, 40, 40);
     private Map<Tuple2<LocalDate, Integer>, List<RecordInvest>> data;
 
-    public GlycemieTable(DateTime from, DateTime to, Patient patient) {
+    public GlycaemiaTable(DateTime from, DateTime to, Patient patient) {
         super(from, to, patient);
     }
 
@@ -59,13 +59,13 @@ public class GlycemieTable extends AbstractPdfSubTable {
 
     @Override
     public HeaderBuilder getHeader() {
-        return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(GlycemieTable.class, "GLYKÉMIE (MMOL/L)"))
-                .addColumn(NbBundle.getMessage(GlycemieTable.class, "V NOCI"))
-                .addSister(NbBundle.getMessage(GlycemieTable.class, "SNÍDANĚ")).addColumn(NbBundle.getMessage(GlycemieTable.class, "PŘED")).addSister(NbBundle.getMessage(GlycemieTable.class, "PO")).getParent()
-                .addSister(NbBundle.getMessage(GlycemieTable.class, "OBĚD")).addColumn(NbBundle.getMessage(GlycemieTable.class, "PŘED")).addSister(NbBundle.getMessage(GlycemieTable.class, "PO")).getParent()
-                .addSister(NbBundle.getMessage(GlycemieTable.class, "1. VEČEŘE")).addColumn(NbBundle.getMessage(GlycemieTable.class, "PŘED")).addSister(NbBundle.getMessage(GlycemieTable.class, "PO")).getParent()
-                .addSister(NbBundle.getMessage(GlycemieTable.class, "PŘED SPANÍM"))
-                .addSister(NbBundle.getMessage(GlycemieTable.class, "V NOCI"));
+        return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(GlycaemiaTable.class, "GLYKÉMIE (MMOL/L)"))
+                .addColumn(NbBundle.getMessage(GlycaemiaTable.class, "V NOCI"))
+                .addSister(NbBundle.getMessage(GlycaemiaTable.class, "SNÍDANĚ")).addColumn(NbBundle.getMessage(GlycaemiaTable.class, "PŘED")).addSister(NbBundle.getMessage(GlycaemiaTable.class, "PO")).getParent()
+                .addSister(NbBundle.getMessage(GlycaemiaTable.class, "OBĚD")).addColumn(NbBundle.getMessage(GlycaemiaTable.class, "PŘED")).addSister(NbBundle.getMessage(GlycaemiaTable.class, "PO")).getParent()
+                .addSister(NbBundle.getMessage(GlycaemiaTable.class, "1. VEČEŘE")).addColumn(NbBundle.getMessage(GlycaemiaTable.class, "PŘED")).addSister(NbBundle.getMessage(GlycaemiaTable.class, "PO")).getParent()
+                .addSister(NbBundle.getMessage(GlycaemiaTable.class, "PŘED SPANÍM"))
+                .addSister(NbBundle.getMessage(GlycaemiaTable.class, "V NOCI"));
     }
 
     @Override
@@ -104,7 +104,7 @@ public class GlycemieTable extends AbstractPdfSubTable {
     protected void loadData() {
         data = Maps.newHashMap();
         if (patient != null) {
-            for (RecordInvest rec : patient.getRecordInvests(from, to, WKInvest.GLYCEMIE)) {
+            for (RecordInvest rec : patient.getRecordInvests(from, to, WKInvest.GLYCAEMIA)) {
                 Tuple2<LocalDate, Integer> key = new Tuple2<LocalDate, Integer>(rec.getDatetime().toLocalDate(), getColumn(rec));
                 List<RecordInvest> list = data.get(key);
                 if (list == null) {

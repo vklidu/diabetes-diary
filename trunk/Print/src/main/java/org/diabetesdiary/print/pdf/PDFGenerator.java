@@ -49,7 +49,7 @@ import org.diabetesdiary.print.pdf.table.AbstractPdfSubTable;
 import org.diabetesdiary.print.pdf.table.ActivityTable;
 import org.diabetesdiary.print.pdf.table.DateTable;
 import org.diabetesdiary.print.pdf.table.FoodTable;
-import org.diabetesdiary.print.pdf.table.GlycemieTable;
+import org.diabetesdiary.print.pdf.table.GlycaemiaTable;
 import org.diabetesdiary.print.pdf.table.InsulinTable;
 import org.diabetesdiary.print.pdf.table.InvestTable;
 import org.diabetesdiary.print.pdf.table.SumTable;
@@ -80,7 +80,7 @@ public class PDFGenerator {
         this.patient = patient;
         subTables.add(new DateTable(from, to, patient));
         subTables.add(new InsulinTable(from, to, patient));
-        subTables.add(new GlycemieTable(from, to, patient));
+        subTables.add(new GlycaemiaTable(from, to, patient));
         subTables.add(new InvestTable(from, to, patient));
         subTables.add(new FoodTable(from, to, patient));
         subTables.add(new ActivityTable(from, to, patient));
@@ -130,7 +130,7 @@ public class PDFGenerator {
     }
 
     public void setVisibleGlycemie(boolean visible) {
-        setVisible(GlycemieTable.class, visible);
+        setVisible(GlycaemiaTable.class, visible);
     }
 
     public void setVisibleInvest(boolean visible) {

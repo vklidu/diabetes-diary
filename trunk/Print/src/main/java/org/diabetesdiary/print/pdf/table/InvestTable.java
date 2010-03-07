@@ -89,7 +89,7 @@ public class InvestTable extends AbstractPdfSubTable {
     protected void loadData() {
         data = Maps.newHashMap();
         if (patient != null) {
-            for (RecordInvest rec : patient.getRecordInvests(from, to, WKInvest.ACETON, WKInvest.URINE_SUGAR, WKInvest.MENSES)) {
+            for (RecordInvest rec : patient.getRecordInvests(from, to, WKInvest.KETONES, WKInvest.URINE_SUGAR, WKInvest.MENSES)) {
                 Tuple2<LocalDate, Integer> key = new Tuple2<LocalDate, Integer>(rec.getDatetime().toLocalDate(), getColumn(rec));
                 List<RecordInvest> list = data.get(key);
                 if (list == null) {
@@ -105,7 +105,7 @@ public class InvestTable extends AbstractPdfSubTable {
         switch (rec.getInvest().getWKInvest()) {
             case URINE_SUGAR:
                 return 0;
-            case ACETON:
+            case KETONES:
                 return 1;
             case MENSES:
                 return 2;
