@@ -70,7 +70,7 @@ public class CalendarSettings {
 
     public void setDefaultValues() {
         settings.clear();
-        settings.put(KEY_CARBOHYDRATE_UNIT, "u12");
+        settings.put(KEY_CARBOHYDRATE_UNIT, "u10");
         settings.put(KEY_GLYKEMIE_LOW_NORMAL, "4");
         settings.put(KEY_GLYKEMIE_HIGH_NORMAL, "9");
     }
