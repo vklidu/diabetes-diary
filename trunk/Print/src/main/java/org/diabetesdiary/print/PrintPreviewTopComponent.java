@@ -54,6 +54,9 @@ import org.diabetesdiary.print.pdf.PDFGenerator;
 import org.diabetesdiary.print.pdf.PageSize;
 import org.diabetesdiary.print.print.PDFPrintSupport;
 import org.joda.time.DateTime;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -494,6 +497,15 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         int returnVal = jFileChooser.showSaveDialog(PrintPreviewTopComponent.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = jFileChooser.getSelectedFile();
+            if (file.exists()) {
+                Confirmation msg = new NotifyDescriptor.Confirmation(String.format("Soubor %s existuje. Chcete ho přepsat?", file.getName()),
+                        NotifyDescriptor.OK_CANCEL_OPTION,
+                        NotifyDescriptor.QUESTION_MESSAGE);
+                Object result = DialogDisplayer.getDefault().notify(msg);
+                if (!NotifyDescriptor.YES_OPTION.equals(result)) {
+                    return;
+                }
+            }
             BufferedOutputStream out = null;
             try {
                 FileOutputStream fstream = new FileOutputStream(file);
@@ -528,7 +540,6 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         generator.reloadData();
         generatePDF();
     }//GEN-LAST:event_refreshActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox activity;
     private javax.swing.JCheckBox colors;
