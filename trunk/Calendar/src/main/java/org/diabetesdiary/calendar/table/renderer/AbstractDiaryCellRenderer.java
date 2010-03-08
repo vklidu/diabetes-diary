@@ -21,6 +21,9 @@ import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
 /**
@@ -34,6 +37,7 @@ public abstract class AbstractDiaryCellRenderer<T> implements TableCellRenderer 
     private static final Color forSelColor = Color.WHITE;
     private static final Color backSelColor = new Color(30, 30, 100);
     private final JLabel result = new JLabel();
+    protected Border noFocusBorder = new EmptyBorder(1, 2, 1, 2);
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -43,6 +47,15 @@ public abstract class AbstractDiaryCellRenderer<T> implements TableCellRenderer 
         result.setHorizontalAlignment(JLabel.CENTER);
         result.setText(getText((T) value));
         result.setToolTipText(getToolTip((T) value));
+        if (hasFocus) {
+            result.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+            if (table.isCellEditable(row, column)) {
+                result.setForeground(getTextColor((T) value, false));
+                result.setBackground(getBackgroundColor((T) value, false));
+            }
+        } else {
+            result.setBorder(noFocusBorder);
+        }
         return result;
     }
 
