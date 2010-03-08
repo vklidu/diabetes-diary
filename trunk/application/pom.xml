@@ -68,6 +68,7 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <etcConfFile>src/main/conf/diabetesdiary.conf</etcConfFile>
+                    <finalName>diabetesdiary-${diary.version}-bin</finalName>
                 </configuration>
             </plugin>
         </plugins>
