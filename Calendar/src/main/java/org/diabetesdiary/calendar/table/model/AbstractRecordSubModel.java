@@ -61,7 +61,7 @@ public abstract class AbstractRecordSubModel implements TableSubModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return false;
     }
 
     @Override

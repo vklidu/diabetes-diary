@@ -201,6 +201,7 @@ public class OtherInvestModel extends AbstractRecordSubModel {
                         null);
             }
             dataOtherInvest[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
+            fireDataChange(new DataChangeEvent(this, RecordInvest.class));
         }
     }
 

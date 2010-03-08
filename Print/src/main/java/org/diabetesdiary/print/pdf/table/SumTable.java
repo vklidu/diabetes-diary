@@ -73,7 +73,7 @@ public class SumTable extends AbstractPdfSubTable {
             case 0:
                 double sumaInsulines = 0;
                 for (RecordInsulin rec : insulines) {
-                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumaInsulines += rec.getAmount();
                     }
                 }
@@ -82,7 +82,7 @@ public class SumTable extends AbstractPdfSubTable {
             case 1:
                 double sumaFoodUnits = 0;
                 for (RecordFood rec : foods) {
-                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumaFoodUnits += rec.getSachUnits(sachUnit);
                     }
                 }
@@ -91,13 +91,13 @@ public class SumTable extends AbstractPdfSubTable {
             case 2:
                 double sumFoodUnits = 0;
                 for (RecordFood rec : foods) {
-                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumFoodUnits += rec.getSachUnits(sachUnit);
                     }
                 }
                 double sumBolus = 0;
                 for (RecordInsulin rec : insulines) {
-                    if (!rec.isBasal() && !rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.isBasal() && !rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumBolus += rec.getAmount();
                     }
                 }
@@ -107,7 +107,7 @@ public class SumTable extends AbstractPdfSubTable {
             case 3:
                 double sumaInsulin = 0;
                 for (RecordInsulin rec : insulines) {
-                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumaInsulin += rec.getAmount();
                     }
                 }

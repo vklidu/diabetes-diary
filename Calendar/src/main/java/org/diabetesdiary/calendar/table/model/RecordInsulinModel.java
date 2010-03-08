@@ -156,6 +156,7 @@ public class RecordInsulinModel extends AbstractRecordSubModel {
                         null);
             }
             dataIns[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
+            fireDataChange(new DataChangeEvent(this, RecordInsulin.class));
         }
     }
 

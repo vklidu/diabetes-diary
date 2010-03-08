@@ -119,7 +119,7 @@ public class ActivityTable extends AbstractPdfSubTable {
         DateTime rowDateFrom = date.toDateTimeAtStartOfDay();
         DateTime rowDateTo = date.toDateTimeAtStartOfDay().plusDays(1);
         for (RecordFood rec : foods) {
-            if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+            if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                 energ = energ.plus(rec.getEnergy());
             }
         }

@@ -173,7 +173,7 @@ final class PrintPreviewTopComponent extends TopComponent implements TreeSelecti
         });
         jToolBar1.add(prevButton);
 
-        org.openide.awt.Mnemonics.setLocalizedText(pageField, "1 of 1"); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(pageField, "0"); // NOI18N
         jToolBar1.add(pageField);
 
         nextButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/diabetesdiary/print/images/next.png"))); // NOI18N

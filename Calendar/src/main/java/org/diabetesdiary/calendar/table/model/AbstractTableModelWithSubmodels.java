@@ -93,7 +93,9 @@ public abstract class AbstractTableModelWithSubmodels extends AbstractTableModel
 
     public void invalidateData(DataChangeEvent evt) {
         for (TableSubModel model : submodels) {
-            model.onDataChange(evt);
+            if (model != evt.getSource()) {
+                model.onDataChange(evt);
+            }
         }
     }
 

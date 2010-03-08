@@ -46,7 +46,7 @@ public final class SelectPatientAction extends CallableSystemAction {
             Patient pat = mp.getPatient();
             if (pat != null) {
                 MyLookup.setCurrentPatient(pat);
-                CalendarTopComponent.getDefault().setCurPatient(pat);                
+                CalendarTopComponent.getDefault().firePatientChanged();
             }
         } else {
             //cancel button was pressed

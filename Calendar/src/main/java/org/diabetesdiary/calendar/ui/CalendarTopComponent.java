@@ -32,7 +32,6 @@ import org.diabetesdiary.calendar.CalendarPopupMenu;
 import org.diabetesdiary.calendar.table.model.DiaryTableModel;
 import org.diabetesdiary.calendar.table.header.GroupableTableHeader;
 import org.diabetesdiary.calendar.MultiLineToolTip;
-import org.diabetesdiary.calendar.action.SelectPatientAction;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.calendar.table.DiaryTable;
 import org.diabetesdiary.calendar.table.model.ActivityModel;
@@ -40,7 +39,7 @@ import org.diabetesdiary.calendar.table.model.OtherInvestModel;
 import org.diabetesdiary.calendar.table.model.RecordFoodModel;
 import org.diabetesdiary.calendar.table.model.RecordInsulinModel;
 import org.diabetesdiary.calendar.table.model.RecordInsulinPumpModel;
-import org.diabetesdiary.calendar.table.model.RecordInvestModel;
+import org.diabetesdiary.calendar.table.model.GlycaemiaModel;
 import org.diabetesdiary.calendar.table.model.TableSubModel;
 import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.calendar.utils.DataChangeListener;
@@ -57,7 +56,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.openide.ErrorManager;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CallableSystemAction;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -133,8 +131,8 @@ public final class CalendarTopComponent extends TopComponent implements Property
                         OtherInvestModel model = (OtherInvestModel) subModel;
                         comp.setInvestComponents(model.getClickCellDate(row, subCol), 1d, null,
                                 MyLookup.getDiaryRepo().getWellKnownInvestigation(model.getClickCellInvestId(row, subCol)), InvSeason.BB);
-                    } else if (subModel instanceof RecordInvestModel) {
-                        RecordInvestModel model = (RecordInvestModel) subModel;
+                    } else if (subModel instanceof GlycaemiaModel) {
+                        GlycaemiaModel model = (GlycaemiaModel) subModel;
                         comp.setInvestComponents(model.getClickCellDate(row, subCol), 1d, null,
                                 MyLookup.getDiaryRepo().getWellKnownInvestigation(WKInvest.GLYCAEMIA), model.getSeason(subCol));
                     } else if (subModel instanceof RecordInsulinPumpModel) {
@@ -171,7 +169,7 @@ public final class CalendarTopComponent extends TopComponent implements Property
         DateTime pomCal = new DateTime().withTime(0, 0, 0, 0);
         selMonth.setValue(pomCal);
         RecordEditorTopComponent.getDefault().addDataChangeListener(this);
-        setCurPatient(null);
+        firePatientChanged();
     }
 
     /** This method is called from within the constructor to
@@ -436,16 +434,6 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }
 
     @Override
-    public void componentOpened() {
-        if (MyLookup.getCurrentPatient() == null) {
-            SelectPatientAction action = (SelectPatientAction) CallableSystemAction.findObject(SelectPatientAction.class);
-            if (action != null) {
-                action.performAction();
-            }
-        }
-    }
-
-    @Override
     public void componentClosed() {
     }
 
@@ -499,7 +487,8 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         }
     }
 
-    public void setCurPatient(Patient pat) {
+    public void firePatientChanged() {
+        Patient pat = MyLookup.getCurrentPatient();
         if (pat != null) {
             model = new DiaryTableModel(pat, jTable1, insulinVisible.isSelected(),
                     investVisible.isSelected(), otherVisible.isSelected(), foodVisible.isSelected(),

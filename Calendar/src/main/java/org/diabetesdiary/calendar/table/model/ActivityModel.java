@@ -30,6 +30,7 @@ import org.diabetesdiary.calendar.table.editor.NumberEditor;
 import org.diabetesdiary.calendar.table.renderer.ActivityCellRenderer;
 import org.diabetesdiary.calendar.utils.DataChangeEvent;
 import org.diabetesdiary.diary.api.DiaryException;
+import org.diabetesdiary.diary.api.UnknownHeightException;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordActivity;
 import org.diabetesdiary.diary.domain.RecordFood;
@@ -133,16 +134,18 @@ public class ActivityModel extends AbstractRecordSubModel {
                 break;
             case 1:
                 try {
-                    return patient == null ? null : patient.getMetabolismus(dateTime.withDayOfMonth(rowIndex + 1).toLocalDate());
-                } catch (DiaryException ex) {
-                    return NbBundle.getMessage(SumModel.class, "unknown.weight.tall");
+                    return patient.getMetabolismus(dateTime.withDayOfMonth(rowIndex + 1).toLocalDate());
+                } catch (UnknownWeightException ex) {
+                    return NbBundle.getMessage(ActivityModel.class, "unknown.weight");
+                } catch (UnknownHeightException ex) {
+                    return NbBundle.getMessage(ActivityModel.class, "unknown.height");
                 }
             case 2:
                 Energy energ = new Energy(Energy.Unit.kJ);
                 DateTime rowDateFrom = dateTime.withDayOfMonth(rowIndex + 1).toDateMidnight().toDateTime();
                 DateTime rowDateTo = rowDateFrom.plusDays(1);
                 for (RecordFood rec : foods) {
-                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         energ = energ.plus(rec.getEnergy());
                     }
                 }
@@ -158,7 +161,7 @@ public class ActivityModel extends AbstractRecordSubModel {
                 if (metab instanceof Energy) {
                     food = food.minus((Energy) metab);
                 } else {
-                    return NbBundle.getMessage(SumModel.class, "unknown.weight.tall");
+                    return metab;
                 }
                 //aktivity
                 try {
@@ -211,6 +214,7 @@ public class ActivityModel extends AbstractRecordSubModel {
                         null);
             }
             dataActivity[recDateTime.getDayOfMonth() - 1][recDateTime.getHourOfDay() < 12 ? 0 : 1][0] = edited;
+            fireDataChange(new DataChangeEvent(this, RecordActivity.class));
         }
     }
 

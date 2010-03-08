@@ -38,11 +38,11 @@ import org.openide.util.NbBundle;
  *
  * @author Jiri Majer
  */
-public class RecordInvestModel extends AbstractRecordSubModel {
+public class GlycaemiaModel extends AbstractRecordSubModel {
 
     private RecordInvest dataInvest[][][];
 
-    public RecordInvestModel(DateTime dateTime, Patient patient) {
+    public GlycaemiaModel(DateTime dateTime, Patient patient) {
         super(dateTime, patient);
     }
 
@@ -53,10 +53,10 @@ public class RecordInvestModel extends AbstractRecordSubModel {
 
     @Override
     public ColumnGroup getColumnHeader(List<TableColumn> cols) {
-        ColumnGroup gGlyk = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.glykemie"));
-        ColumnGroup gBreak = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.breakfest"));
-        ColumnGroup gDinner = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.dinner"));
-        ColumnGroup gLaunch = new ColumnGroup(NbBundle.getMessage(RecordInvestModel.class, "Column.launch"));
+        ColumnGroup gGlyk = new ColumnGroup(NbBundle.getMessage(GlycaemiaModel.class, "Column.glykemie"));
+        ColumnGroup gBreak = new ColumnGroup(NbBundle.getMessage(GlycaemiaModel.class, "Column.breakfest"));
+        ColumnGroup gDinner = new ColumnGroup(NbBundle.getMessage(GlycaemiaModel.class, "Column.dinner"));
+        ColumnGroup gLaunch = new ColumnGroup(NbBundle.getMessage(GlycaemiaModel.class, "Column.launch"));
 
         gGlyk.add(gBreak);
         gGlyk.add(gDinner);
@@ -100,7 +100,6 @@ public class RecordInvestModel extends AbstractRecordSubModel {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
             Patient pat = MyLookup.getCurrentPatient();
-
             DateTime recDateTime = getClickCellDate(rowIndex, columnIndex);
             RecordInvest edited = dataInvest[recDateTime.getDayOfMonth() - 1][columnIndex][0];
             if (edited != null) {
@@ -114,6 +113,7 @@ public class RecordInvestModel extends AbstractRecordSubModel {
                         null);
             }
             dataInvest[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
+            fireDataChange(new DataChangeEvent(this, RecordInvest.class));
         }
     }
 
@@ -121,23 +121,23 @@ public class RecordInvestModel extends AbstractRecordSubModel {
     public String getColumnName(int col) {
         switch (col) {
             case 0:
-                return NbBundle.getMessage(RecordInvestModel.class, "Column.night");
+                return NbBundle.getMessage(GlycaemiaModel.class, "Column.night");
             case 1:
-                return NbBundle.getMessage(RecordInvestModel.class, "Column.before");
+                return NbBundle.getMessage(GlycaemiaModel.class, "Column.before");
             case 2:
-                return NbBundle.getMessage(RecordInvestModel.class, "Column.After");
+                return NbBundle.getMessage(GlycaemiaModel.class, "Column.After");
             case 3:
-                return NbBundle.getMessage(RecordInvestModel.class, "Column.before");
+                return NbBundle.getMessage(GlycaemiaModel.class, "Column.before");
             case 4:
-                return NbBundle.getMessage(RecordInvestModel.class, "Column.After");
+                return NbBundle.getMessage(GlycaemiaModel.class, "Column.After");
             case 5:
-                return NbBundle.getMessage(RecordInvestModel.class, "Column.before");
+                return NbBundle.getMessage(GlycaemiaModel.class, "Column.before");
             case 6:
-                return NbBundle.getMessage(RecordInvestModel.class, "Column.After");
+                return NbBundle.getMessage(GlycaemiaModel.class, "Column.After");
             case 7:
-                return NbBundle.getMessage(RecordInvestModel.class, "Column.beforeSleep");
+                return NbBundle.getMessage(GlycaemiaModel.class, "Column.beforeSleep");
             case 8:
-                return NbBundle.getMessage(RecordInvestModel.class, "Column.night");
+                return NbBundle.getMessage(GlycaemiaModel.class, "Column.night");
             default:
                 return "";
         }

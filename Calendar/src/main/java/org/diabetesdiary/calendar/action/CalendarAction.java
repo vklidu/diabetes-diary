@@ -21,10 +21,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import org.diabetesdiary.calendar.ui.*;
-import org.diabetesdiary.diary.utils.MyLookup;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CallableSystemAction;
 import org.openide.windows.TopComponent;
 
 /**
@@ -39,13 +37,6 @@ public class CalendarAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent evt) {
-        if (MyLookup.getCurrentPatient() == null) {
-            SelectPatientAction action = (SelectPatientAction) CallableSystemAction.findObject(SelectPatientAction.class);
-            if (action != null) {
-                action.performAction();
-            }
-        }
-
         TopComponent win = CalendarTopComponent.findInstance();
         win.open();
         win.requestActive();

@@ -12,10 +12,5 @@
         diskExpiryThreadIntervalSeconds="120"
         memoryStoreEvictionPolicy="LRU"
         />
-    <cache name="cache.patient"
-           maxElementsInMemory="1000"
-           eternal="false"
-           timeToLiveSeconds="10"
-           overflowToDisk="false"/>
     
 </ehcache>
