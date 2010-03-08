@@ -63,7 +63,7 @@ public class InsulinTable extends AbstractPdfSubTable {
     @Override
     public float getWidth(int column) {
         if (isPump() && column == 4) {
-            return 4;
+            return 3;
         }
         if ((isPump() && column == 3) || (!isPump() && column == 5)) {
             return 1.2f;
