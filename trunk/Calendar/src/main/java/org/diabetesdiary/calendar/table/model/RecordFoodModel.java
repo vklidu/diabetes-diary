@@ -85,6 +85,11 @@ public class RecordFoodModel extends AbstractRecordSubModel {
     }
 
     @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return true;
+    }
+
+    @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value instanceof Double) {
             Food food = MyLookup.getDiaryRepo().getWellKnownFood(WKFood.SACCHARIDE);

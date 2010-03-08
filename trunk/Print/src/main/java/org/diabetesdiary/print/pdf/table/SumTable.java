@@ -52,6 +52,11 @@ public class SumTable extends AbstractPdfSubTable {
     }
 
     @Override
+    public float getWidth(int column) {
+        return 1.2f;
+    }
+
+    @Override
     public HeaderBuilder getHeader() {
         return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(SumTable.class, "CELKEM"))
                 .addColumn(NbBundle.getMessage(SumTable.class, "INZULÍN"))
