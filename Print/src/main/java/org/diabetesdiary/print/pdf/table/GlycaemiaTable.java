@@ -58,6 +58,11 @@ public class GlycaemiaTable extends AbstractPdfSubTable {
     }
 
     @Override
+    public float getWidth(int column) {
+        return 1.2f;
+    }
+
+    @Override
     public HeaderBuilder getHeader() {
         return (HeaderBuilder) GeneratorHelper.headerBuilder(NbBundle.getMessage(GlycaemiaTable.class, "GLYKÉMIE (MMOL/L)"))
                 .addColumn(NbBundle.getMessage(GlycaemiaTable.class, "V NOCI"))

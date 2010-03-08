@@ -63,10 +63,10 @@ public class InsulinTable extends AbstractPdfSubTable {
     @Override
     public float getWidth(int column) {
         if (isPump() && column == 4) {
-            return 3;
+            return 2.7f;
         }
         if ((isPump() && column == 3) || (!isPump() && column == 5)) {
-            return 1.2f;
+            return 1.3f;
         }
         return 0.7f;
     }
@@ -171,26 +171,26 @@ public class InsulinTable extends AbstractPdfSubTable {
 
     private String formatBasales(List<RecordInsulin> recs) {
         StringBuffer result = new StringBuffer();
-        DateTimeFormatter dateFormat = DateTimeFormat.shortTime();
+        DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH");
         RecordInsulin lastRec = null;
         Queue<RecordInsulin> queue = new ArrayDeque<RecordInsulin>();
         for (RecordInsulin rec : recs) {
             if (queue.isEmpty()) {
                 queue.add(rec);
             } else if (!lastRec.getDatetime().plusHours(1).isEqual(rec.getDatetime()) || !lastRec.getAmount().equals(rec.getAmount())) {
-                result.append(dateFormat.print(queue.peek().getDatetime()));
+                result.append(timeFormat.print(queue.peek().getDatetime()));
                 result.append("-");
-                result.append(dateFormat.print(lastRec.getDatetime().plusHours(1)));
-                result.append(" ").append(queue.peek().getAmount()).append("U ");
+                result.append(timeFormat.print(lastRec.getDatetime().plusHours(1)));
+                result.append(" ").append(queue.peek().getAmount()).append("U\n");
                 queue.poll();
                 queue.add(rec);
             }
             lastRec = rec;
         }
         if (!queue.isEmpty()) {
-            result.append(dateFormat.print(queue.peek().getDatetime()));
+            result.append(timeFormat.print(queue.peek().getDatetime()));
             result.append("-");
-            result.append(dateFormat.print(lastRec.getDatetime().plusHours(1)));
+            result.append(timeFormat.print(lastRec.getDatetime().plusHours(1)));
             result.append(" ").append(queue.peek().getAmount()).append("U\n");
 
         }
