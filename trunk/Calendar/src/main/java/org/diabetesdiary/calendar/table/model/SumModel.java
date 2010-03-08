@@ -27,8 +27,6 @@ import org.diabetesdiary.diary.domain.FoodUnit;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.diary.domain.RecordFood;
 import org.diabetesdiary.diary.domain.RecordInsulin;
-import org.diabetesdiary.diary.domain.RecordInvest;
-import org.diabetesdiary.diary.domain.WKInvest;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.joda.time.DateTime;
 import org.openide.util.NbBundle;
@@ -41,7 +39,6 @@ public class SumModel extends AbstractRecordSubModel {
 
     private FoodUnit sachUnit;
     private List<RecordInsulin> insulines;
-    private List<RecordInvest> weights;
     private List<RecordFood> foods;
 
     public SumModel(DateTime dateTime, Patient patient) {
@@ -74,7 +71,7 @@ public class SumModel extends AbstractRecordSubModel {
             case 0:
                 double sumaInsulines = 0;
                 for (RecordInsulin rec : insulines) {
-                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumaInsulines += rec.getAmount();
                     }
                 }
@@ -83,7 +80,7 @@ public class SumModel extends AbstractRecordSubModel {
             case 1:
                 double sumaFoodUnits = 0;
                 for (RecordFood rec : foods) {
-                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumaFoodUnits += rec.getSachUnits(sachUnit);
                     }
                 }
@@ -92,13 +89,13 @@ public class SumModel extends AbstractRecordSubModel {
             case 2:
                 double sumFoodUnits = 0;
                 for (RecordFood rec : foods) {
-                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumFoodUnits += rec.getSachUnits(sachUnit);
                     }
                 }
                 double sumBolus = 0;
                 for (RecordInsulin rec : insulines) {
-                    if (!rec.isBasal() && !rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.isBasal() && !rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumBolus += rec.getAmount();
                     }
                 }
@@ -108,11 +105,12 @@ public class SumModel extends AbstractRecordSubModel {
             case 3:
                 double sumaInsulin = 0;
                 for (RecordInsulin rec : insulines) {
-                    if (!rec.getDatetime().isBefore(rowDateFrom) && !rec.getDatetime().isAfter(rowDateTo)) {
+                    if (!rec.getDatetime().isBefore(rowDateFrom) && rec.getDatetime().isBefore(rowDateTo)) {
                         sumaInsulin += rec.getAmount();
                     }
                 }
-                Double weight = getWeight(row);
+
+                Double weight = patient.getWeightBefore(dateTime.withDayOfMonth(row + 1));
                 if (weight == null) {
                     return NbBundle.getMessage(SumModel.class, "unknown.weight");
                 }
@@ -120,17 +118,6 @@ public class SumModel extends AbstractRecordSubModel {
             default:
                 throw new IllegalStateException();
         }
-    }
-
-     private Double getWeight(int rowIndex) {
-        Double result = null;
-        for (RecordInvest weight : weights) {
-            if (dateTime.withDayOfMonth(rowIndex + 1).isBefore(weight.getDatetime())) {
-                break;
-            }
-            result = weight.getValue();
-        }
-        return result == null && !weights.isEmpty() ? weights.get(0).getValue() : result;
     }
 
     @Override
@@ -160,20 +147,12 @@ public class SumModel extends AbstractRecordSubModel {
     }
 
     @Override
-    public boolean isCellEditable(int row, int col) {
-        return false;
-    }
-
-    @Override
     public void onDataChange(DataChangeEvent evt) {
         if (evt.getDataChangedClazz() == null) {
             insulines = null;
-            weights = null;
             foods = null;
         } else if (evt.getDataChangedClazz().equals(RecordInsulin.class)) {
             insulines = null;
-        } else if (evt.getDataChangedClazz().equals(RecordInvest.class)) {
-            weights = null;
         } else if (evt.getDataChangedClazz().equals(RecordFood.class)) {
             foods = null;
             sachUnit = null;
@@ -184,9 +163,6 @@ public class SumModel extends AbstractRecordSubModel {
     private void checkData() {
         if (insulines == null) {
             insulines = MyLookup.getCurrentPatient().getRecordInsulins(getFrom(), getTo());
-        }
-        if (weights == null) {
-            weights = MyLookup.getCurrentPatient().getRecordInvests(getFrom(), getTo(), WKInvest.WEIGHT);
         }
         if (foods == null) {
             foods = MyLookup.getCurrentPatient().getRecordFoods(getFrom(), getTo());

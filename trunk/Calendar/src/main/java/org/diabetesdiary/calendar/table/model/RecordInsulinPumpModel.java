@@ -134,6 +134,7 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
                         null);
             }
             dataIns[recDateTime.getDayOfMonth() - 1][columnIndex][0] = edited;
+            fireDataChange(new DataChangeEvent(this, RecordInsulin.class));
         } else if (value instanceof String && columnIndex > 3) {
             StringTokenizer tok = new StringTokenizer(value.toString(), "-");
             int i = 0;
@@ -171,6 +172,7 @@ public class RecordInsulinPumpModel extends AbstractRecordSubModel {
             if (edited != null && Iterables.all(Lists.newArrayList(edited.getData()), Predicates.isNull())) {
                 dataBasal[recDateTime.getDayOfMonth() - 1][columnIndex - 4] = null;
             }
+            fireDataChange(new DataChangeEvent(this, RecordInsulin.class));
         }
     }
 

@@ -41,6 +41,7 @@ public class CalendarSettings {
     public static final String KEY_CARBOHYDRATE_UNIT = "properties.carbohydrate.unit";
     public static final String KEY_GLYKEMIE_LOW_NORMAL = "properties.glykemie.lownormal";
     public static final String KEY_GLYKEMIE_HIGH_NORMAL = "properties.glykemie.highnormal";
+    public static final String CURRENT_PATIENT_ID = "properties.patient.id";
     /** There can only be one!*/
     private static CalendarSettings SINGLETON = null;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -108,6 +109,14 @@ public class CalendarSettings {
 
     public String getValue(String key) {
         return settings.getProperty(key);
+    }
+
+    public Long getValueAsLong(String key) {
+        return settings.getProperty(key) != null ? Long.valueOf(settings.getProperty(key)) : null;
+    }
+
+    public void setValue(String key, Long value) {
+        setValue(key, value.toString());
     }
 
     public void setValue(String key, String value) {

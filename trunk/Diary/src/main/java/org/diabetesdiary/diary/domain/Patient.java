@@ -40,6 +40,8 @@ import org.diabetesdiary.diary.service.db.RecordFoodDO;
 import org.diabetesdiary.diary.service.db.RecordInsulinDO;
 import org.diabetesdiary.diary.service.db.RecordInvestDO;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -55,7 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Configurable
 public class Patient extends AbstractDomainObject {
 
-    private final Cache cache = CacheManager.getInstance().getCache("cache.patient");
     private final String name;
     private final String surname;
     private final boolean male;
@@ -93,42 +94,19 @@ public class Patient extends AbstractDomainObject {
 
     @Transactional(readOnly = true)
     public Double getWeightBefore(DateTime date) {
-       return getCachedInvestBefore(date, WKInvest.WEIGHT);
+       return getFirstRecordInvestBefore(date, WKInvest.WEIGHT);
     }
 
     @Transactional(readOnly = true)
     public Double getHeightBefore(DateTime date) {
-        return getCachedInvestBefore(date, WKInvest.HEIGHT);
-    }
-
-    private Double getCachedInvestBefore(DateTime date, WKInvest invest) {
-        DateTime lastMonthDay = date.toDateMidnight().dayOfMonth().withMaximumValue().toDateTime();
-        Tuple3<WKInvest, Long, DateTime> key = Tuples.of(invest, id, lastMonthDay);
-        Element element = cache.get(key);
-        List<Tuple2<DateTime, Double>> value = (List<Tuple2<DateTime, Double>>) (element != null ? element.getObjectValue() : null);
-        if (value == null) {
-            List<RecordInvest> result = getRecordInvests(date.minusYears(1), date, invest);
-            value = Lists.newArrayList(Iterables.transform(result, new Function<RecordInvest, Tuple2<DateTime, Double>>() {
-                @Override
-                public Tuple2<DateTime, Double> apply(RecordInvest rec) {
-                    return Tuples.of(rec.getDatetime(), rec.getValue());
-                }
-            }));
-            cache.put(new Element(key, value));
-        }
-        for (Tuple2<DateTime, Double> rec : Iterables.reverse(value)) {
-            if (rec.getValue1().isBefore(date)) {
-                return rec.getValue2();
-            }
-        }
-        return null;
+        return getFirstRecordInvestBefore(date, WKInvest.HEIGHT);
     }
 
     @Transactional(readOnly = true)
     public List<RecordInvest> getRecordInvests(DateTime from, DateTime to) {
         List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
                 .add(Restrictions.ge("datetime", from))
-                .add(Restrictions.le("datetime", to))
+                .add(Restrictions.lt("datetime", to))
                 .add(Restrictions.eq("patient.id", id))
                 .addOrder(Order.asc("datetime"))
                 .list();
@@ -141,20 +119,33 @@ public class Patient extends AbstractDomainObject {
         List<RecordInvestDO> result = getSession().createCriteria(RecordInvestDO.class)
                 .createAlias("invest", "invest")
                 .add(Restrictions.ge("datetime", from))
-                .add(Restrictions.le("datetime", to))
+                .add(Restrictions.lt("datetime", to))
                 .add(Restrictions.eq("patient.id", id))
                 .add(Restrictions.in("invest.wkinvest", wKInvest))
                 .addOrder(Order.asc("datetime"))
                 .list();
         return Lists.newArrayList(Lists.transform(result, RecordInvest.CREATE_FUNCTION));
+    }
 
+    @Transactional(readOnly=true)
+    public Double getFirstRecordInvestBefore(DateTime before, WKInvest wKInvest) {
+        Double result = (Double) getSession().createCriteria(RecordInvestDO.class)
+                .createAlias("invest", "invest")
+                .add(Restrictions.lt("datetime", before))
+                .add(Restrictions.eq("patient.id", id))
+                .add(Restrictions.eq("invest.wkinvest", wKInvest))
+                .addOrder(Order.desc("datetime"))
+                .setProjection(Property.forName("value"))
+                .setMaxResults(1)
+                .uniqueResult();
+        return result;
     }
 
     @Transactional(readOnly = true)
     public List<RecordFood> getRecordFoods(DateTime from, DateTime to) {
         List<RecordFoodDO> result = getSession().createCriteria(RecordFoodDO.class)
                 .add(Restrictions.ge("datetime", from))
-                .add(Restrictions.le("datetime", to))
+                .add(Restrictions.lt("datetime", to))
                 .add(Restrictions.eq("patient.id", id))
                 .addOrder(Order.asc("datetime"))
                 .list();
@@ -165,7 +156,7 @@ public class Patient extends AbstractDomainObject {
     public List<RecordActivity> getRecordActivities(DateTime from, DateTime to) {
         List<RecordActivityDO> result = getSession().createCriteria(RecordActivityDO.class)
                 .add(Restrictions.ge("datetime", from))
-                .add(Restrictions.le("datetime", to))
+                .add(Restrictions.lt("datetime", to))
                 .add(Restrictions.eq("patient.id", id))
                 .addOrder(Order.asc("datetime"))
                 .list();
@@ -176,7 +167,7 @@ public class Patient extends AbstractDomainObject {
     public List<RecordInsulin> getRecordInsulins(DateTime from, DateTime to) {
         List<RecordInsulinDO> result = getSession().createCriteria(RecordInsulinDO.class)
                 .add(Restrictions.ge("datetime", from))
-                .add(Restrictions.le("datetime", to))
+                .add(Restrictions.lt("datetime", to))
                 .add(Restrictions.eq("patient.id", id))
                 .addOrder(Order.asc("datetime"))
                 .list();
@@ -310,7 +301,7 @@ public class Patient extends AbstractDomainObject {
     }
 
     public Energy getMetabolismus(LocalDate date) throws UnknownWeightException, UnknownHeightException {
-        Integer years = getNumberOfYears(date.toDateTimeAtStartOfDay());
+        int years = getNumberOfYears(date.toDateTimeAtStartOfDay());
         Double weight = getWeightBefore(date.toDateTimeAtStartOfDay());
         Double tall = getHeightBefore(date.toDateTimeAtStartOfDay());
         if (weight == null) {

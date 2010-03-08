@@ -98,8 +98,8 @@ public class RecordFoodModel extends AbstractRecordSubModel {
                 edited = MyLookup.getCurrentPatient().addRecordFood(getClickCellDate(rowIndex, columnIndex),
                         food, (Double) value, (Double) value, getDefaultFoodUnit(), getSeason(columnIndex), null);
             }
-
             dataFood[recDateTime.getDayOfMonth() - 1][col][0] = edited;
+            fireDataChange(new DataChangeEvent(this, RecordFood.class));
         }
     }
 

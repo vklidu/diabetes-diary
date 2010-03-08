@@ -36,13 +36,12 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
 
     private DateTime dateTime = new DateTime();
     private final RecordFoodModel foodModel;
-    private final RecordInvestModel investModel;
+    private final GlycaemiaModel investModel;
     private final AbstractRecordSubModel insulinModel;
     private final OtherInvestModel otherModel;
     private final ActivityModel activityModel;
     private final DayModel dayModel;
     private final SumModel sumModel;
-    private final Patient patient;
 
     public DiaryTableModel(Patient patient, JTable jTable) {
         this(patient, jTable, true, true, true, true, true, true);
@@ -50,7 +49,7 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
 
     public DiaryTableModel(Patient patient, JTable jTable, boolean insVisible, boolean investVisible, boolean otherInvestVisible, boolean foodVisible, boolean actVisible, boolean sumVisible) {
         super(jTable);
-        this.patient = Preconditions.checkNotNull(patient);
+        Preconditions.checkNotNull(patient);
 
         DataChangeListener listener = new DataChangeListener() {
             //Listen on all submodels and by some change send message to all
@@ -70,7 +69,7 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
         insulinModel.setVisible(insVisible);
         insulinModel.addDataChangeListener(listener);
 
-        investModel = new RecordInvestModel(dateTime, patient);
+        investModel = new GlycaemiaModel(dateTime, patient);
         investModel.addDataChangeListener(listener);
         investModel.setVisible(investVisible);
 
