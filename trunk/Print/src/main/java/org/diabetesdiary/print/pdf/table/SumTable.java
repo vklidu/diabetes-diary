@@ -17,6 +17,8 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
+import java.text.Format;
+import java.text.NumberFormat;
 import java.util.List;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.diary.domain.FoodUnit;
@@ -41,6 +43,7 @@ public class SumTable extends AbstractPdfSubTable {
 
     public SumTable(DateTime from, DateTime to, Patient patient) {
         super(from, to, patient);
+        format.setMaximumFractionDigits(2);
     }
 
     @Override

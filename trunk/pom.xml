@@ -70,6 +70,9 @@
                         <sourceManifestFile>src/main/nbm/manifest.mf</sourceManifestFile>
                         <cluster>diabetesdiary</cluster>
                         <fileName>catalog-${diary.version}.xml</fileName>
+                        <keystore>.keystore</keystore>
+                        <keystorealias>diary</keystorealias>
+                        <keystorepassword>${diary.keystore.password}</keystorepassword>
                     </configuration>
                 </plugin>
 

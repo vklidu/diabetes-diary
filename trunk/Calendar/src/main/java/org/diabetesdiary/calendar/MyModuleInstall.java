@@ -34,7 +34,6 @@ public class MyModuleInstall extends ModuleInstall {
         Long idPatient = CalendarSettings.getSettings().getValueAsLong(CalendarSettings.CURRENT_PATIENT_ID);
         if (idPatient != null) {
             MyLookup.setCurrentPatient(MyLookup.getDiaryRepo().getPatient(idPatient));
-            CalendarTopComponent.getDefault().firePatientChanged();
         }
     }
 
