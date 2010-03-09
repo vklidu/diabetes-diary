@@ -71,6 +71,29 @@
                     <finalName>diabetesdiary-${diary.version}-bin</finalName>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/diabetesdiary/diabetesdiary/modules/locale</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${platform.basedir}/modules/locale</directory>
+                                    <includes>
+                                        <include>**/*_cs.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
