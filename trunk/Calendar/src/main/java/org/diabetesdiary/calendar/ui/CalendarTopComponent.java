@@ -19,8 +19,6 @@ package org.diabetesdiary.calendar.ui;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.text.ParseException;
 import javax.swing.JFormattedTextField;
@@ -51,6 +49,7 @@ import org.diabetesdiary.diary.domain.WKFood;
 import org.diabetesdiary.diary.domain.WKInvest;
 import org.diabetesdiary.diary.utils.MyLookup;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.ReadableInstant;
 import org.joda.time.format.DateTimeFormat;
 import org.openide.ErrorManager;
@@ -59,7 +58,7 @@ import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-public final class CalendarTopComponent extends TopComponent implements PropertyChangeListener, DataChangeListener {
+public final class CalendarTopComponent extends TopComponent implements DataChangeListener {
 
     private DiaryTableModel model;
     private static final long serialVersionUID = 1L;
@@ -165,9 +164,6 @@ public final class CalendarTopComponent extends TopComponent implements Property
         ListSelectionModel rowSM = jTable1.getSelectionModel();
         rowSM.addListSelectionListener(ChartTopComponent.getDefault());
         jTable1.setPreferredScrollableViewportSize(new java.awt.Dimension(500, 400));
-        selMonth.addPropertyChangeListener("value", this);
-        DateTime pomCal = new DateTime().withTime(0, 0, 0, 0);
-        selMonth.setValue(pomCal);
         RecordEditorTopComponent.getDefault().addDataChangeListener(this);
         firePatientChanged();
     }
@@ -191,17 +187,14 @@ public final class CalendarTopComponent extends TopComponent implements Property
             }
 
         };
-        backward = new javax.swing.JButton();
-        forward = new javax.swing.JButton();
-        yearForward = new javax.swing.JButton();
-        yearBackward = new javax.swing.JButton();
-        selMonth = new JFormattedTextField(monthFormat);
+        jToolBar1 = new javax.swing.JToolBar();
+        monthYearPanel1 = new org.diabetesdiary.commons.swing.calendar.MonthYearPanel();
         insulinVisible = new javax.swing.JCheckBox();
         investVisible = new javax.swing.JCheckBox();
-        foodVisible = new javax.swing.JCheckBox();
-        sumVisible = new javax.swing.JCheckBox();
         otherVisible = new javax.swing.JCheckBox();
+        foodVisible = new javax.swing.JCheckBox();
         activityVisible = new javax.swing.JCheckBox();
+        sumVisible = new javax.swing.JCheckBox();
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(500, 400));
 
@@ -209,135 +202,130 @@ public final class CalendarTopComponent extends TopComponent implements Property
         jTable1.setMinimumSize(new java.awt.Dimension(500, 0));
         jScrollPane1.setViewportView(jTable1);
 
-        org.openide.awt.Mnemonics.setLocalizedText(backward, "<");
-        backward.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                backwardActionPerformed(evt);
-            }
-        });
+        jToolBar1.setFloatable(false);
+        jToolBar1.setRollover(true);
+        jToolBar1.setBorderPainted(false);
+        jToolBar1.setMaximumSize(new java.awt.Dimension(33132, 50));
+        jToolBar1.setMinimumSize(new java.awt.Dimension(486, 45));
+        jToolBar1.setPreferredSize(new java.awt.Dimension(100, 45));
 
-        org.openide.awt.Mnemonics.setLocalizedText(forward, ">");
-        forward.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                forwardActionPerformed(evt);
+        monthYearPanel1.setMaximumSize(new java.awt.Dimension(300, 20));
+        monthYearPanel1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                monthYearPanel1PropertyChange(evt);
             }
         });
-
-        org.openide.awt.Mnemonics.setLocalizedText(yearForward, ">>");
-        yearForward.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                yearForwardActionPerformed(evt);
-            }
-        });
-
-        org.openide.awt.Mnemonics.setLocalizedText(yearBackward, "<<");
-        yearBackward.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                yearBackwardActionPerformed(evt);
-            }
-        });
+        jToolBar1.add(monthYearPanel1);
 
         insulinVisible.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(insulinVisible, NbBundle.getMessage(CalendarTopComponent.class,"insulin")); // NOI18N
         insulinVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        insulinVisible.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        insulinVisible.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        insulinVisible.setMaximumSize(new java.awt.Dimension(70, 45));
+        insulinVisible.setMinimumSize(new java.awt.Dimension(50, 45));
+        insulinVisible.setPreferredSize(new java.awt.Dimension(50, 45));
+        insulinVisible.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         insulinVisible.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 insulinVisibleActionPerformed(evt);
             }
         });
+        jToolBar1.add(insulinVisible);
 
         investVisible.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(investVisible, NbBundle.getMessage(CalendarTopComponent.class,"glycemia")); // NOI18N
         investVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        investVisible.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        investVisible.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        investVisible.setMaximumSize(new java.awt.Dimension(70, 45));
+        investVisible.setMinimumSize(new java.awt.Dimension(50, 45));
+        investVisible.setPreferredSize(new java.awt.Dimension(50, 45));
+        investVisible.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         investVisible.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 investVisibleActionPerformed(evt);
             }
         });
-
-        foodVisible.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(foodVisible, NbBundle.getMessage(CalendarTopComponent.class,"food")); // NOI18N
-        foodVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        foodVisible.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                foodViewActionPerformed(evt);
-            }
-        });
-
-        sumVisible.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(sumVisible, NbBundle.getMessage(CalendarTopComponent.class,"sum")); // NOI18N
-        sumVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        sumVisible.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sumVisibleActionPerformed(evt);
-            }
-        });
+        jToolBar1.add(investVisible);
 
         otherVisible.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(otherVisible, NbBundle.getMessage(CalendarTopComponent.class,"otherInvest")); // NOI18N
         otherVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        otherVisible.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        otherVisible.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        otherVisible.setMaximumSize(new java.awt.Dimension(70, 45));
+        otherVisible.setMinimumSize(new java.awt.Dimension(50, 45));
+        otherVisible.setPreferredSize(new java.awt.Dimension(50, 45));
+        otherVisible.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         otherVisible.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 otherVisibleActionPerformed(evt);
             }
         });
+        jToolBar1.add(otherVisible);
+
+        foodVisible.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(foodVisible, NbBundle.getMessage(CalendarTopComponent.class,"food")); // NOI18N
+        foodVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        foodVisible.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        foodVisible.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        foodVisible.setMaximumSize(new java.awt.Dimension(70, 45));
+        foodVisible.setMinimumSize(new java.awt.Dimension(50, 45));
+        foodVisible.setPreferredSize(new java.awt.Dimension(50, 45));
+        foodVisible.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        foodVisible.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                foodViewActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(foodVisible);
 
         activityVisible.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(activityVisible, NbBundle.getMessage(CalendarTopComponent.class,"activity")); // NOI18N
         activityVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        activityVisible.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        activityVisible.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        activityVisible.setMaximumSize(new java.awt.Dimension(70, 45));
+        activityVisible.setMinimumSize(new java.awt.Dimension(50, 45));
+        activityVisible.setPreferredSize(new java.awt.Dimension(50, 45));
+        activityVisible.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         activityVisible.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 activityVisibleActionPerformed(evt);
             }
         });
+        jToolBar1.add(activityVisible);
+
+        sumVisible.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(sumVisible, NbBundle.getMessage(CalendarTopComponent.class,"sum")); // NOI18N
+        sumVisible.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        sumVisible.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sumVisible.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        sumVisible.setMaximumSize(new java.awt.Dimension(70, 45));
+        sumVisible.setMinimumSize(new java.awt.Dimension(50, 45));
+        sumVisible.setPreferredSize(new java.awt.Dimension(50, 45));
+        sumVisible.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        sumVisible.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sumVisibleActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(sumVisible);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(yearBackward)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(backward)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(selMonth, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 97, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(forward, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(yearForward)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(insulinVisible)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(investVisible)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(otherVisible)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(foodVisible)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(activityVisible)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(sumVisible)
-                .add(155, 155, 155))
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 906, Short.MAX_VALUE)
+            .add(jToolBar1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 962, Short.MAX_VALUE)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 962, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(yearBackward)
-                    .add(backward)
-                    .add(forward)
-                    .add(yearForward)
-                    .add(selMonth, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(insulinVisible)
-                    .add(investVisible)
-                    .add(foodVisible)
-                    .add(sumVisible)
-                    .add(otherVisible)
-                    .add(activityVisible))
+                .add(jToolBar1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE))
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -353,26 +341,6 @@ public final class CalendarTopComponent extends TopComponent implements Property
         model.setGlykemieVisible(investVisible.isSelected());
     }//GEN-LAST:event_investVisibleActionPerformed
 
-    private void yearBackwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yearBackwardActionPerformed
-        model.yearBackward();
-        selMonth.setValue(model.getMonth());
-    }//GEN-LAST:event_yearBackwardActionPerformed
-
-    private void yearForwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yearForwardActionPerformed
-        model.yearForward();
-        selMonth.setValue(model.getMonth());
-    }//GEN-LAST:event_yearForwardActionPerformed
-
-    private void forwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forwardActionPerformed
-        model.monthForward();
-        selMonth.setValue(model.getMonth());
-    }//GEN-LAST:event_forwardActionPerformed
-
-    private void backwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backwardActionPerformed
-        model.monthBackward();
-        selMonth.setValue(model.getMonth());
-    }//GEN-LAST:event_backwardActionPerformed
-
 private void otherVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherVisibleActionPerformed
     model.setOtherVisible(otherVisible.isSelected());
 }//GEN-LAST:event_otherVisibleActionPerformed
@@ -384,20 +352,24 @@ private void activityVisibleActionPerformed(java.awt.event.ActionEvent evt) {//G
 private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foodViewActionPerformed
     model.setFoodVisible(foodVisible.isSelected());
 }//GEN-LAST:event_foodViewActionPerformed
+
+private void monthYearPanel1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_monthYearPanel1PropertyChange
+    if (evt.getPropertyName().equals("localDate")) {
+        model.setDate(((LocalDate)evt.getNewValue()).toDateTimeAtCurrentTime());
+    }
+}//GEN-LAST:event_monthYearPanel1PropertyChange
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox activityVisible;
-    private javax.swing.JButton backward;
     private javax.swing.JCheckBox foodVisible;
-    private javax.swing.JButton forward;
     private javax.swing.JCheckBox insulinVisible;
     private javax.swing.JCheckBox investVisible;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JToolBar jToolBar1;
+    private org.diabetesdiary.commons.swing.calendar.MonthYearPanel monthYearPanel1;
     private javax.swing.JCheckBox otherVisible;
-    private javax.swing.JFormattedTextField selMonth;
     private javax.swing.JCheckBox sumVisible;
-    private javax.swing.JButton yearBackward;
-    private javax.swing.JButton yearForward;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -501,12 +473,7 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             jTable1.setModel(new DefaultTableModel());
         }
 
-        selMonth.setEnabled(pat != null);
-        backward.setEnabled(pat != null);
-        forward.setEnabled(pat != null);
-        yearForward.setEnabled(pat != null);
-        yearBackward.setEnabled(pat != null);
-
+        monthYearPanel1.setEnabled(pat != null);
         activityVisible.setEnabled(pat != null);
         foodVisible.setEnabled(pat != null);
         insulinVisible.setEnabled(pat != null);
@@ -518,14 +485,6 @@ private void foodViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     public DateTime getDateTime() {
         return model != null ? model.getMonth() : null;
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        Object source = evt.getSource();
-        if (source == selMonth && model != null) {
-            model.setDate((DateTime) selMonth.getValue());
-        }
     }
 
 }

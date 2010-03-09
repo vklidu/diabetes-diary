@@ -123,22 +123,6 @@ public class DiaryTableModel extends AbstractTableModelWithSubmodels implements 
         }
     }
 
-    public void monthForward() {
-        setDate(dateTime.plusMonths(1));
-    }
-
-    public void monthBackward() {
-        setDate(dateTime.minusMonths(1));
-    }
-
-    public void yearForward() {
-        setDate(dateTime.plusYears(1));
-    }
-
-    public void yearBackward() {
-        setDate(dateTime.minusYears(1));
-    }
-
     public DateTime getMonth() {
         return dateTime;
     }
