@@ -52,7 +52,7 @@ public class InvestTable extends AbstractPdfSubTable {
 
     @Override
     public float getWidth(int column) {
-        return 0.5f;
+        return 1f;
     }
 
     @Override

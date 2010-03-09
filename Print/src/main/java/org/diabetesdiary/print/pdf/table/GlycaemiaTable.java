@@ -59,7 +59,7 @@ public class GlycaemiaTable extends AbstractPdfSubTable {
 
     @Override
     public float getWidth(int column) {
-        return 1.2f;
+        return 3.5f;
     }
 
     @Override

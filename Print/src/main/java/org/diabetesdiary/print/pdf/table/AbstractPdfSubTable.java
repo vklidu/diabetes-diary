@@ -68,6 +68,11 @@ public abstract class AbstractPdfSubTable {
     protected void loadData() {
     }
 
+    /**
+     * Width of column in number of characters
+     * @param column
+     * @return
+     */
     public float getWidth(int column) {
         return 1;
     }
