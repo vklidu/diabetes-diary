@@ -63,12 +63,12 @@ public class InsulinTable extends AbstractPdfSubTable {
     @Override
     public float getWidth(int column) {
         if (isPump() && column == 4) {
-            return 2.7f;
+            return 7f;
         }
         if ((isPump() && column == 3) || (!isPump() && column == 5)) {
-            return 1.3f;
+            return 5f;
         }
-        return 0.7f;
+        return 2.5f;
     }
 
     @Override
@@ -99,11 +99,10 @@ public class InsulinTable extends AbstractPdfSubTable {
             boolean first = true;
             for (RecordInsulin rec : recs) {
                 if (!first) {
-                    Chunk chunk = new Chunk(" ");
+                    Chunk chunk = new Chunk("\n");
                     chunk.setFont(font);
-                    phrase.add(chunk);
-                    first = false;
-                }
+                    phrase.add(chunk);                    
+                }                
                 Chunk chunk = new Chunk(format.format(rec.getAmount()));
                 chunk.setFont(font);
                 phrase.add(chunk);
@@ -111,6 +110,7 @@ public class InsulinTable extends AbstractPdfSubTable {
                 chunk = new Chunk(DateTimeFormat.forPattern("H:mm").print(rec.getDatetime()));
                 chunk.setTextRise(5).setFont(pomfont);
                 phrase.add(chunk);
+                first = false;
             }
             return phrase;
         }
@@ -181,7 +181,7 @@ public class InsulinTable extends AbstractPdfSubTable {
                 result.append(timeFormat.print(queue.peek().getDatetime()));
                 result.append("-");
                 result.append(timeFormat.print(lastRec.getDatetime().plusHours(1)));
-                result.append(" ").append(queue.peek().getAmount()).append("U\n");
+                result.append(" ").append(queue.peek().getAmount()).append("\n");
                 queue.poll();
                 queue.add(rec);
             }
@@ -191,7 +191,7 @@ public class InsulinTable extends AbstractPdfSubTable {
             result.append(timeFormat.print(queue.peek().getDatetime()));
             result.append("-");
             result.append(timeFormat.print(lastRec.getDatetime().plusHours(1)));
-            result.append(" ").append(queue.peek().getAmount()).append("U\n");
+            result.append(" ").append(queue.peek().getAmount()).append("\n");
 
         }
         return result.length() > 0 ? result.substring(0, result.length() - 1) : "";

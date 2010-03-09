@@ -53,6 +53,11 @@ public class FoodTable extends AbstractPdfSubTable {
     }
 
     @Override
+    public float getWidth(int column) {
+        return 2.5f;
+    }
+
+    @Override
     public HeaderBuilder getHeader() {
         FoodUnit unit = diary.getSacharidUnit(CalendarSettings.getSettings().getValue(CalendarSettings.KEY_CARBOHYDRATE_UNIT));
         return (HeaderBuilder) GeneratorHelper.headerBuilder(String.format(NbBundle.getMessage(FoodTable.class, "JÍDLO (~%.0F G SACH.)"), unit.getKoef()))

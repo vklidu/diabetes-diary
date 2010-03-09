@@ -44,7 +44,7 @@ public class DateTable extends AbstractPdfSubTable {
 
     @Override
     public float getWidth(int column) {
-        return 1.8f;
+        return 7f;
     }
 
     @Override
