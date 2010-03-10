@@ -84,7 +84,7 @@ public abstract class AbstractPdfSubTable {
     }
 
     public final PdfPCell getData(boolean blackWhite, Font font, int column, LocalDate date) {
-        if (dirty) {
+        if (dirty && patient != null) {
             loadData();
             dirty = false;
         }
@@ -94,12 +94,12 @@ public abstract class AbstractPdfSubTable {
         cell.setBackgroundColor(getBackGroundColor(date, column, blackWhite));
         cell.setBorder(Rectangle.BOX);
         cell.setBorderWidth(1);
-        cell.setPhrase(patient == null ? new Phrase() : getPhrase(font, column, date));
+        cell.setPhrase(getPhrase(font, column, date));
         return cell;
     }
 
     protected Phrase getPhrase(Font font, int column, LocalDate date) {
-        return new Phrase(getValue(date, column), font);
+        return patient == null ? new Phrase() : new Phrase(getValue(date, column), font);
     }
 
     protected abstract String getValue(LocalDate date, int col);

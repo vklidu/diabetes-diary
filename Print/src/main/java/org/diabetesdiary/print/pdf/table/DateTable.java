@@ -18,6 +18,8 @@
 package org.diabetesdiary.print.pdf.table;
 
 import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Phrase;
 import org.diabetesdiary.diary.domain.Patient;
 import org.diabetesdiary.print.pdf.GeneratorHelper;
 import org.diabetesdiary.print.pdf.GeneratorHelper.HeaderBuilder;
@@ -50,6 +52,11 @@ public class DateTable extends AbstractPdfSubTable {
     @Override
     protected String getValue(LocalDate date, int col) {
         return date.toString(DateTimeFormat.shortDate());
+    }
+
+    @Override
+    protected Phrase getPhrase(Font font, int column, LocalDate date) {
+        return new Phrase(getValue(date, column), font);
     }
 
     @Override

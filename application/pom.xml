@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.netbeans.cluster</groupId>
-            <artifactId>platform11</artifactId>
+            <artifactId>${platform.name}</artifactId>
             <version>${netbeans.version}</version>
             <type>pom</type>
         </dependency>
@@ -85,6 +85,24 @@
                             <resources>
                                 <resource>
                                     <directory>${platform.basedir}/modules/locale</directory>
+                                    <includes>
+                                        <include>**/*_cs.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources2</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/diabetesdiary/${platform.name}/core/locale</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${platform.basedir}/core/locale</directory>
                                     <includes>
                                         <include>**/*_cs.jar</include>
                                     </includes>

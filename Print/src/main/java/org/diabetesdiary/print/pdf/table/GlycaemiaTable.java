@@ -96,6 +96,9 @@ public class GlycaemiaTable extends AbstractPdfSubTable {
     }
 
     private List<Double> getGlycemies(LocalDate date, final int column) {
+        if (data == null) {
+            return null;
+        }
         List<RecordInvest> list = data.get(new Tuple2<LocalDate, Integer>(date, column));
         return list == null ? null : Lists.transform(list, new Function<RecordInvest, Double>() {
             @Override

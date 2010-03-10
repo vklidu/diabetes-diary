@@ -86,6 +86,9 @@ public class InsulinTable extends AbstractPdfSubTable {
 
     @Override
     protected Phrase getPhrase(Font font, int column, LocalDate date) {
+        if (patient == null) {
+            return new Phrase();
+        }
         List<RecordInsulin> recs = data.get(Tuples.of(date, column));
         if (recs == null || recs.isEmpty()) {
             return new Phrase();
