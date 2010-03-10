@@ -17,8 +17,6 @@
  */
 package org.diabetesdiary.print.pdf.table;
 
-import java.text.Format;
-import java.text.NumberFormat;
 import java.util.List;
 import org.diabetesdiary.calendar.option.CalendarSettings;
 import org.diabetesdiary.diary.domain.FoodUnit;

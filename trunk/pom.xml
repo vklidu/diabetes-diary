@@ -150,5 +150,6 @@
         <diary.version>2.0</diary.version>
         <spring.version>3.0.0.RELEASE</spring.version>
         <aspectj.version>1.6.7</aspectj.version>
+        <platform.name>platform11</platform.name>
     </properties>
 </project>
