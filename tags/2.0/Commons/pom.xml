@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>org.diabetesdiary</groupId>
+        <artifactId>diabetesdiary</artifactId>
+        <version>${diary.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>commons</artifactId>
+    <packaging>nbm</packaging>
+    <version>${diary.version}</version>
+    <name>diabetesdiary - common utils and libs</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.collections</groupId>
+            <artifactId>google-collections</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>org.joda.time</publicPackage>
+                        <publicPackage>org.joda.time.base</publicPackage>
+                        <publicPackage>org.joda.time.format</publicPackage>
+                        <publicPackage>org.joda.time.format</publicPackage>
+                        <publicPackage>org.diabetesdiary.commons.swing.calendar</publicPackage>
+                        <publicPackage>org.diabetesdiary.commons.utils</publicPackage>
+                        <publicPackage>org.diabetesdiary.commons.utils.tuples</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <!-- to have the jar plugin pickup the nbm generated manifest -->
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

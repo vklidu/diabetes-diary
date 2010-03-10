@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Name: Domain
+OpenIDE-Module-Short-Description: Domain model
+OpenIDE-Module: org.diabetesdiary.diary
+OpenIDE-Module-Layer: org/diabetesdiary/diary/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/diabetesdiary/diary/Bundle.properties
+OpenIDE-Module-Install: org/diabetesdiary/diary/MyModuleInstall.class

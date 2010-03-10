@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.diabetesdiary.simulator
+OpenIDE-Module-Layer: org/diabetesdiary/simulator/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/diabetesdiary/simulator/Bundle.properties
