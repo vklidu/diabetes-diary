@@ -27,9 +27,9 @@
             <version>1.6</version>
         </dependency>
         <dependency>
-            <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>
-            <version>1.0</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>r07</version>
         </dependency>
     </dependencies>
     <build>
@@ -42,7 +42,7 @@
                         <publicPackage>org.joda.time</publicPackage>
                         <publicPackage>org.joda.time.base</publicPackage>
                         <publicPackage>org.joda.time.format</publicPackage>
-                        <publicPackage>org.joda.time.format</publicPackage>
+                        <publicPackage>org.joda.time.chrono</publicPackage>
                         <publicPackage>org.diabetesdiary.commons.swing.calendar</publicPackage>
                         <publicPackage>org.diabetesdiary.commons.utils</publicPackage>
                         <publicPackage>org.diabetesdiary.commons.utils.tuples</publicPackage>

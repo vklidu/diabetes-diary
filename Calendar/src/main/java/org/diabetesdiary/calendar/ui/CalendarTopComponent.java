@@ -165,7 +165,6 @@ public final class CalendarTopComponent extends TopComponent implements DataChan
         rowSM.addListSelectionListener(ChartTopComponent.getDefault());
         jTable1.setPreferredScrollableViewportSize(new java.awt.Dimension(500, 400));
         RecordEditorTopComponent.getDefault().addDataChangeListener(this);
-        firePatientChanged();
     }
 
     /** This method is called from within the constructor to
@@ -448,6 +447,7 @@ private void monthYearPanel1PropertyChange(java.beans.PropertyChangeEvent evt) {
             ret.foodVisible.setSelected(foodVisible);
             ret.activityVisible.setSelected(actVisible);
             ret.sumVisible.setSelected(sumVisible);
+            ret.firePatientChanged();
             return ret;
         }
     }

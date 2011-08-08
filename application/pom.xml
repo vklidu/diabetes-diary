@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.netbeans.cluster</groupId>
-            <artifactId>${platform.name}</artifactId>
+            <artifactId>platform</artifactId>
             <version>${netbeans.version}</version>
             <type>pom</type>
         </dependency>
@@ -99,7 +99,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/diabetesdiary/${platform.name}/core/locale</outputDirectory>
+                            <outputDirectory>${basedir}/target/diabetesdiary/platform/core/locale</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${platform.basedir}/core/locale</directory>

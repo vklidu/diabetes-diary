@@ -40,7 +40,7 @@ import org.joda.time.DateTime;
 )
 public class RecordInsulinDO extends AbstractDO {
 
-    @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @Column(nullable = false)
     private DateTime datetime;
 
