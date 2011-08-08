@@ -43,7 +43,7 @@ public class RecordFoodDO extends AbstractDO {
     @ManyToOne(fetch=FetchType.LAZY, optional=false)
     private PatientDO patient;
     
-    @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @Column(nullable = false)
     private DateTime datetime;
 

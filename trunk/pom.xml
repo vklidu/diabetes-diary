@@ -145,11 +145,10 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.version>RELEASE68</netbeans.version>
+        <netbeans.version>RELEASE691</netbeans.version>
         <brandingToken>diabetesdiary</brandingToken>
         <diary.version>2.0</diary.version>
-        <spring.version>3.0.0.RELEASE</spring.version>
-        <aspectj.version>1.6.7</aspectj.version>
-        <platform.name>platform11</platform.name>
+        <spring.version>3.0.5.RELEASE</spring.version>
+        <aspectj.version>1.6.8</aspectj.version>
     </properties>
 </project>

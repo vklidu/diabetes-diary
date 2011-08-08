@@ -43,11 +43,11 @@ public class PatientDO extends AbstractDO {
     @Column(nullable=false)
     private boolean male;
 
-    @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDate")
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDate")
     @Column(nullable=false)
     private LocalDate born;
 
-    @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDate")
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDate")
     @Column
     private LocalDate sufferFrom;
 

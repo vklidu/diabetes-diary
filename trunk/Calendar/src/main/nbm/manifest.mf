@@ -3,3 +3,4 @@ OpenIDE-Module: org.diabetesdiary.calendar
 OpenIDE-Module-Layer: org/diabetesdiary/calendar/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/diabetesdiary/calendar/Bundle.properties
 OpenIDE-Module-Install: org/diabetesdiary/calendar/MyModuleInstall.class
+OpenIDE-Module-Specification-Version: 2.0.1
